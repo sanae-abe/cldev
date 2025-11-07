@@ -85,6 +85,15 @@ fn test_config_partial_override() -> Result<()> {
 
     fs::write(&config_path, partial_toml)?;
 
+    // Set proper permissions (600) for security check
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        let mut perms = fs::metadata(&config_path)?.permissions();
+        perms.set_mode(0o600);
+        fs::set_permissions(&config_path, perms)?;
+    }
+
     // Load config
     let config = Config::load(Some(config_path))?;
 

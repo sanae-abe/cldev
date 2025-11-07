@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 /// Linting command implementation
 ///
 /// Automatically detects project type and runs the appropriate linter
@@ -17,13 +19,15 @@ use std::process::Command;
 /// # Returns
 /// Result indicating success or error
 pub fn run_lint(paths: &[String], fix: bool, output: &OutputHandler) -> Result<()> {
-    output.info("🔍 Detecting project type...");
+    output.info(&output.t("quality-lint-detecting"));
 
     // Detect project type
     let detector = ProjectDetector::new(None)?;
     let project_type = detector.project_type();
 
-    output.success(&format!("✅ Detected {} project", project_type.name()));
+    let mut vars = std::collections::HashMap::new();
+    vars.insert("type", project_type.name());
+    output.success(&output.t_with_vars("quality-lint-detected", &vars));
 
     // Get lint command based on project type
     let all = paths.is_empty();
@@ -31,13 +35,15 @@ pub fn run_lint(paths: &[String], fix: bool, output: &OutputHandler) -> Result<(
 
     if command_parts.is_empty() {
         return Err(crate::core::error::CldevError::Config(
-            "No lint command generated".to_string(),
+            output.t("quality-lint-no-command"),
         ));
     }
 
     // Build command info message
     let cmd_str = command_parts.join(" ");
-    output.info(&format!("🔧 Running: {}", cmd_str));
+    let mut vars = std::collections::HashMap::new();
+    vars.insert("command", cmd_str.as_str());
+    output.info(&output.t_with_vars("quality-lint-running", &vars));
 
     // Execute lint command
     let mut cmd = Command::new(&command_parts[0]);
@@ -66,15 +72,17 @@ pub fn run_lint(paths: &[String], fix: bool, output: &OutputHandler) -> Result<(
     })?;
 
     if status.success() {
-        output.success("✅ Linting completed successfully");
+        output.success(&output.t("quality-lint-success"));
         Ok(())
     } else {
         let exit_code = status.code().unwrap_or(-1);
-        output.error(&format!("❌ Linting failed with exit code: {}", exit_code));
-        Err(crate::core::error::CldevError::Config(format!(
-            "Linting failed with exit code: {}",
-            exit_code
-        )))
+        let exit_code_str = exit_code.to_string();
+        let mut vars = std::collections::HashMap::new();
+        vars.insert("code", exit_code_str.as_str());
+        output.error(&output.t_with_vars("quality-lint-failed", &vars));
+        Err(crate::core::error::CldevError::Config(
+            output.t_with_vars("quality-lint-failed", &vars),
+        ))
     }
 }
 
@@ -94,38 +102,36 @@ pub fn run_lint_advanced(
     project_path: Option<&Path>,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info("🔍 Detecting project type...");
+    output.info(&output.t("quality-lint-detecting"));
 
     // Detect project type
     let detector = ProjectDetector::new(project_path)?;
     let project_type = detector.project_type();
 
-    output.success(&format!("✅ Detected {} project", project_type.name()));
+    let mut vars = std::collections::HashMap::new();
+    vars.insert("type", project_type.name());
+    output.success(&output.t_with_vars("quality-lint-detected", &vars));
 
     // Show project-specific tips
     match project_type {
         crate::core::project_detector::ProjectType::NodeJs => {
             if fix {
-                output.info("💡 Tip: Auto-fix enabled. ESLint will fix issues automatically.");
+                output.info(&output.t("quality-lint-tip-nodejs-fix"));
             } else {
-                output.info("💡 Tip: Use --fix flag to automatically fix issues.");
+                output.info(&output.t("quality-lint-tip-nodejs-no-fix"));
             }
         }
         crate::core::project_detector::ProjectType::Rust => {
-            output.info("💡 Tip: Clippy is running with deny warnings.");
+            output.info(&output.t("quality-lint-tip-rust"));
             if !paths.is_empty() {
-                output
-                    .warning("⚠️  Specific paths ignored for Rust projects. Checking all targets.");
+                output.warning(&output.t("quality-lint-warn-rust-paths"));
             }
         }
         crate::core::project_detector::ProjectType::Go => {
-            output.info(
-                "💡 Tip: Using 'go vet' for linting. Consider 'golangci-lint' for more checks.",
-            );
+            output.info(&output.t("quality-lint-tip-go"));
         }
         crate::core::project_detector::ProjectType::Python => {
-            output
-                .info("💡 Tip: Using Ruff/Pylint/Flake8. Configure in pyproject.toml or .flake8.");
+            output.info(&output.t("quality-lint-tip-python"));
         }
         crate::core::project_detector::ProjectType::Ruby
         | crate::core::project_detector::ProjectType::Java
@@ -148,13 +154,15 @@ pub fn run_lint_advanced(
 
     if command_parts.is_empty() {
         return Err(crate::core::error::CldevError::Config(
-            "No lint command generated".to_string(),
+            output.t("quality-lint-no-command"),
         ));
     }
 
     // Build command info message
     let cmd_str = command_parts.join(" ");
-    output.info(&format!("🔧 Running: {}", cmd_str));
+    let mut vars = std::collections::HashMap::new();
+    vars.insert("command", cmd_str.as_str());
+    output.info(&output.t_with_vars("quality-lint-running", &vars));
 
     // Execute lint command
     let mut cmd = Command::new(&command_parts[0]);
@@ -195,37 +203,37 @@ pub fn run_lint_advanced(
     }
 
     if output_result.status.success() {
-        output.success("✅ Linting completed successfully");
+        output.success(&output.t("quality-lint-success"));
         Ok(())
     } else {
         let exit_code = output_result.status.code().unwrap_or(-1);
-        output.error(&format!("❌ Linting failed with exit code: {}", exit_code));
+        let exit_code_str = exit_code.to_string();
+        let mut vars = std::collections::HashMap::new();
+        vars.insert("code", exit_code_str.as_str());
+        output.error(&output.t_with_vars("quality-lint-failed", &vars));
 
         // Provide helpful error messages
+        output.info(&output.t("quality-lint-common-fixes"));
         match project_type {
             crate::core::project_detector::ProjectType::NodeJs => {
-                output.info("💡 Common fixes:");
-                output.list_item("Run 'npm install' to ensure dependencies are installed");
-                output.list_item("Check .eslintrc.* configuration files");
+                output.list_item(&output.t("quality-lint-fix-nodejs-install"));
+                output.list_item(&output.t("quality-lint-fix-nodejs-config"));
                 if !fix {
-                    output.list_item("Use --fix to automatically fix some issues");
+                    output.list_item(&output.t("quality-lint-fix-nodejs-use-fix"));
                 }
             }
             crate::core::project_detector::ProjectType::Rust => {
-                output.info("💡 Common fixes:");
-                output.list_item("Review Clippy suggestions above");
-                output.list_item("Run 'cargo fix' to auto-fix some issues");
-                output.list_item("Check clippy.toml for rule configurations");
+                output.list_item(&output.t("quality-lint-fix-rust-review"));
+                output.list_item(&output.t("quality-lint-fix-rust-cargo-fix"));
+                output.list_item(&output.t("quality-lint-fix-rust-config"));
             }
             crate::core::project_detector::ProjectType::Go => {
-                output.info("💡 Common fixes:");
-                output.list_item("Review 'go vet' output above");
-                output.list_item("Run 'go fmt' to fix formatting issues");
+                output.list_item(&output.t("quality-lint-fix-go-review"));
+                output.list_item(&output.t("quality-lint-fix-go-fmt"));
             }
             crate::core::project_detector::ProjectType::Python => {
-                output.info("💡 Common fixes:");
-                output.list_item("Review linter output above");
-                output.list_item("Check pyproject.toml or .flake8 configuration");
+                output.list_item(&output.t("quality-lint-fix-python-review"));
+                output.list_item(&output.t("quality-lint-fix-python-config"));
             }
             crate::core::project_detector::ProjectType::Ruby
             | crate::core::project_detector::ProjectType::Java
@@ -235,17 +243,15 @@ pub fn run_lint_advanced(
             | crate::core::project_detector::ProjectType::Kotlin
             | crate::core::project_detector::ProjectType::Swift
             | crate::core::project_detector::ProjectType::Scala => {
-                output.info("💡 Common fixes:");
-                output.list_item("Review linter output above");
-                output.list_item("Check your linter configuration files");
+                output.list_item(&output.t("quality-lint-fix-generic-review"));
+                output.list_item(&output.t("quality-lint-fix-generic-config"));
             }
             crate::core::project_detector::ProjectType::Unknown => {}
         }
 
-        Err(crate::core::error::CldevError::Config(format!(
-            "Linting failed with exit code: {}",
-            exit_code
-        )))
+        Err(crate::core::error::CldevError::Config(
+            output.t_with_vars("quality-lint-failed", &vars),
+        ))
     }
 }
 

@@ -1,5 +1,6 @@
-use crate::core::session_recorder::{LearningSession, LearningSessionBuilder};
-use crate::core::{CldevError, Result};
+use crate::cli::output::OutputHandler;
+use crate::core::session_recorder::LearningSessionBuilder;
+use crate::core::Result;
 use colored::*;
 use dialoguer::{Confirm, Input, MultiSelect, Select};
 use std::time::Instant;
@@ -8,11 +9,11 @@ use std::time::Instant;
 ///
 /// This command provides a comprehensive debugging framework for identifying
 /// root causes of issues through methodical investigation.
-pub fn handle_debug(symptom: Option<String>) -> Result<()> {
+pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<()> {
     let start_time = Instant::now();
 
-    println!("{}", "🐛 DEBUG: Systematic Investigation".blue().bold());
-    println!("{}", "━".repeat(60).blue());
+    println!("{}", output.t("debug-header").blue().bold());
+    println!("{}", output.t("debug-separator").blue());
     println!();
 
     // Step 1: Symptom Description
@@ -20,7 +21,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
         s
     } else {
         Input::<String>::new()
-            .with_prompt("📝 Describe the symptom/issue")
+            .with_prompt(&output.t("debug-describe-symptom"))
             .interact_text()?
     };
 
@@ -39,7 +40,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
     ];
 
     let issue_idx = Select::new()
-        .with_prompt("🏷️  Issue Type")
+        .with_prompt(&output.t("debug-issue-type"))
         .items(&issue_types)
         .interact()?;
 
@@ -48,7 +49,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
     println!();
 
     // Step 3: Environment Information
-    println!("{}", "🌍 ENVIRONMENT".cyan().bold());
+    println!("{}", output.t("debug-environment").cyan().bold());
     println!();
 
     let environments = vec![
@@ -59,7 +60,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
     ];
 
     let env_idx = Select::new()
-        .with_prompt("Where does this occur?")
+        .with_prompt(&output.t("debug-where-occur"))
         .items(&environments)
         .interact()?;
 
@@ -75,14 +76,14 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
     ];
 
     let onset_idx = Select::new()
-        .with_prompt("When did this start?")
+        .with_prompt(&output.t("debug-when-start"))
         .items(&onset_options)
         .interact()?;
 
     let onset = onset_options[onset_idx];
 
     println!();
-    println!("{}", "🔍 SYSTEMATIC DEBUGGING CHECKLIST".cyan().bold());
+    println!("{}", output.t("debug-systematic-checklist").cyan().bold());
     println!();
 
     // Step 5: Investigation Framework
@@ -132,17 +133,17 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
     println!();
 
     // Step 6: Log Analysis
-    println!("{}", "📊 LOG ANALYSIS".cyan().bold());
+    println!("{}", output.t("debug-log-analysis").cyan().bold());
     println!();
 
     let has_logs = Confirm::new()
-        .with_prompt("Do you have access to relevant logs?")
+        .with_prompt(&output.t("debug-have-logs"))
         .default(true)
         .interact()?;
 
     let log_info = if has_logs {
         println!();
-        println!("Log analysis tips:");
+        println!("{}", output.t("debug-log-tips"));
         println!("  • Filter by timestamp (narrow down to incident time)");
         println!("  • Search for ERROR, WARN keywords");
         println!("  • Look for stack traces");
@@ -151,7 +152,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
         println!();
 
         let log_findings = Input::<String>::new()
-            .with_prompt("Key findings from logs (or 'none')")
+            .with_prompt(&output.t("debug-log-findings"))
             .allow_empty(true)
             .interact_text()?;
 
@@ -161,18 +162,18 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
     };
 
     println!();
-    println!("{}", "🧪 REPRODUCTION".cyan().bold());
+    println!("{}", output.t("debug-reproduction").cyan().bold());
     println!();
 
     // Step 7: Reproduction Steps
     let can_reproduce = Confirm::new()
-        .with_prompt("Can you reproduce the issue?")
+        .with_prompt(&output.t("debug-can-reproduce"))
         .default(false)
         .interact()?;
 
     let reproduction_steps = if can_reproduce {
         println!();
-        println!("Enter reproduction steps (press Enter twice when done):");
+        println!("{}", output.t("debug-enter-repro-steps"));
         println!();
 
         let mut steps = Vec::new();
@@ -180,7 +181,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
 
         loop {
             let step = Input::<String>::new()
-                .with_prompt(&format!("Step {}", step_num))
+                .with_prompt(&output.t_format("debug-step-num", "num", &step_num.to_string()))
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -195,7 +196,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
         Some(steps)
     } else {
         println!();
-        println!("Tips for making it reproducible:");
+        println!("{}", output.t("debug-repro-tips"));
         println!("  • Simplify the scenario");
         println!("  • Isolate variables");
         println!("  • Create minimal test case");
@@ -204,7 +205,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
     };
 
     println!();
-    println!("{}", "🔬 DEBUGGING TECHNIQUES".green().bold());
+    println!("{}", output.t("debug-debugging-techniques").green().bold());
     println!();
 
     // Step 8: Select Debugging Techniques
@@ -222,7 +223,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
     ];
 
     let selected_techniques = MultiSelect::new()
-        .with_prompt("Select debugging techniques to try")
+        .with_prompt(&output.t("debug-select-techniques"))
         .items(&techniques)
         .interact()?;
 
@@ -232,7 +233,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
         .collect();
 
     println!();
-    println!("{}", "🛠️  DEBUGGING COMMANDS".green().bold());
+    println!("{}", output.t("debug-debugging-commands").green().bold());
     println!();
 
     // Step 9: Provide debugging commands based on issue type
@@ -282,12 +283,12 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
         }
     }
 
-    println!("{}", "🎯 HYPOTHESIS & FINDINGS".cyan().bold());
+    println!("{}", output.t("debug-hypothesis-findings").cyan().bold());
     println!();
 
     // Step 10: Hypothesis
     let hypothesis = Input::<String>::new()
-        .with_prompt("Current hypothesis (what you think is causing this)")
+        .with_prompt(&output.t("debug-hypothesis-prompt"))
         .allow_empty(true)
         .interact_text()?;
 
@@ -295,7 +296,7 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
 
     // Step 11: Evidence
     let evidence = Input::<String>::new()
-        .with_prompt("Evidence/observations supporting this hypothesis")
+        .with_prompt(&output.t("debug-evidence-prompt"))
         .allow_empty(true)
         .interact_text()?;
 
@@ -303,14 +304,14 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
 
     // Step 12: Root Cause (if found)
     let root_cause_found = Confirm::new()
-        .with_prompt("Have you identified the root cause?")
+        .with_prompt(&output.t("debug-root-cause-found"))
         .default(false)
         .interact()?;
 
     let root_cause = if root_cause_found {
         Some(
             Input::<String>::new()
-                .with_prompt("🎯 Root Cause")
+                .with_prompt(&output.t("debug-root-cause-prompt"))
                 .interact_text()?,
         )
     } else {
@@ -321,26 +322,29 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
 
     // Step 13: Next Steps
     if root_cause_found {
-        println!("{}", "✅ ROOT CAUSE IDENTIFIED!".green().bold());
+        println!("{}", output.t("debug-root-cause-identified").green().bold());
         println!();
-        println!("Next steps:");
+        println!("{}", output.t("debug-next-steps-identified"));
         println!("  1. Plan the fix (consider impact)");
         println!("  2. Implement solution");
         println!("  3. Add tests to prevent regression");
         println!("  4. Document the issue and solution");
         println!();
-        println!("You can now run:");
+        println!("{}", output.t("debug-can-run-fix"));
         println!("  $ cldev fix \"{}\"", symptom_desc);
     } else {
-        println!("{}", "🔄 CONTINUE INVESTIGATION".yellow().bold());
+        println!(
+            "{}",
+            output.t("debug-continue-investigation").yellow().bold()
+        );
         println!();
-        println!("Next steps:");
+        println!("{}", output.t("debug-next-steps-ongoing"));
         println!("  1. Try the selected debugging techniques");
         println!("  2. Gather more evidence");
         println!("  3. Refine hypothesis");
         println!("  4. Test hypotheses systematically");
         println!();
-        println!("Remember:");
+        println!("{}", output.t("debug-remember"));
         println!("  • Take notes of everything you try");
         println!("  • Rule out possibilities one by one");
         println!("  • Ask for help if stuck > 30 minutes");
@@ -389,17 +393,27 @@ pub fn handle_debug(symptom: Option<String>) -> Result<()> {
 
     let (session, path) = session.save()?;
 
-    println!("{}", "✅ Debug session saved".green());
-    println!("   Session ID: {}", session.id.cyan());
-    println!("   Path: {}", path.display().to_string().cyan());
+    output.success(&output.t("debug-session-saved"));
+    println!(
+        "   {}",
+        output.t_format("debug-session-id", "id", &session.id.cyan().to_string())
+    );
+    println!(
+        "   {}",
+        output.t_format(
+            "debug-session-path",
+            "path",
+            &path.display().to_string().cyan().to_string()
+        )
+    );
     println!();
 
-    println!("{}", "💡 DEBUGGING TIPS".cyan().bold());
-    println!("  • Debugging is detective work - gather evidence systematically");
-    println!("  • Write down your assumptions and test them");
-    println!("  • Sometimes a break helps - come back with fresh eyes");
-    println!("  • Learn from each debug session - document patterns");
-    println!("  • Pair debugging can provide new perspectives");
+    println!("{}", output.t("debug-tips-header").cyan().bold());
+    println!("  • {}", output.t("debug-tip-detective"));
+    println!("  • {}", output.t("debug-tip-assumptions"));
+    println!("  • {}", output.t("debug-tip-break"));
+    println!("  • {}", output.t("debug-tip-learn"));
+    println!("  • {}", output.t("debug-tip-pair"));
 
     Ok(())
 }

@@ -3,6 +3,8 @@
 //! Provides JSON-based multi-language support with automatic language detection
 //! and message formatting with variable substitution.
 
+#![allow(dead_code)]
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;

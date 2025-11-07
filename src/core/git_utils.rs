@@ -6,6 +6,8 @@
 //! - CLI tool availability checks (gh/glab)
 //! - Repository state inspection
 
+#![allow(dead_code)]
+
 use crate::core::error::{CldevError, Result};
 use git2::{Repository, StatusOptions};
 use std::path::Path;

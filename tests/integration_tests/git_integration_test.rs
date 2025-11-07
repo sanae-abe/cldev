@@ -240,7 +240,10 @@ fn test_git_utils_workdir() -> Result<()> {
     let git_utils = GitUtils::open(temp_dir.path())?;
     let workdir = git_utils.workdir()?;
 
-    assert_eq!(workdir, temp_dir.path());
+    // Canonicalize both paths to handle symlinks (e.g., /var -> /private/var on macOS)
+    let expected = temp_dir.path().canonicalize()?;
+    let actual = workdir.canonicalize()?;
+    assert_eq!(actual, expected);
 
     Ok(())
 }

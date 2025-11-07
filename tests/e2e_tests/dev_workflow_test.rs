@@ -297,8 +297,14 @@ fn test_session_query_by_type() -> Result<()> {
 
     // Create multiple sessions of different types
     LearningSession::new("urgent", "Issue 1").save()?;
+    std::thread::sleep(std::time::Duration::from_millis(2));
+
     LearningSession::new("urgent", "Issue 2").save()?;
+    std::thread::sleep(std::time::Duration::from_millis(2));
+
     LearningSession::new("debug", "Investigation").save()?;
+    std::thread::sleep(std::time::Duration::from_millis(2));
+
     LearningSession::new("fix", "Bug fix").save()?;
 
     // Query by type

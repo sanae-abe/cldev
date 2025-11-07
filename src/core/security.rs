@@ -14,6 +14,8 @@
 //! - Input Validation: All user inputs are validated
 //! - Secure Defaults: Safe configurations by default
 
+#![allow(dead_code)]
+
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -21,6 +23,7 @@ use thiserror::Error;
 
 /// Security-related errors
 #[derive(Error, Debug)]
+#[allow(dead_code)]
 pub enum SecurityError {
     #[error("Path traversal attempt detected: {path}")]
     PathTraversal { path: String },
@@ -42,6 +45,7 @@ pub enum SecurityError {
 }
 
 /// Result type for security operations
+#[allow(dead_code)]
 pub type SecurityResult<T> = Result<T, SecurityError>;
 
 /// Allowed commands for safe execution
@@ -82,6 +86,7 @@ const CONFIG_FILE_PERMISSION: u32 = 0o600;
 /// assert!(result.is_err());
 /// ```
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct SecurePath {
     base_dir: PathBuf,
 }

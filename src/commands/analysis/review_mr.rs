@@ -114,7 +114,7 @@ pub fn review_merge_request(
 fn perform_review(
     repo: &Repository,
     number: u32,
-    detailed: bool,
+    _detailed: bool,
     security_focus: bool,
     performance_focus: bool,
 ) -> Result<ReviewResult> {
@@ -349,14 +349,13 @@ fn scan_performance_issues(file: &str, content: &str) -> Vec<PerformanceIssue> {
 
         // Synchronous I/O in async context
         if line.contains("async fn") {
-            if let Some(next_lines) = content
+            let next_lines = content
                 .lines()
                 .skip(i)
                 .take(10)
                 .collect::<Vec<_>>()
-                .join("\n")
-                .find("std::fs::read")
-            {
+                .join("\n");
+            if next_lines.contains("std::fs::read") {
                 issues.push(PerformanceIssue {
                     file: file.to_string(),
                     line: i + 1,

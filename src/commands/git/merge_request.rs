@@ -16,22 +16,19 @@ pub fn create_merge_request(
     detailed: bool,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info("Creating Merge Request / Pull Request...");
+    output.info(&output.t("git-mr-creating"));
 
     // Open the Git repository
     let git_utils = GitUtils::open_current()?;
 
     // Get current branch
     let current_branch = git_utils.current_branch()?;
-    output.info(&format!("Current branch: {}", current_branch));
+    output.info(&output.t_format("git-mr-current-branch", "branch", &current_branch));
 
     // Check if we're on the target branch
     if current_branch == target {
-        output.error(&format!(
-            "Cannot create MR/PR: already on target branch '{}'",
-            target
-        ));
-        output.info("Hint: Create a feature branch first with 'cldev git branch'");
+        output.error(&output.t_format("git-mr-error-same-branch", "target", target));
+        output.info(&output.t("git-mr-hint-branch"));
         return Err(crate::core::error::CldevError::validation(
             "Cannot create MR/PR from target branch",
         ));
@@ -39,19 +36,13 @@ pub fn create_merge_request(
 
     // Detect remote type
     let remote_type = git_utils.detect_remote_type("origin")?;
-    output.info(&format!(
-        "Detected remote type: {}",
-        remote_type.display_name()
-    ));
+    output.info(&output.t_format("git-mr-remote-detected", "type", remote_type.display_name()));
 
     // Check if CLI tool is available
     if !check_cli_for_remote(remote_type)? {
         let tool = remote_type.cli_tool().unwrap_or("unknown");
-        output.error(&format!("Required CLI tool '{}' not found", tool));
-        output.info(&format!(
-            "Install {} to create MR/PR:",
-            remote_type.display_name()
-        ));
+        output.error(&output.t_format("git-mr-tool-not-found", "tool", tool));
+        output.info(&output.t_format("git-mr-tool-install", "type", remote_type.display_name()));
 
         match remote_type {
             RemoteType::GitHub => {
@@ -76,8 +67,8 @@ pub fn create_merge_request(
     // Check for unpushed commits
     let unpushed = git_utils.unpushed_commits("origin")?;
     if unpushed > 0 {
-        output.warning(&format!("You have {} unpushed commit(s)", unpushed));
-        output.info("Pushing to remote...");
+        output.warning(&output.t_format("git-mr-unpushed", "count", &unpushed.to_string()));
+        output.info(&output.t("git-mr-pushing"));
 
         let status = Command::new("git")
             .args(&["push", "-u", "origin", &current_branch])
@@ -87,11 +78,11 @@ pub fn create_merge_request(
             })?;
 
         if !status.success() {
-            output.error("Failed to push commits");
+            output.error(&output.t("git-mr-push-failed"));
             return Err(crate::core::error::CldevError::git("Push failed"));
         }
 
-        output.success("✅ Commits pushed successfully");
+        output.success(&output.t("git-mr-push-success"));
     }
 
     // Get or generate MR/PR title
@@ -141,8 +132,11 @@ fn generate_mr_title(branch: &str, output: &OutputHandler) -> Result<String> {
         .collect::<Vec<_>>()
         .join(" ");
 
-    output.info(&format!("\nSuggested title: {}", suggested_title));
-    output.info("Enter MR/PR title (or press Enter to use suggestion):");
+    output.info(&format!(
+        "\n{}",
+        output.t_format("git-mr-suggested-title", "title", &suggested_title)
+    ));
+    output.info(&output.t("git-mr-title-prompt"));
 
     let title: String = Input::new()
         .default(suggested_title.clone())
@@ -205,7 +199,7 @@ fn generate_mr_body(
 }
 
 /// Get commit log between target and current branch
-fn get_commit_log(git_utils: &GitUtils, branch: &str, target: &str) -> Result<String> {
+fn get_commit_log(_git_utils: &GitUtils, branch: &str, target: &str) -> Result<String> {
     let output = Command::new("git")
         .args(&["log", "--oneline", &format!("{}..{}", target, branch)])
         .output()
@@ -218,7 +212,7 @@ fn get_commit_log(git_utils: &GitUtils, branch: &str, target: &str) -> Result<St
 
 /// Create GitHub pull request
 fn create_github_pr(title: &str, body: &str, target: &str, output: &OutputHandler) -> Result<()> {
-    output.info("Creating GitHub Pull Request...");
+    output.info(&output.t("git-mr-creating-github"));
 
     let status = Command::new("gh")
         .args(&[
@@ -230,7 +224,7 @@ fn create_github_pr(title: &str, body: &str, target: &str, output: &OutputHandle
         })?;
 
     if status.success() {
-        output.success("✅ GitHub Pull Request created successfully");
+        output.success(&output.t("git-mr-github-success"));
 
         // Get PR URL
         let pr_output = Command::new("gh")
@@ -240,15 +234,15 @@ fn create_github_pr(title: &str, body: &str, target: &str, output: &OutputHandle
 
         if let Some(pr) = pr_output {
             if let Ok(url) = String::from_utf8(pr.stdout) {
-                output.info(&format!("PR URL: {}", url.trim()));
+                output.info(&output.t_format("git-mr-pr-url", "url", url.trim()));
             }
         }
 
-        output.info("\n💡 Next steps:");
-        output.list_item("gh pr view - View PR details");
-        output.list_item("gh pr checks - Check CI status");
+        output.info(&format!("\n{}", output.t("git-mr-next-steps")));
+        output.list_item(&output.t("git-mr-next-github-view"));
+        output.list_item(&output.t("git-mr-next-github-checks"));
     } else {
-        output.error("Failed to create GitHub PR");
+        output.error(&output.t("git-mr-github-failed"));
         return Err(crate::core::error::CldevError::git("PR creation failed"));
     }
 
@@ -257,7 +251,7 @@ fn create_github_pr(title: &str, body: &str, target: &str, output: &OutputHandle
 
 /// Create GitLab merge request
 fn create_gitlab_mr(title: &str, body: &str, target: &str, output: &OutputHandler) -> Result<()> {
-    output.info("Creating GitLab Merge Request...");
+    output.info(&output.t("git-mr-creating-gitlab"));
 
     let status = Command::new("glab")
         .args(&[
@@ -276,13 +270,13 @@ fn create_gitlab_mr(title: &str, body: &str, target: &str, output: &OutputHandle
         })?;
 
     if status.success() {
-        output.success("✅ GitLab Merge Request created successfully");
+        output.success(&output.t("git-mr-gitlab-success"));
 
-        output.info("\n💡 Next steps:");
-        output.list_item("glab mr view - View MR details");
-        output.list_item("glab ci view - Check CI status");
+        output.info(&format!("\n{}", output.t("git-mr-next-steps")));
+        output.list_item(&output.t("git-mr-next-gitlab-view"));
+        output.list_item(&output.t("git-mr-next-gitlab-ci"));
     } else {
-        output.error("Failed to create GitLab MR");
+        output.error(&output.t("git-mr-gitlab-failed"));
         return Err(crate::core::error::CldevError::git("MR creation failed"));
     }
 

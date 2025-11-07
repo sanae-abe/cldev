@@ -1,1 +1,23 @@
+# Build artifacts
 /target
+
+# Backup files
+*.bak
+*.backup
+*~
+*.swp
+*.swo
+
+# OS metadata
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Environment
+.env
+.env.*

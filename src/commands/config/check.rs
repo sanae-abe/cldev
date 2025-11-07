@@ -57,7 +57,7 @@ pub fn check_config(
     fix: bool,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info("🔍 Checking configuration...");
+    output.info(&output.i18n().get("config-check-header"));
 
     let config_path = path.unwrap_or_else(|| {
         Config::default_path().unwrap_or_else(|_| PathBuf::from("~/.config/cldev/config.toml"))
@@ -68,22 +68,30 @@ pub fn check_config(
     // Check 1: File existence
     if !config_path.exists() {
         results.push(ValidationResult::failure(
-            "File Existence",
-            &format!("Configuration file not found: {}", config_path.display()),
+            &output.i18n().get("config-check-category-file"),
+            &output.i18n().format(
+                "config-check-file-not-found",
+                "path",
+                &config_path.display().to_string(),
+            ),
         ));
 
         if fix {
-            output.info("🔧 Creating default configuration file...");
+            output.info(&output.i18n().get("config-check-auto-fix"));
             let default_config = Config::default();
             default_config.save(Some(config_path.clone()))?;
             results.push(ValidationResult::success(
-                "Auto-fix",
-                &format!("Created default configuration at {}", config_path.display()),
+                &output.i18n().get("config-check-category-auto-fix"),
+                &output.i18n().format(
+                    "config-check-created-default",
+                    "path",
+                    &config_path.display().to_string(),
+                ),
             ));
         } else {
             print_results(&results, detailed, output);
             return Err(CldevError::config(
-                "Configuration file not found. Run 'cldev config init' or use --fix flag.",
+                &output.i18n().get("config-check-error-not-found"),
             ));
         }
     }
@@ -92,15 +100,17 @@ pub fn check_config(
     let config = match Config::load(Some(config_path.clone())) {
         Ok(cfg) => {
             results.push(ValidationResult::success(
-                "TOML Syntax",
-                "Configuration file is valid TOML",
+                &output.i18n().get("config-check-category-toml"),
+                &output.i18n().get("config-check-toml-valid"),
             ));
             cfg
         }
         Err(e) => {
             results.push(ValidationResult::failure(
-                "TOML Syntax",
-                &format!("Failed to parse TOML: {}", e),
+                &output.i18n().get("config-check-category-toml"),
+                &output
+                    .i18n()
+                    .format("config-check-toml-error", "error", &e.to_string()),
             ));
             print_results(&results, detailed, output);
             return Err(e);
@@ -111,15 +121,22 @@ pub fn check_config(
     match validate_version(&config.version) {
         Ok(_) => {
             results.push(ValidationResult::success(
-                "Version",
-                &format!(
-                    "Configuration version {} is compatible with {}",
-                    config.version, CONFIG_VERSION
-                ),
+                &output.i18n().get("config-check-category-version"),
+                &output
+                    .i18n()
+                    .format(
+                        "config-check-version-compatible",
+                        "version",
+                        &config.version,
+                    )
+                    .replace("{current}", CONFIG_VERSION),
             ));
         }
         Err(e) => {
-            results.push(ValidationResult::failure("Version", &e.to_string()));
+            results.push(ValidationResult::failure(
+                &output.i18n().get("config-check-category-version"),
+                &e.to_string(),
+            ));
         }
     }
 
@@ -142,30 +159,36 @@ pub fn check_config(
     // Determine overall result
     let all_passed = results.iter().all(|r| r.passed);
     if all_passed {
-        output.success("✅ All checks passed! Configuration is healthy.");
+        output.success(&output.i18n().get("config-check-all-passed"));
         Ok(())
     } else {
         let failed_count = results.iter().filter(|r| !r.passed).count();
-        output.error(&format!(
-            "❌ {} check(s) failed. See details above.",
-            failed_count
+        output.error(&output.i18n().format(
+            "config-check-failed-count",
+            "count",
+            &failed_count.to_string(),
         ));
-        Err(CldevError::validation("Configuration validation failed"))
+        Err(CldevError::validation(
+            &output.i18n().get("config-check-validation-failed"),
+        ))
     }
 }
 
 /// Validate required fields in configuration
 fn validate_required_fields(config: &Config, results: &mut Vec<ValidationResult>) {
+    use crate::core::i18n::I18n;
+    let i18n = I18n::new();
+
     // Check version field
     if config.version.is_empty() {
         results.push(ValidationResult::failure(
-            "Required Field",
-            "Version field is required but empty",
+            &i18n.get("config-check-category-required"),
+            &i18n.get("config-check-version-empty"),
         ));
     } else {
         results.push(ValidationResult::success(
-            "Required Field",
-            "All required fields are present",
+            &i18n.get("config-check-category-required"),
+            &i18n.get("config-check-required-ok"),
         ));
     }
 }

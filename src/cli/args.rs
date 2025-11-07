@@ -9,25 +9,25 @@ pub use clap_complete::Shell;
     name = "cldev",
     version,
     author,
-    about = "Unified development environment management tool with AI-powered workflow",
+    about = super::help::app_about(),
     long_about = None,
     propagate_version = true
 )]
 pub struct Cli {
     /// Enable verbose output
-    #[arg(short, long, global = true)]
+    #[arg(short, long, global = true, help = super::help::verbose_help())]
     pub verbose: bool,
 
     /// Suppress non-error output
-    #[arg(short, long, global = true, conflicts_with = "verbose")]
+    #[arg(short, long, global = true, conflicts_with = "verbose", help = super::help::quiet_help())]
     pub quiet: bool,
 
     /// Disable colored output
-    #[arg(long, global = true)]
+    #[arg(long, global = true, help = super::help::no_color_help())]
     pub no_color: bool,
 
     /// Set language (ja/en)
-    #[arg(long, global = true, value_enum, default_value = "en")]
+    #[arg(long, global = true, value_enum, default_value = "en", help = super::help::lang_help())]
     pub lang: Language,
 
     #[command(subcommand)]
@@ -43,53 +43,64 @@ pub enum Language {
     Ja,
 }
 
+impl Language {
+    /// Convert CLI language to i18n language
+    pub fn to_i18n(&self) -> crate::core::i18n::Language {
+        match self {
+            Language::En => crate::core::i18n::Language::English,
+            Language::Ja => crate::core::i18n::Language::Japanese,
+        }
+    }
+}
+
 /// Top-level commands organized by category
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Configuration management commands
-    #[command(subcommand)]
+    #[command(subcommand, about = super::help::config_about())]
     Config(ConfigCommands),
 
     /// Development workflow commands
-    #[command(subcommand)]
+    #[command(subcommand, about = super::help::dev_about())]
     Dev(DevCommands),
 
     /// Git operation commands
-    #[command(subcommand)]
+    #[command(subcommand, about = super::help::git_about())]
     Git(GitCommands),
 
     /// Code quality commands
-    #[command(subcommand)]
+    #[command(subcommand, about = super::help::quality_about())]
     Quality(QualityCommands),
 
     /// Tech stack specific commands
-    #[command(subcommand)]
+    #[command(subcommand, about = super::help::tech_about())]
     Tech(TechCommands),
 
     /// Operations commands
-    #[command(subcommand)]
+    #[command(subcommand, about = super::help::ops_about())]
     Ops(OpsCommands),
 
     /// Analysis and review commands
-    #[command(subcommand)]
+    #[command(subcommand, about = super::help::analysis_about())]
     Analysis(AnalysisCommands),
 
     /// Learning record commands
-    #[command(subcommand)]
+    #[command(subcommand, about = super::help::lr_about())]
     Lr(LrCommands),
 
     /// Todo management commands
-    #[command(subcommand)]
+    #[command(subcommand, about = super::help::todo_about())]
     Todo(TodoCommands),
 
     /// Generate shell completions
+    #[command(about = super::help::completions_about())]
     Completions {
         /// Shell to generate completions for
-        #[arg(value_enum)]
+        #[arg(value_enum, help = super::help::completions_shell_help())]
         shell: Shell,
 
         /// Print installation instructions
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::completions_install_help())]
         install: bool,
     },
 }
@@ -101,64 +112,61 @@ pub enum Commands {
 #[derive(Subcommand, Debug)]
 pub enum ConfigCommands {
     /// Initialize cldev configuration
+    #[command(about = super::help::config_init_about())]
     Init {
         /// Skip interactive prompts and use defaults
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::config_init_defaults_help())]
         defaults: bool,
 
         /// Force initialization even if config exists
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::config_init_force_help())]
         force: bool,
     },
 
     /// Check configuration health
+    #[command(about = super::help::config_check_about())]
     Check {
         /// Perform detailed validation
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::config_check_detailed_help())]
         detailed: bool,
 
         /// Fix issues automatically if possible
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::config_check_fix_help())]
         fix: bool,
     },
 
     /// Edit configuration file
+    #[command(about = super::help::config_edit_about())]
     Edit {
         /// Configuration file to edit (global/project/stack)
-        #[arg(value_enum, default_value = "global")]
+        #[arg(value_enum, default_value = "global", help = super::help::config_edit_target_help())]
         target: ConfigTarget,
     },
 
-    /// List all configurations
+    #[command(about = super::help::config_list_about())]
     List {
-        /// Show detailed information
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::config_list_detailed_help())]
         detailed: bool,
 
-        /// Filter by configuration type
-        #[arg(short, long, value_enum)]
+        #[arg(short, long, value_enum, help = super::help::config_list_filter_help())]
         filter: Option<ConfigTarget>,
     },
 
-    /// Maintain configuration files
+    #[command(about = super::help::config_maintain_about())]
     Maintain {
-        /// Backup configurations before maintenance
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::config_maintain_backup_help())]
         backup: bool,
 
-        /// Clean up old backups
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::config_maintain_cleanup_help())]
         cleanup: bool,
     },
 
-    /// Update documentation
+    #[command(about = super::help::config_update_docs_about())]
     UpdateDocs {
-        /// Documentation type to update
-        #[arg(value_enum)]
+        #[arg(value_enum, help = super::help::config_update_docs_type_help())]
         doc_type: Option<DocType>,
 
-        /// Validate documentation after update
-        #[arg(long)]
+        #[arg(long, help = super::help::config_update_docs_validate_help())]
         validate: bool,
     },
 }
@@ -183,73 +191,66 @@ pub enum DocType {
 
 #[derive(Subcommand, Debug)]
 pub enum DevCommands {
-    /// Emergency response for production issues (5min initial response)
+    #[command(about = super::help::dev_urgent_about())]
     Urgent {
-        /// Problem description
+        #[arg(help = super::help::dev_urgent_problem_help())]
         problem: String,
 
-        /// Skip confirmation prompts
-        #[arg(short = 'y', long)]
+        #[arg(short = 'y', long, help = super::help::dev_urgent_yes_help())]
         yes: bool,
     },
 
-    /// Fix critical bugs (same-day resolution target)
+    #[command(about = super::help::dev_fix_about())]
     Fix {
-        /// Bug or issue to fix
+        #[arg(help = super::help::dev_fix_target_help())]
         target: String,
 
-        /// Create fix branch automatically
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::dev_fix_branch_help())]
         branch: bool,
     },
 
-    /// Systematic debugging workflow
+    #[command(about = super::help::dev_debug_about())]
     Debug {
-        /// Symptom or error description
+        #[arg(help = super::help::dev_debug_symptom_help())]
         symptom: String,
 
-        /// Enable verbose debugging output
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::dev_debug_verbose_help())]
         verbose: bool,
     },
 
-    /// Implement new feature (requirements to test)
+    #[command(about = super::help::dev_feature_about())]
     Feature {
-        /// Feature name or description
+        #[arg(help = super::help::dev_feature_name_help())]
         name: String,
 
-        /// Skip requirements confirmation
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::dev_feature_skip_confirm_help())]
         skip_confirm: bool,
     },
 
-    /// Safe refactoring (incremental execution)
+    #[command(about = super::help::dev_refactor_about())]
     Refactor {
-        /// Target to refactor
+        #[arg(help = super::help::dev_refactor_target_help())]
         target: String,
 
-        /// Refactoring scope
-        #[arg(short, long, value_enum, default_value = "module")]
+        #[arg(short, long, value_enum, default_value = "module", help = super::help::dev_refactor_scope_help())]
         scope: RefactorScope,
     },
 
-    /// Performance optimization (measure -> analyze -> improve)
+    #[command(about = super::help::dev_optimize_about())]
     Optimize {
-        /// Target to optimize
+        #[arg(help = super::help::dev_optimize_target_help())]
         target: String,
 
-        /// Focus area for optimization
-        #[arg(short, long, value_enum)]
+        #[arg(short, long, value_enum, help = super::help::dev_optimize_focus_help())]
         focus: Option<OptimizationFocus>,
     },
 
-    /// Technical research and learning records
+    #[command(about = super::help::dev_research_about())]
     Research {
-        /// Research topic
+        #[arg(help = super::help::dev_research_topic_help())]
         topic: String,
 
-        /// Output format
-        #[arg(short, long, value_enum, default_value = "markdown")]
+        #[arg(short, long, value_enum, default_value = "markdown", help = super::help::dev_research_format_help())]
         format: ResearchFormat,
     },
 }
@@ -282,48 +283,42 @@ pub enum ResearchFormat {
 
 #[derive(Subcommand, Debug)]
 pub enum GitCommands {
-    /// Create conventional commit
+    #[command(about = super::help::git_commit_about())]
     Commit {
-        /// Commit message (optional, will be generated if not provided)
+        #[arg(help = super::help::git_commit_message_help())]
         message: Option<String>,
 
-        /// Skip pre-commit hooks
-        #[arg(long)]
+        #[arg(long, help = super::help::git_commit_no_verify_help())]
         no_verify: bool,
 
-        /// Amend previous commit
-        #[arg(long)]
+        #[arg(long, help = super::help::git_commit_amend_help())]
         amend: bool,
     },
 
-    /// Create conventional branch
+    #[command(about = super::help::git_branch_about())]
     Branch {
-        /// Branch name (optional, will be generated if not provided)
+        #[arg(help = super::help::git_branch_name_help())]
         name: Option<String>,
 
-        /// Branch type
-        #[arg(short, long, value_enum)]
+        #[arg(short, long, value_enum, help = super::help::git_branch_type_help())]
         branch_type: Option<BranchType>,
     },
 
-    /// Create merge request (GitLab) or pull request (GitHub)
+    #[command(about = super::help::git_merge_request_about())]
     MergeRequest {
-        /// Target branch
-        #[arg(short, long, default_value = "main")]
+        #[arg(short, long, default_value = "main", help = super::help::git_merge_request_target_help())]
         target: String,
 
-        /// MR/PR title (will be generated if not provided)
+        #[arg(help = super::help::git_merge_request_title_help())]
         title: Option<String>,
 
-        /// Enable detailed mode
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::git_merge_request_detailed_help())]
         detailed: bool,
     },
 
-    /// Show enhanced git status
+    #[command(about = super::help::git_status_about())]
     Status {
-        /// Show detailed branch information
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::git_status_detailed_help())]
         detailed: bool,
     },
 }
@@ -344,37 +339,33 @@ pub enum BranchType {
 
 #[derive(Subcommand, Debug)]
 pub enum QualityCommands {
-    /// Run linter
+    #[command(about = super::help::quality_lint_about())]
     Lint {
-        /// Auto-fix issues
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::quality_lint_fix_help())]
         fix: bool,
 
-        /// Specific files or patterns
+        #[arg(help = super::help::quality_lint_paths_help())]
         paths: Vec<String>,
     },
 
-    /// Format code
+    #[command(about = super::help::quality_format_about())]
     Format {
-        /// Check formatting without modifying files
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::quality_format_check_help())]
         check: bool,
 
-        /// Specific files or patterns
+        #[arg(help = super::help::quality_format_paths_help())]
         paths: Vec<String>,
     },
 
-    /// Run tests
+    #[command(about = super::help::quality_test_about())]
     Test {
-        /// Run specific test pattern
+        #[arg(help = super::help::quality_test_pattern_help())]
         pattern: Option<String>,
 
-        /// Generate coverage report
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::quality_test_coverage_help())]
         coverage: bool,
 
-        /// Watch mode
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::quality_test_watch_help())]
         watch: bool,
     },
 }
@@ -385,18 +376,15 @@ pub enum QualityCommands {
 
 #[derive(Subcommand, Debug)]
 pub enum TechCommands {
-    /// Start development environment
+    #[command(about = super::help::tech_start_about())]
     Start {
-        /// Tech stack to use
-        #[arg(value_enum)]
+        #[arg(value_enum, help = super::help::tech_start_stack_help())]
         stack: TechStack,
 
-        /// Port number
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::tech_start_port_help())]
         port: Option<u16>,
 
-        /// Environment (development/production)
-        #[arg(short, long, value_enum, default_value = "development")]
+        #[arg(short, long, value_enum, default_value = "development", help = super::help::tech_start_env_help())]
         env: Environment,
     },
 }
@@ -422,33 +410,27 @@ pub enum Environment {
 
 #[derive(Subcommand, Debug)]
 pub enum OpsCommands {
-    /// Build project
+    #[command(about = super::help::ops_build_about())]
     Build {
-        /// Build environment
-        #[arg(short, long, value_enum, default_value = "production")]
+        #[arg(short, long, value_enum, default_value = "production", help = super::help::ops_build_env_help())]
         env: Environment,
 
-        /// Analyze bundle after build
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::ops_build_analyze_help())]
         analyze: bool,
 
-        /// Clean before build
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::ops_build_clean_help())]
         clean: bool,
     },
 
-    /// Deploy project
+    #[command(about = super::help::ops_deploy_about())]
     Deploy {
-        /// Deploy target environment
-        #[arg(value_enum)]
+        #[arg(value_enum, help = super::help::ops_deploy_env_help())]
         env: Environment,
 
-        /// Skip confirmation prompts
-        #[arg(short = 'y', long)]
+        #[arg(short = 'y', long, help = super::help::ops_deploy_yes_help())]
         yes: bool,
 
-        /// Dry run (show what would be deployed)
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::ops_deploy_dry_run_help())]
         dry_run: bool,
     },
 }
@@ -459,60 +441,51 @@ pub enum OpsCommands {
 
 #[derive(Subcommand, Debug)]
 pub enum AnalysisCommands {
-    /// Analyze project
+    #[command(about = super::help::analysis_analyze_about())]
     Analyze {
-        /// Analysis target
-        #[arg(value_enum, default_value = "overview")]
+        #[arg(value_enum, default_value = "overview", help = super::help::analysis_analyze_target_help())]
         target: AnalysisTarget,
 
-        /// Output format
-        #[arg(short, long, value_enum, default_value = "text")]
+        #[arg(short, long, value_enum, default_value = "text", help = super::help::analysis_analyze_format_help())]
         format: AnalysisFormat,
 
-        /// Enable detailed analysis
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::analysis_analyze_detailed_help())]
         detailed: bool,
     },
 
-    /// Explain code or concept
+    #[command(about = super::help::analysis_explain_about())]
     Explain {
-        /// Target to explain (function/component/concept name)
+        #[arg(help = super::help::analysis_explain_target_help())]
         target: String,
 
-        /// Show usage examples
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::analysis_explain_examples_help())]
         examples: bool,
 
-        /// Detailed explanation
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::analysis_explain_detailed_help())]
         detailed: bool,
     },
 
-    /// Review merge request
+    #[command(about = super::help::analysis_review_mr_about())]
     ReviewMr {
-        /// MR/PR number
+        #[arg(help = super::help::analysis_review_mr_number_help())]
         number: u32,
 
-        /// Enable detailed review
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::analysis_review_mr_detailed_help())]
         detailed: bool,
 
-        /// Focus on security
-        #[arg(long)]
+        #[arg(long, help = super::help::analysis_review_mr_security_focus_help())]
         security_focus: bool,
 
-        /// Focus on performance
-        #[arg(long)]
+        #[arg(long, help = super::help::analysis_review_mr_performance_focus_help())]
         performance_focus: bool,
     },
 
-    /// Semantic code analysis (Serena MCP)
+    #[command(about = super::help::analysis_serena_about())]
     Serena {
-        /// Analysis mode
-        #[arg(value_enum, default_value = "interactive")]
+        #[arg(value_enum, default_value = "interactive", help = super::help::analysis_serena_mode_help())]
         mode: SerenaMode,
 
-        /// Target files or directories
+        #[arg(help = super::help::analysis_serena_targets_help())]
         targets: Vec<String>,
     },
 }
@@ -546,49 +519,42 @@ pub enum SerenaMode {
 
 #[derive(Subcommand, Debug)]
 pub enum LrCommands {
-    /// Find learning records
+    #[command(about = super::help::lr_find_about())]
     Find {
-        /// Search query
+        #[arg(help = super::help::lr_find_query_help())]
         query: String,
 
-        /// Search in specific field
-        #[arg(short, long, value_enum)]
+        #[arg(short, long, value_enum, help = super::help::lr_find_field_help())]
         field: Option<SearchField>,
 
-        /// Limit results
-        #[arg(short, long, default_value = "10")]
+        #[arg(short, long, default_value = "10", help = super::help::lr_find_limit_help())]
         limit: usize,
     },
 
-    /// Show learning statistics
+    #[command(about = super::help::lr_stats_about())]
     Stats {
-        /// Time period for statistics
-        #[arg(short, long, value_enum, default_value = "month")]
+        #[arg(short, long, value_enum, default_value = "month", help = super::help::lr_stats_period_help())]
         period: TimePeriod,
 
-        /// Show detailed breakdown
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::lr_stats_detailed_help())]
         detailed: bool,
     },
 
-    /// List unsolved problems
+    #[command(about = super::help::lr_problems_about())]
     Problems {
-        /// Priority filter
-        #[arg(short, long, value_enum)]
+        #[arg(short, long, value_enum, help = super::help::lr_problems_priority_help())]
         priority: Option<Priority>,
 
-        /// Show only recent problems
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::lr_problems_recent_help())]
         recent: bool,
     },
 
-    /// Create new learning record
+    #[command(about = super::help::lr_new_about())]
     New {
-        /// Topic name
+        #[arg(help = super::help::lr_new_topic_help())]
         topic: String,
 
-        /// Open editor immediately
-        #[arg(short, long)]
+        #[arg(short, long, help = super::help::lr_new_edit_help())]
         edit: bool,
     },
 }
@@ -622,13 +588,12 @@ pub enum Priority {
 
 #[derive(Subcommand, Debug)]
 pub enum TodoCommands {
-    /// Manage todos
+    #[command(about = super::help::todo_manage_about())]
     Manage {
-        /// Action to perform
-        #[arg(value_enum)]
+        #[arg(value_enum, help = super::help::todo_manage_action_help())]
         action: TodoAction,
 
-        /// Todo description (for add action)
+        #[arg(help = super::help::todo_manage_description_help())]
         description: Option<String>,
     },
 }

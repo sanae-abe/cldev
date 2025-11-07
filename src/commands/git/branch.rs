@@ -59,15 +59,15 @@ pub fn create_branch(
     branch_type: Option<BranchType>,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info("Creating Conventional Branch...");
+    output.info(&output.t("git-branch-creating"));
 
     // Open the Git repository
     let git_utils = GitUtils::open_current()?;
 
     // Check if working directory is clean
     if !git_utils.is_clean()? {
-        output.warning("Working directory has uncommitted changes");
-        output.info("Hint: Commit or stash your changes first");
+        output.warning(&output.t("git-branch-uncommitted"));
+        output.info(&output.t("git-branch-hint-clean"));
 
         // Ask if user wants to continue
         let cont: String = Input::new()
@@ -79,14 +79,14 @@ pub fn create_branch(
             })?;
 
         if !cont.to_lowercase().starts_with('y') {
-            output.info("Branch creation cancelled");
+            output.info(&output.t("git-branch-cancelled"));
             return Ok(());
         }
     }
 
     // Get current branch for reference
     let current_branch = git_utils.current_branch()?;
-    output.info(&format!("Current branch: {}", current_branch));
+    output.info(&output.t_format("git-branch-current", "branch", &current_branch));
 
     // Build branch name
     let branch_name = if let Some(n) = name {
@@ -99,7 +99,7 @@ pub fn create_branch(
     validate_branch_name(&branch_name)?;
 
     // Create the branch
-    output.info(&format!("Creating branch: {}", branch_name));
+    output.info(&output.t_format("git-branch-creating-name", "name", &branch_name));
 
     let status = Command::new("git")
         .args(&["checkout", "-b", &branch_name])
@@ -109,24 +109,15 @@ pub fn create_branch(
         })?;
 
     if status.success() {
-        output.success(&format!(
-            "✅ Branch '{}' created and checked out",
-            branch_name
-        ));
+        output.success(&output.t_format("git-branch-success", "name", &branch_name));
 
         // Show next steps
-        output.info("\n💡 Next steps:");
-        output.list_item(&format!(
-            "Make your changes on the '{}' branch",
-            branch_name
-        ));
-        output.list_item("cldev git commit - Create a commit");
-        output.list_item(&format!(
-            "git push -u origin {} - Push to remote",
-            branch_name
-        ));
+        output.info(&format!("\n{}", output.t("git-branch-next-steps")));
+        output.list_item(&output.t_format("git-branch-next-work", "name", &branch_name));
+        output.list_item(&output.t("git-branch-next-commit"));
+        output.list_item(&output.t_format("git-branch-next-push", "name", &branch_name));
     } else {
-        output.error("Failed to create branch");
+        output.error(&output.t("git-branch-failed"));
         return Err(crate::core::error::CldevError::git(
             "Branch creation failed",
         ));
@@ -144,7 +135,7 @@ fn build_branch_name_interactive(
     let selected_type = if let Some(bt) = branch_type {
         bt
     } else {
-        output.info("\nSelect branch type:");
+        output.info(&format!("\n{}", output.t("git-branch-select-type")));
         let types = BranchType::all();
         let items: Vec<String> = types.iter().map(|t| t.display()).collect();
 
@@ -163,7 +154,7 @@ fn build_branch_name_interactive(
     };
 
     // Ask for branch description
-    output.info("\nEnter branch description (use kebab-case, e.g., 'add-user-authentication'):");
+    output.info(&format!("\n{}", output.t("git-branch-description-prompt")));
     let description: String = Input::new().interact_text().map_err(|e| {
         crate::core::error::CldevError::command(format!("Failed to read description: {}", e))
     })?;
@@ -174,7 +165,10 @@ fn build_branch_name_interactive(
     // Build full branch name
     let branch_name = format!("{}{}", selected_type.prefix(), sanitized);
 
-    output.info(&format!("\nBranch name preview: {}", branch_name));
+    output.info(&format!(
+        "\n{}",
+        output.t_format("git-branch-preview", "name", &branch_name)
+    ));
 
     Ok(branch_name)
 }

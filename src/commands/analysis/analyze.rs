@@ -204,7 +204,7 @@ pub fn analyze_project(
 
 fn analyze_structure(
     path: &Path,
-    detailed: bool,
+    _detailed: bool,
     output: &OutputHandler,
 ) -> Result<AnalysisResult> {
     output.debug("Analyzing project structure...");
@@ -238,7 +238,7 @@ fn analyze_structure(
 
 fn analyze_performance(
     path: &Path,
-    detailed: bool,
+    _detailed: bool,
     output: &OutputHandler,
 ) -> Result<AnalysisResult> {
     output.debug("Analyzing performance characteristics...");
@@ -269,7 +269,7 @@ fn analyze_performance(
     })
 }
 
-fn analyze_quality(path: &Path, detailed: bool, output: &OutputHandler) -> Result<AnalysisResult> {
+fn analyze_quality(path: &Path, _detailed: bool, output: &OutputHandler) -> Result<AnalysisResult> {
     output.debug("Analyzing code quality...");
 
     let complexity = calculate_complexity_metrics(path)?;
@@ -300,7 +300,7 @@ fn analyze_quality(path: &Path, detailed: bool, output: &OutputHandler) -> Resul
     })
 }
 
-fn analyze_debt(path: &Path, detailed: bool, output: &OutputHandler) -> Result<AnalysisResult> {
+fn analyze_debt(path: &Path, _detailed: bool, output: &OutputHandler) -> Result<AnalysisResult> {
     output.debug("Analyzing technical debt...");
 
     let debt_items = scan_technical_debt(path)?;
@@ -329,7 +329,11 @@ fn analyze_debt(path: &Path, detailed: bool, output: &OutputHandler) -> Result<A
     })
 }
 
-fn analyze_overview(path: &Path, detailed: bool, output: &OutputHandler) -> Result<AnalysisResult> {
+fn analyze_overview(
+    path: &Path,
+    _detailed: bool,
+    output: &OutputHandler,
+) -> Result<AnalysisResult> {
     output.debug("Generating project overview...");
 
     // Collect high-level metrics from each analysis type
@@ -636,7 +640,7 @@ fn estimate_test_coverage(path: &Path) -> Result<f32> {
     Ok((test_count as f32 / source_count as f32) * 100.0)
 }
 
-fn analyze_duplication(path: &Path) -> Result<DuplicationMetrics> {
+fn analyze_duplication(_path: &Path) -> Result<DuplicationMetrics> {
     // Simple duplication detection - in production, use a proper algorithm
     Ok(DuplicationMetrics {
         duplicated_lines: 0,
@@ -931,7 +935,7 @@ fn calculate_maintainability_index(avg_complexity: f32) -> f32 {
 }
 
 // Score calculation functions
-fn calculate_structure_score(modules: &[ModuleInfo], circular: &[String]) -> f32 {
+fn calculate_structure_score(_modules: &[ModuleInfo], circular: &[String]) -> f32 {
     let base_score = 10.0;
     let penalty = (circular.len() as f32) * 0.5;
     (base_score - penalty).max(0.0)

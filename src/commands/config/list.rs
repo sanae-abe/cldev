@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 //! List available commands
 //!
 //! This module provides functionality to display all 29 cldev commands
@@ -5,6 +7,7 @@
 
 use crate::cli::output::OutputHandler;
 use crate::core::error::Result;
+use crate::core::i18n::Language;
 use colored::Colorize;
 use comfy_table::{modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL, Cell, Color, Table};
 
@@ -37,7 +40,8 @@ pub fn list_commands(
     detailed: bool,
     output: &OutputHandler,
 ) -> Result<()> {
-    let categories = get_all_categories();
+    let language = output.i18n().language();
+    let categories = get_all_categories(language);
 
     // Filter categories if requested
     let filtered_categories: Vec<&CommandCategory> = if let Some(filter) = category_filter {
@@ -50,12 +54,12 @@ pub fn list_commands(
     };
 
     if filtered_categories.is_empty() {
-        output.warning("⚠️  No commands found matching the filter");
+        output.warning(&output.i18n().get("config-list-no-commands"));
         return Ok(());
     }
 
     // Print header
-    output.header("🚀 Claude Dev CLI - Available Commands");
+    output.header(&output.i18n().get("config-list-header"));
 
     // Count total commands
     let total_commands: usize = filtered_categories
@@ -63,11 +67,12 @@ pub fn list_commands(
         .map(|cat| cat.commands.len())
         .sum();
 
-    output.info(&format!(
-        "Total: {} commands across {} categories\n",
-        total_commands.to_string().green().bold(),
-        filtered_categories.len().to_string().cyan().bold()
-    ));
+    output.info(
+        &output
+            .i18n()
+            .format("config-list-total", "count", &total_commands.to_string())
+            .replace("{categories}", &filtered_categories.len().to_string()),
+    );
 
     // Print each category
     for category in filtered_categories {
@@ -76,10 +81,7 @@ pub fn list_commands(
 
     // Print footer with usage tip
     output.raw(&format!("\n{}", "=".repeat(70)));
-    output.info(&format!(
-        "\n💡 Tip: Use {} for detailed help on any command",
-        "cldev <category> <command> --help".cyan()
-    ));
+    output.info(&output.i18n().get("config-list-tip"));
 
     Ok(())
 }
@@ -127,234 +129,243 @@ fn print_category(category: &CommandCategory, detailed: bool, output: &OutputHan
     }
 }
 
+/// Helper function to get localized string
+fn t(key: &str, lang: Language) -> &'static str {
+    use crate::core::i18n::I18n;
+    let i18n = I18n::with_language(lang);
+    // We need to use Box::leak to convert String to &'static str
+    // This is safe for command descriptions as they're loaded once at startup
+    Box::leak(i18n.get(key).into_boxed_str())
+}
+
 /// Get all command categories with their commands
-fn get_all_categories() -> Vec<CommandCategory> {
+fn get_all_categories(lang: Language) -> Vec<CommandCategory> {
     vec![
         // Configuration Commands (6 commands)
         CommandCategory {
-            name: "Configuration",
-            description: "Manage cldev configuration",
+            name: t("cmd-cat-configuration", lang),
+            description: t("cmd-cat-configuration-desc", lang),
             emoji: "⚙️",
             commands: vec![
                 CommandInfo {
                     name: "config init",
-                    description: "Initialize cldev configuration",
+                    description: t("cmd-config-init-desc", lang),
                     usage: "cldev config init [--defaults] [--force]",
                 },
                 CommandInfo {
                     name: "config check",
-                    description: "Validate configuration health",
+                    description: t("cmd-config-check-desc", lang),
                     usage: "cldev config check [--detailed] [--fix]",
                 },
                 CommandInfo {
                     name: "config edit",
-                    description: "Edit configuration file",
+                    description: t("cmd-config-edit-desc", lang),
                     usage: "cldev config edit [--editor <EDITOR>]",
                 },
                 CommandInfo {
                     name: "config list",
-                    description: "List all configurations",
+                    description: t("cmd-config-list-desc", lang),
                     usage: "cldev config list [--detailed]",
                 },
                 CommandInfo {
                     name: "config maintain",
-                    description: "Maintain configuration files",
+                    description: t("cmd-config-maintain-desc", lang),
                     usage: "cldev config maintain [--backup] [--cleanup]",
                 },
                 CommandInfo {
                     name: "config update-docs",
-                    description: "Update documentation",
+                    description: t("cmd-config-update-docs-desc", lang),
                     usage: "cldev config update-docs [<TYPE>] [--validate]",
                 },
             ],
         },
         // Development Commands (7 commands)
         CommandCategory {
-            name: "Development",
-            description: "Core development workflows",
+            name: t("cmd-cat-development", lang),
+            description: t("cmd-cat-development-desc", lang),
             emoji: "🛠️",
             commands: vec![
                 CommandInfo {
                     name: "dev urgent",
-                    description: "Emergency response for production issues (5min target)",
+                    description: t("cmd-dev-urgent-desc", lang),
                     usage: "cldev dev urgent <PROBLEM> [-y]",
                 },
                 CommandInfo {
                     name: "dev fix",
-                    description: "Fix critical bugs (same-day resolution)",
+                    description: t("cmd-dev-fix-desc", lang),
                     usage: "cldev dev fix <TARGET> [--branch]",
                 },
                 CommandInfo {
                     name: "dev debug",
-                    description: "Systematic debugging workflow",
+                    description: t("cmd-dev-debug-desc", lang),
                     usage: "cldev dev debug <SYMPTOM> [--verbose]",
                 },
                 CommandInfo {
                     name: "dev feature",
-                    description: "Implement new feature (requirements to test)",
+                    description: t("cmd-dev-feature-desc", lang),
                     usage: "cldev dev feature <NAME> [--skip-confirm]",
                 },
                 CommandInfo {
                     name: "dev refactor",
-                    description: "Safe refactoring with incremental execution",
+                    description: t("cmd-dev-refactor-desc", lang),
                     usage: "cldev dev refactor <TARGET> [--scope <SCOPE>]",
                 },
                 CommandInfo {
                     name: "dev optimize",
-                    description: "Performance optimization workflow",
+                    description: t("cmd-dev-optimize-desc", lang),
                     usage: "cldev dev optimize <TARGET> [--focus <AREA>]",
                 },
                 CommandInfo {
                     name: "dev research",
-                    description: "Technical research and learning records",
+                    description: t("cmd-dev-research-desc", lang),
                     usage: "cldev dev research <TOPIC> [--format <FMT>]",
                 },
             ],
         },
         // Git Commands (4 commands)
         CommandCategory {
-            name: "Git",
-            description: "Git operations with conventions",
+            name: t("cmd-cat-git", lang),
+            description: t("cmd-cat-git-desc", lang),
             emoji: "📝",
             commands: vec![
                 CommandInfo {
                     name: "git commit",
-                    description: "Create conventional commit",
+                    description: t("cmd-git-commit-desc", lang),
                     usage: "cldev git commit [<MESSAGE>] [--no-verify] [--amend]",
                 },
                 CommandInfo {
                     name: "git branch",
-                    description: "Create conventional branch",
+                    description: t("cmd-git-branch-desc", lang),
                     usage: "cldev git branch [<NAME>] [--type <TYPE>]",
                 },
                 CommandInfo {
                     name: "git merge-request",
-                    description: "Create MR/PR with quality checks",
+                    description: t("cmd-git-merge-request-desc", lang),
                     usage: "cldev git merge-request [--target <BRANCH>] [--detailed]",
                 },
                 CommandInfo {
                     name: "git status",
-                    description: "Enhanced git status with insights",
+                    description: t("cmd-git-status-desc", lang),
                     usage: "cldev git status [--detailed]",
                 },
             ],
         },
         // Quality Commands (3 commands)
         CommandCategory {
-            name: "Quality",
-            description: "Code quality and testing",
+            name: t("cmd-cat-quality", lang),
+            description: t("cmd-cat-quality-desc", lang),
             emoji: "✨",
             commands: vec![
                 CommandInfo {
                     name: "quality lint",
-                    description: "Run linter with auto-fix support",
+                    description: t("cmd-quality-lint-desc", lang),
                     usage: "cldev quality lint [--fix] [<PATHS>...]",
                 },
                 CommandInfo {
                     name: "quality format",
-                    description: "Format code consistently",
+                    description: t("cmd-quality-format-desc", lang),
                     usage: "cldev quality format [--check] [<PATHS>...]",
                 },
                 CommandInfo {
                     name: "quality test",
-                    description: "Run tests with coverage",
+                    description: t("cmd-quality-test-desc", lang),
                     usage: "cldev quality test [<PATTERN>] [--coverage] [--watch]",
                 },
             ],
         },
         // Tech Stack Commands (1 command)
         CommandCategory {
-            name: "Tech Stack",
-            description: "Technology-specific environments",
+            name: t("cmd-cat-tech-stack", lang),
+            description: t("cmd-cat-tech-stack-desc", lang),
             emoji: "🔧",
             commands: vec![CommandInfo {
                 name: "tech start",
-                description: "Start tech-specific development environment",
+                description: t("cmd-tech-start-desc", lang),
                 usage: "cldev tech start <STACK> [--port <PORT>] [--env <ENV>]",
             }],
         },
         // Operations Commands (2 commands)
         CommandCategory {
-            name: "Operations",
-            description: "Build and deployment",
+            name: t("cmd-cat-operations", lang),
+            description: t("cmd-cat-operations-desc", lang),
             emoji: "🚀",
             commands: vec![
                 CommandInfo {
                     name: "ops build",
-                    description: "Build project with optimization",
+                    description: t("cmd-ops-build-desc", lang),
                     usage: "cldev ops build [--env <ENV>] [--analyze] [--clean]",
                 },
                 CommandInfo {
                     name: "ops deploy",
-                    description: "Deploy to specified environment",
+                    description: t("cmd-ops-deploy-desc", lang),
                     usage: "cldev ops deploy <ENV> [-y] [--dry-run]",
                 },
             ],
         },
         // Analysis Commands (4 commands)
         CommandCategory {
-            name: "Analysis",
-            description: "Code analysis and review",
+            name: t("cmd-cat-analysis", lang),
+            description: t("cmd-cat-analysis-desc", lang),
             emoji: "📊",
             commands: vec![
                 CommandInfo {
                     name: "analysis analyze",
-                    description: "Analyze project structure and quality",
+                    description: t("cmd-analysis-analyze-desc", lang),
                     usage: "cldev analysis analyze [<TARGET>] [--detailed]",
                 },
                 CommandInfo {
                     name: "analysis explain",
-                    description: "Explain code or concepts",
+                    description: t("cmd-analysis-explain-desc", lang),
                     usage: "cldev analysis explain <TARGET> [--examples] [--detailed]",
                 },
                 CommandInfo {
                     name: "analysis review-mr",
-                    description: "Review merge request with security focus",
+                    description: t("cmd-analysis-review-mr-desc", lang),
                     usage: "cldev analysis review-mr <NUMBER> [--security-focus]",
                 },
                 CommandInfo {
                     name: "analysis serena",
-                    description: "Semantic code analysis (MCP)",
+                    description: t("cmd-analysis-serena-desc", lang),
                     usage: "cldev analysis serena [--mode <MODE>] [<TARGETS>...]",
                 },
             ],
         },
         // Learning Record Commands (4 commands)
         CommandCategory {
-            name: "Learning",
-            description: "Learning records and knowledge base",
+            name: t("cmd-cat-learning", lang),
+            description: t("cmd-cat-learning-desc", lang),
             emoji: "📚",
             commands: vec![
                 CommandInfo {
                     name: "lr find",
-                    description: "Search learning records",
+                    description: t("cmd-lr-find-desc", lang),
                     usage: "cldev lr find <QUERY> [--field <FIELD>] [--limit <N>]",
                 },
                 CommandInfo {
                     name: "lr stats",
-                    description: "Show learning statistics",
+                    description: t("cmd-lr-stats-desc", lang),
                     usage: "cldev lr stats [--period <PERIOD>] [--detailed]",
                 },
                 CommandInfo {
                     name: "lr problems",
-                    description: "List unsolved problems",
+                    description: t("cmd-lr-problems-desc", lang),
                     usage: "cldev lr problems [--priority <PRI>] [--recent]",
                 },
                 CommandInfo {
                     name: "lr new",
-                    description: "Create new learning record",
+                    description: t("cmd-lr-new-desc", lang),
                     usage: "cldev lr new <TOPIC> [--edit]",
                 },
             ],
         },
         // Todo Commands (1 command)
         CommandCategory {
-            name: "Todo",
-            description: "Task management",
+            name: t("cmd-cat-todo", lang),
+            description: t("cmd-cat-todo-desc", lang),
             emoji: "✅",
             commands: vec![CommandInfo {
                 name: "todo manage",
-                description: "Intelligent todo management",
+                description: t("cmd-todo-manage-desc", lang),
                 usage: "cldev todo manage <ACTION> [<DESCRIPTION>]",
             }],
         },
@@ -363,7 +374,8 @@ fn get_all_categories() -> Vec<CommandCategory> {
 
 /// Get command count by category
 pub fn get_command_stats() -> Vec<(String, usize)> {
-    get_all_categories()
+    // Use English for stats by default
+    get_all_categories(Language::English)
         .iter()
         .map(|cat| (cat.name.to_string(), cat.commands.len()))
         .collect()
@@ -375,7 +387,7 @@ mod tests {
 
     #[test]
     fn test_total_command_count() {
-        let categories = get_all_categories();
+        let categories = get_all_categories(Language::English);
         let total: usize = categories.iter().map(|cat| cat.commands.len()).sum();
 
         // Verify we have exactly 29 commands as per requirements
@@ -386,7 +398,7 @@ mod tests {
 
     #[test]
     fn test_all_categories_have_commands() {
-        let categories = get_all_categories();
+        let categories = get_all_categories(Language::English);
         for category in categories {
             assert!(
                 !category.commands.is_empty(),
@@ -398,7 +410,7 @@ mod tests {
 
     #[test]
     fn test_command_info_completeness() {
-        let categories = get_all_categories();
+        let categories = get_all_categories(Language::English);
         for category in categories {
             for cmd in category.commands {
                 assert!(!cmd.name.is_empty(), "Command name is empty");

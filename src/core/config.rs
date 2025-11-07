@@ -14,6 +14,8 @@
 //! - All paths are validated against path traversal attacks
 //! - Sensitive data should never be stored in the config file
 
+#![allow(dead_code)]
+
 use crate::core::error::{CldevError, Result};
 use crate::core::project_config::ProjectConfig;
 use crate::core::stack_config::{StackConfig, TechStack};
@@ -603,6 +605,7 @@ impl Config {
 /// - Stack: Technology stack-specific settings
 /// - Project: Project-specific settings
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct HierarchicalConfig {
     /// Global configuration (~/.config/cldev/config.toml)
     pub global: Arc<Config>,
@@ -691,6 +694,7 @@ impl HierarchicalConfig {
 }
 
 /// Configuration version utilities
+#[allow(dead_code)]
 pub struct ConfigVersion;
 
 impl ConfigVersion {

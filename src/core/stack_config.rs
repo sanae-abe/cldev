@@ -17,6 +17,8 @@
 //! Stack configs sit between global and project configs:
 //! Global (~/.config/cldev/config.toml) → Stack → Project (.cldev/config.toml)
 
+#![allow(dead_code)]
+
 use crate::core::error::{CldevError, Result};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -26,6 +28,7 @@ use std::path::PathBuf;
 /// Technical stack identifier
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
+#[allow(dead_code)]
 pub enum TechStack {
     /// Frontend web development (React, Vue, Angular, TypeScript)
     FrontendWeb,
@@ -80,6 +83,7 @@ impl TechStack {
 
 /// Stack-specific configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct StackConfig {
     /// Stack metadata
     #[serde(default)]
@@ -108,6 +112,7 @@ pub struct StackConfig {
 
 /// Stack metadata information
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct StackMetadata {
     /// Stack name (frontend-web, backend-api, etc.)
     pub name: String,
@@ -131,6 +136,7 @@ pub struct StackMetadata {
 
 /// Development tools configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct ToolsConfig {
     /// Package manager (npm, yarn, pnpm, cargo, pip, etc.)
     #[serde(default)]
@@ -159,6 +165,7 @@ pub struct ToolsConfig {
 
 /// Stack-specific quality configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct StackQualityConfig {
     /// Required linting rules
     #[serde(default)]
@@ -179,6 +186,7 @@ pub struct StackQualityConfig {
 
 /// Testing configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct TestingConfig {
     /// Test file patterns (e.g., "**/*.test.ts", "tests/**/*.rs")
     #[serde(default)]
@@ -199,6 +207,7 @@ pub struct TestingConfig {
 
 /// Environment configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct EnvironmentConfig {
     /// Required environment variables (names only, not values)
     #[serde(default)]

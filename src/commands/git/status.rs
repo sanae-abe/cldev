@@ -8,7 +8,7 @@
 
 use crate::cli::output::OutputHandler;
 use crate::core::error::Result;
-use crate::core::git_utils::{GitUtils, RemoteType};
+use crate::core::git_utils::GitUtils;
 use comfy_table::{Cell, Color, Table};
 use git2::{Status, StatusOptions};
 
@@ -79,7 +79,11 @@ fn display_remote_info(git_utils: &GitUtils, output: &OutputHandler) -> Result<(
 }
 
 /// Display file status
-fn display_file_status(git_utils: &GitUtils, detailed: bool, output: &OutputHandler) -> Result<()> {
+fn display_file_status(
+    _git_utils: &GitUtils,
+    detailed: bool,
+    output: &OutputHandler,
+) -> Result<()> {
     output.section("Working Directory Status");
 
     let repo = git2::Repository::open_from_env().map_err(|e| {
@@ -195,7 +199,7 @@ fn format_file_status(status: Status) -> &'static str {
 }
 
 /// Display files in a compact table format
-fn display_file_table(files: &[(String, Status)], output: &OutputHandler) {
+fn display_file_table(files: &[(String, Status)], _output: &OutputHandler) {
     let mut table = Table::new();
     table.load_preset(comfy_table::presets::NOTHING);
 

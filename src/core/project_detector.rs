@@ -3,6 +3,8 @@
 //! This module provides automatic project type detection based on configuration files
 //! and generates appropriate commands for linting, formatting, and testing.
 
+#![allow(dead_code)]
+
 use crate::core::error::{CldevError, Result};
 use std::fs;
 use std::path::{Path, PathBuf};

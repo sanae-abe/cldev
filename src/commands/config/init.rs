@@ -73,10 +73,13 @@ pub fn run_interactive_init(force: bool, output: &OutputHandler) -> Result<()> {
     // Step 6: Aliases
     let add_aliases = offer_aliases(&theme, output)?;
 
+    // Step 7: Claude Code integration
+    let integrate_claude = offer_claude_integration(&theme, &claude_dir, output)?;
+
     // Generate configuration with progress bar
     let config = generate_config_with_progress(
         language,
-        claude_dir,
+        claude_dir.clone(),
         projects_dir,
         github_cli,
         gitlab_cli,
@@ -93,6 +96,10 @@ pub fn run_interactive_init(force: bool, output: &OutputHandler) -> Result<()> {
 
     if add_aliases {
         suggest_alias_commands(&shell_config, output);
+    }
+
+    if integrate_claude {
+        setup_claude_integration(&claude_dir, output)?;
     }
 
     // Success message
@@ -276,6 +283,118 @@ fn offer_aliases(theme: &ColorfulTheme, output: &OutputHandler) -> Result<bool> 
     output.info("");
 
     Ok(add_aliases)
+}
+
+/// Step 7: Offer Claude Code integration
+fn offer_claude_integration(
+    theme: &ColorfulTheme,
+    claude_dir: &PathBuf,
+    output: &OutputHandler,
+) -> Result<bool> {
+    output.info("7. Claude Code integration (optional)");
+
+    let claude_md = claude_dir.join("CLAUDE.md");
+
+    if !claude_md.exists() {
+        output.warning("   Claude Code configuration file (CLAUDE.md) not found");
+        output.info(
+            "   Learning records will work, but manual setup is needed for Claude Code integration",
+        );
+        output.info("");
+        return Ok(false);
+    }
+
+    // Check if already integrated
+    if let Ok(content) = std::fs::read_to_string(&claude_md) {
+        if content.contains("cldev lr find") {
+            output.success("   ✓ Claude Code integration already configured");
+            output.info("");
+            return Ok(false);
+        }
+    }
+
+    output.info("   Add learning record reference to Claude Code configuration?");
+    output.info("   This allows Claude Code to access past problem solutions.");
+    output.info("");
+
+    let integrate = Confirm::with_theme(theme)
+        .with_prompt("   Enable integration?")
+        .default(true)
+        .interact()
+        .map_err(|e| CldevError::io(format!("Confirmation failed: {}", e)))?;
+
+    output.info("");
+
+    Ok(integrate)
+}
+
+/// Setup Claude Code integration
+fn setup_claude_integration(claude_dir: &PathBuf, output: &OutputHandler) -> Result<()> {
+    use std::fs::OpenOptions;
+    use std::io::Write;
+
+    let claude_md = claude_dir.join("CLAUDE.md");
+
+    if !claude_md.exists() {
+        output.warning("Claude Code configuration file not found, skipping integration");
+        return Ok(());
+    }
+
+    // Check if already integrated
+    if let Ok(content) = std::fs::read_to_string(&claude_md) {
+        if content.contains("cldev lr find") {
+            output.info("✓ Claude Code integration already configured");
+            return Ok(());
+        }
+    }
+
+    // Integration text
+    let integration_text = r#"
+
+---
+
+## 📖 学習記録活用（cldev統合）
+
+### 過去の問題・解決策検索
+```bash
+cldev lr find "認証"              # キーワード検索
+cldev lr find "JWT" --field tag   # タグ検索
+cldev lr stats                    # 統計表示
+cldev lr problems                 # 未解決問題一覧
+```
+
+### 学習記録の場所
+`~/.claude/learning-sessions/*.md`
+
+### 自動参照推奨タイミング
+- `/urgent`, `/fix`, `/debug` 実行時
+- エラー調査時（過去の類似問題確認）
+- 技術的決定の背景確認
+
+### 記録フォーマット
+各学習記録は以下を含む：
+- 問題の説明
+- 根本原因
+- 解決策
+- 重要な学び
+- 関連ファイル
+
+---
+"#;
+
+    // Append to CLAUDE.md
+    let mut file = OpenOptions::new()
+        .append(true)
+        .open(&claude_md)
+        .map_err(|e| CldevError::io(format!("Failed to open CLAUDE.md: {}", e)))?;
+
+    file.write_all(integration_text.as_bytes())
+        .map_err(|e| CldevError::io(format!("Failed to write to CLAUDE.md: {}", e)))?;
+
+    output.success("✓ Claude Code integration added to CLAUDE.md");
+    output.info(&format!("   Review: cat {}", claude_md.display()));
+
+    Ok(())
 }
 
 /// Generate configuration with progress bar

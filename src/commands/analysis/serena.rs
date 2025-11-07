@@ -196,7 +196,7 @@ fn run_watch_mode(targets: &[String], output: &OutputHandler) -> Result<()> {
     Ok(())
 }
 
-fn analyze_semantics(path: &Path, detailed: bool) -> Result<SerenaResult> {
+fn analyze_semantics(path: &Path, _detailed: bool) -> Result<SerenaResult> {
     let mut symbols = Vec::new();
     let mut relationships = Vec::new();
 
@@ -360,7 +360,7 @@ fn build_relationships(symbols: &[Symbol], relationships: &mut Vec<Relationship>
     }
 }
 
-fn detect_patterns(symbols: &[Symbol], relationships: &[Relationship]) -> Vec<Pattern> {
+fn detect_patterns(symbols: &[Symbol], _relationships: &[Relationship]) -> Vec<Pattern> {
     let mut patterns = Vec::new();
 
     // Detect builder pattern
@@ -457,7 +457,7 @@ fn calculate_metrics(symbols: &[Symbol], relationships: &[Relationship]) -> Anal
 
 fn generate_insights(
     symbols: &[Symbol],
-    relationships: &[Relationship],
+    _relationships: &[Relationship],
     patterns: &[Pattern],
     metrics: &AnalysisMetrics,
 ) -> Vec<Insight> {

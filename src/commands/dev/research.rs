@@ -1,3 +1,4 @@
+use crate::cli::output::OutputHandler;
 use crate::core::session_recorder::LearningSessionBuilder;
 use crate::core::{CldevError, Result};
 use colored::*;
@@ -12,7 +13,7 @@ use std::time::Instant;
 /// - Experimentation and hands-on learning
 /// - Knowledge capture and documentation
 /// - Automatic learning session recording
-pub fn handle_research(topic: Option<String>) -> Result<()> {
+pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result<()> {
     let start_time = Instant::now();
 
     println!(

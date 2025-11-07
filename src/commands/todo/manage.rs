@@ -1,7 +1,7 @@
 use crate::cli::args::TodoAction;
 use crate::core::{CldevError, Result};
 use colored::Colorize;
-use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
+use dialoguer::{theme::ColorfulTheme, Input, Select};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;

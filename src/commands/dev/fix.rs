@@ -1,5 +1,6 @@
-use crate::core::session_recorder::{LearningSession, LearningSessionBuilder};
-use crate::core::{CldevError, Result};
+use crate::cli::output::OutputHandler;
+use crate::core::session_recorder::LearningSessionBuilder;
+use crate::core::Result;
 use colored::*;
 use dialoguer::{Confirm, Input, MultiSelect, Select};
 use std::time::Instant;
@@ -8,11 +9,11 @@ use std::time::Instant;
 ///
 /// This command provides a same-day resolution framework for critical bugs
 /// with root cause analysis and systematic testing.
-pub fn handle_fix(target: Option<String>) -> Result<()> {
+pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> {
     let start_time = Instant::now();
 
-    println!("{}", "🔧 FIX: Important Bug Resolution".yellow().bold());
-    println!("{}", "━".repeat(60).yellow());
+    println!("{}", output.t("fix-header").yellow().bold());
+    println!("{}", output.t("fix-separator").yellow());
     println!();
 
     // Step 1: Bug Description
@@ -20,7 +21,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
         t
     } else {
         Input::<String>::new()
-            .with_prompt("📝 Describe the bug (symptoms and impact)")
+            .with_prompt(&output.t("fix-describe-bug"))
             .interact_text()?
     };
 
@@ -39,7 +40,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
     ];
 
     let category_idx = Select::new()
-        .with_prompt("🏷️  Bug Category")
+        .with_prompt(&output.t("fix-bug-category"))
         .items(&bug_categories)
         .interact()?;
 
@@ -57,7 +58,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
     ];
 
     let repro_idx = Select::new()
-        .with_prompt("🔄 Reproducibility")
+        .with_prompt(&output.t("fix-reproducibility"))
         .items(&reproducibility_options)
         .interact()?;
 
@@ -68,9 +69,9 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
     // Step 4: Reproduction Steps (if reproducible)
     let reproduction_steps = if repro_idx < 4 {
         // If reproducible
-        println!("{}", "📋 REPRODUCTION STEPS".cyan().bold());
-        println!("Enter step-by-step instructions to reproduce the bug:");
-        println!("(Press Enter twice when done)");
+        println!("{}", output.t("fix-reproduction-steps").cyan().bold());
+        println!("{}", output.t("fix-enter-steps"));
+        println!("{}", output.t("fix-press-enter-twice"));
         println!();
 
         let mut steps = Vec::new();
@@ -78,7 +79,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
 
         loop {
             let step = Input::<String>::new()
-                .with_prompt(&format!("Step {}", step_num))
+                .with_prompt(&output.t_format("fix-step-num", "num", &step_num.to_string()))
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -96,7 +97,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
     };
 
     println!();
-    println!("{}", "🔍 ROOT CAUSE ANALYSIS".cyan().bold());
+    println!("{}", output.t("fix-root-cause-analysis").cyan().bold());
     println!();
 
     // Step 5: Investigation Checklist
@@ -111,7 +112,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
         "Check boundary conditions and edge cases",
     ];
 
-    println!("Investigation checklist:");
+    println!("{}", output.t("fix-investigation-checklist"));
     for (i, area) in investigation_areas.iter().enumerate() {
         println!("  {}. {}", i + 1, area);
     }
@@ -120,13 +121,13 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
 
     // Step 6: Root Cause Input
     let root_cause = Input::<String>::new()
-        .with_prompt("🎯 Root Cause (what's causing the bug?)")
+        .with_prompt(&output.t("fix-root-cause-prompt"))
         .interact_text()?;
 
     println!();
 
     // Step 7: Fix Strategy
-    println!("{}", "🛠️  FIX PATTERNS".green().bold());
+    println!("{}", output.t("fix-fix-patterns").green().bold());
     println!();
 
     let fix_patterns = vec![
@@ -144,7 +145,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
     ];
 
     let pattern_idx = Select::new()
-        .with_prompt("Select fix pattern")
+        .with_prompt(&output.t("fix-select-pattern"))
         .items(&fix_patterns)
         .interact()?;
 
@@ -154,20 +155,20 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
 
     // Step 8: Implementation Plan
     let implementation = Input::<String>::new()
-        .with_prompt("💡 Implementation plan (brief description)")
+        .with_prompt(&output.t("fix-implementation-plan"))
         .interact_text()?;
 
     println!();
 
     // Step 9: Files to Modify
-    println!("{}", "📁 Affected Files".cyan());
-    println!("Enter file paths (one per line, press Enter twice when done):");
+    println!("{}", output.t("fix-affected-files").cyan());
+    println!("{}", output.t("fix-enter-files"));
     println!();
 
     let mut files = Vec::new();
     loop {
         let file = Input::<String>::new()
-            .with_prompt("File")
+            .with_prompt(&output.t("fix-file-prompt"))
             .allow_empty(true)
             .interact_text()?;
 
@@ -179,7 +180,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
     }
 
     println!();
-    println!("{}", "✅ TESTING CHECKLIST".cyan().bold());
+    println!("{}", output.t("fix-testing-checklist").cyan().bold());
     println!();
 
     // Step 10: Testing Requirements
@@ -195,7 +196,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
     ];
 
     let selected_tests = MultiSelect::new()
-        .with_prompt("Select testing steps to perform")
+        .with_prompt(&output.t("fix-select-tests"))
         .items(&test_requirements)
         .defaults(&vec![true; test_requirements.len()])
         .interact()?;
@@ -206,9 +207,9 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
         .collect();
 
     println!();
-    println!("{}", "🧪 TESTING COMMANDS".green().bold());
+    println!("{}", output.t("fix-testing-commands").green().bold());
     println!();
-    println!("Suggested test commands:");
+    println!("{}", output.t("fix-suggested-commands"));
     println!("  # Run unit tests");
     println!("  $ npm run test");
     println!();
@@ -226,7 +227,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
     println!();
 
     // Step 11: Commit Message Suggestion
-    println!("{}", "💾 RECOMMENDED COMMIT MESSAGE".cyan().bold());
+    println!("{}", output.t("fix-commit-message").cyan().bold());
     println!();
 
     let commit_type = match category {
@@ -259,7 +260,7 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
 
     // Step 12: Mark as Resolved
     let resolved = Confirm::new()
-        .with_prompt("Is the bug fixed and tested?")
+        .with_prompt(&output.t("fix-is-resolved"))
         .default(false)
         .interact()?;
 
@@ -299,34 +300,47 @@ pub fn handle_fix(target: Option<String>) -> Result<()> {
     let (session, path) = session.save()?;
 
     println!();
-    println!("{}", "✅ Session saved".green());
-    println!("   Session ID: {}", session.id.cyan());
-    println!("   Path: {}", path.display().to_string().cyan());
+    output.success(&output.t("fix-session-saved"));
+    println!(
+        "   {}",
+        output.t_format("fix-session-id", "id", &session.id.cyan().to_string())
+    );
+    println!(
+        "   {}",
+        output.t_format(
+            "fix-session-path",
+            "path",
+            &path.display().to_string().cyan().to_string()
+        )
+    );
     println!();
 
     if resolved {
-        println!("{}", "🎉 Bug fixed and tested!".green().bold());
-        println!("   Time taken: {} minutes", duration);
+        println!("{}", output.t("fix-bug-resolved").green().bold());
+        println!(
+            "   {}",
+            output.t_format("fix-duration", "minutes", &duration.to_string())
+        );
         println!();
-        println!("Next steps:");
+        println!("{}", output.t("fix-next-steps-resolved"));
         println!("  1. Create pull request with the fix");
         println!("  2. Request code review");
         println!("  3. Monitor after deployment");
     } else {
-        println!("{}", "⚠️  Continue working on the fix".yellow().bold());
+        println!("{}", output.t("fix-continue-working").yellow().bold());
         println!();
-        println!("Next steps:");
+        println!("{}", output.t("fix-next-steps-ongoing"));
         println!("  1. Implement the fix based on the plan");
         println!("  2. Run the testing checklist");
         println!("  3. Re-run this command to update status");
     }
 
     println!();
-    println!("{}", "💡 BEST PRACTICES".cyan().bold());
-    println!("  • Write clear, focused commits");
-    println!("  • Add tests to prevent regression");
-    println!("  • Document edge cases and assumptions");
-    println!("  • Consider similar bugs in related code");
+    println!("{}", output.t("fix-best-practices").cyan().bold());
+    println!("  • {}", output.t("fix-tip-clear-commits"));
+    println!("  • {}", output.t("fix-tip-add-tests"));
+    println!("  • {}", output.t("fix-tip-document"));
+    println!("  • {}", output.t("fix-tip-similar-bugs"));
 
     Ok(())
 }

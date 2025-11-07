@@ -1,3 +1,4 @@
+use crate::cli::output::OutputHandler;
 use crate::core::session_recorder::LearningSessionBuilder;
 use crate::core::{GitUtils, Result};
 use colored::*;
@@ -12,14 +13,11 @@ use std::time::Instant;
 /// - Git branch creation (feature/name)
 /// - Step-by-step implementation with TodoWrite integration
 /// - Testing and documentation
-pub fn handle_feature(name: Option<String>) -> Result<()> {
+pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()> {
     let start_time = Instant::now();
 
-    println!(
-        "{}",
-        "🚀 FEATURE: New Feature Implementation".green().bold()
-    );
-    println!("{}", "━".repeat(60).green());
+    println!("{}", output.t("feature-header").green().bold());
+    println!("{}", output.t("feature-separator").green());
     println!();
 
     // Step 1: Feature Name and Description
@@ -27,20 +25,20 @@ pub fn handle_feature(name: Option<String>) -> Result<()> {
         n
     } else {
         Input::<String>::new()
-            .with_prompt("📝 Feature Name")
+            .with_prompt(&output.t("feature-name-prompt"))
             .interact_text()?
     };
 
     println!();
 
     let feature_desc = Input::<String>::new()
-        .with_prompt("📄 Feature Description (brief summary)")
+        .with_prompt(&output.t("feature-description-prompt"))
         .interact_text()?;
 
     println!();
 
     // Step 2: Requirements Gathering
-    println!("{}", "📋 REQUIREMENTS GATHERING".cyan().bold());
+    println!("{}", output.t("feature-requirements-header").cyan().bold());
     println!();
 
     let requirements_items = vec![
@@ -387,7 +385,7 @@ pub fn handle_feature(name: Option<String>) -> Result<()> {
     println!();
 
     // Step 14: Key Learnings
-    if is_completed {
+    let user_learning = if is_completed {
         println!("{}", "💡 KEY LEARNINGS".cyan().bold());
         println!();
 
@@ -397,7 +395,10 @@ pub fn handle_feature(name: Option<String>) -> Result<()> {
             .interact_text()?;
 
         println!();
-    }
+        learning
+    } else {
+        String::new()
+    };
 
     // Step 15: Save Learning Session
     let mut session = LearningSessionBuilder::new("feature", &feature_name)
@@ -444,7 +445,12 @@ pub fn handle_feature(name: Option<String>) -> Result<()> {
         session = session.resolved(Some(duration as u32));
         session = session.solution(&feature_desc);
         if status_idx == 4 {
-            session = session.learning("Feature successfully completed and deployed");
+            let learning_text = if user_learning.is_empty() {
+                "Feature successfully completed and deployed".to_string()
+            } else {
+                user_learning
+            };
+            session = session.learning(&learning_text);
         }
     }
 

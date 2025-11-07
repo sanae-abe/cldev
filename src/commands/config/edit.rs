@@ -7,6 +7,8 @@
 //! - Config file editor preference
 //! - Common editor fallbacks
 
+#![allow(dead_code)]
+
 use crate::cli::output::OutputHandler;
 use crate::core::config::Config;
 use crate::core::error::{CldevError, Result};
@@ -44,34 +46,41 @@ pub fn edit_config(
 
     // Ensure config file exists
     if !config_file.exists() {
-        output.warning(&format!(
-            "⚠️  Configuration file not found: {}",
-            config_file.display()
+        output.warning(&output.i18n().format(
+            "config-edit-not-found",
+            "path",
+            &config_file.display().to_string(),
         ));
-        output.info("Creating default configuration file...");
+        output.info(&output.i18n().get("config-edit-creating"));
 
         let default_config = Config::default();
         default_config.save(Some(config_file.clone()))?;
 
-        output.success(&format!(
-            "✅ Created configuration file: {}",
-            config_file.display()
+        output.success(&output.i18n().format(
+            "config-edit-created",
+            "path",
+            &config_file.display().to_string(),
         ));
     }
 
     // Determine which editor to use
     let editor_cmd = determine_editor(editor_override, &config_file, output)?;
 
-    output.info(&format!(
-        "📝 Opening {} with {}...",
-        config_file.display(),
-        editor_cmd
-    ));
+    output.info(
+        &output
+            .i18n()
+            .format(
+                "config-edit-opening-with",
+                "path",
+                &config_file.display().to_string(),
+            )
+            .replace("{editor}", &editor_cmd),
+    );
 
     // Launch editor
     launch_editor(&editor_cmd, &config_file, output)?;
 
-    output.success("✅ Configuration file editing completed");
+    output.success(&output.i18n().get("config-edit-completed"));
 
     Ok(())
 }
@@ -113,7 +122,7 @@ fn determine_editor(
 
     // No editor found
     Err(CldevError::editor(
-        "No editor found. Please set $EDITOR environment variable or use --editor flag",
+        &output.i18n().get("config-edit-no-editor"),
     ))
 }
 

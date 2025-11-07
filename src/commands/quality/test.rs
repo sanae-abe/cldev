@@ -119,6 +119,7 @@ pub fn run_tests(
 ///
 /// # Returns
 /// Result indicating success or error
+#[allow(dead_code)]
 pub fn run_tests_advanced(
     pattern: Option<&str>,
     coverage: bool,

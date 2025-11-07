@@ -20,6 +20,8 @@
 //! └── src/
 //! ```
 
+#![allow(dead_code)]
+
 use crate::core::error::{CldevError, Result};
 use crate::core::stack_config::TechStack;
 use serde::{Deserialize, Serialize};
@@ -29,6 +31,7 @@ use std::path::{Path, PathBuf};
 
 /// Project-specific configuration
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct ProjectConfig {
     /// Project metadata
     #[serde(default)]
@@ -57,6 +60,7 @@ pub struct ProjectConfig {
 
 /// Project metadata
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct ProjectMetadata {
     /// Project name
     pub name: String,
@@ -84,6 +88,7 @@ pub struct ProjectMetadata {
 
 /// Project-specific development settings
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct ProjectDevConfig {
     /// Development server port (overrides stack default)
     #[serde(default)]
@@ -104,6 +109,7 @@ pub struct ProjectDevConfig {
 
 /// Project-specific quality settings
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct ProjectQualityConfig {
     /// Enable pre-commit hooks
     #[serde(default = "default_true")]
@@ -124,6 +130,7 @@ pub struct ProjectQualityConfig {
 
 /// Project-specific Git workflow settings
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct ProjectGitConfig {
     /// Default base branch for this project
     #[serde(default)]
@@ -148,6 +155,7 @@ pub struct ProjectGitConfig {
 
 /// Project-specific paths
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[allow(dead_code)]
 pub struct ProjectPaths {
     /// Source code directory
     #[serde(default = "default_src_dir")]

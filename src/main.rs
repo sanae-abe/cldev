@@ -18,47 +18,24 @@ fn main() {
 fn run() -> Result<()> {
     let cli = Cli::parse();
 
-    // Initialize output handler with global flags
-    let output = OutputHandler::new(cli.verbose, cli.quiet, cli.no_color);
+    // Initialize i18n help system before clap parsing
+    cli::help::init_help_i18n(cli.lang.to_i18n());
+
+    // Initialize output handler with global flags and language
+    let output =
+        OutputHandler::with_language(cli.verbose, cli.quiet, cli.no_color, cli.lang.to_i18n());
 
     // Route to appropriate command handler
     match &cli.command {
-        Commands::Config(cmd) => {
-            output.info("Config command execution - implementation pending");
-            handle_config_command(cmd, &output)
-        }
-        Commands::Dev(cmd) => {
-            output.info("Dev command execution - implementation pending");
-            handle_dev_command(cmd, &output)
-        }
-        Commands::Git(cmd) => {
-            output.info("Git command execution - implementation pending");
-            handle_git_command(cmd, &output)
-        }
-        Commands::Quality(cmd) => {
-            output.info("Quality command execution - implementation pending");
-            handle_quality_command(cmd, &output)
-        }
-        Commands::Tech(cmd) => {
-            output.info("Tech command execution - implementation pending");
-            handle_tech_command(cmd, &output)
-        }
-        Commands::Ops(cmd) => {
-            output.info("Ops command execution - implementation pending");
-            handle_ops_command(cmd, &output)
-        }
-        Commands::Analysis(cmd) => {
-            output.info("Analysis command execution - implementation pending");
-            handle_analysis_command(cmd, &output)
-        }
-        Commands::Lr(cmd) => {
-            output.info("Learning Record command execution - implementation pending");
-            handle_lr_command(cmd, &output)
-        }
-        Commands::Todo(cmd) => {
-            output.info("Todo command execution - implementation pending");
-            handle_todo_command(cmd, &output)
-        }
+        Commands::Config(cmd) => handle_config_command(cmd, &output),
+        Commands::Dev(cmd) => handle_dev_command(cmd, &output),
+        Commands::Git(cmd) => handle_git_command(cmd, &output),
+        Commands::Quality(cmd) => handle_quality_command(cmd, &output),
+        Commands::Tech(cmd) => handle_tech_command(cmd, &output),
+        Commands::Ops(cmd) => handle_ops_command(cmd, &output),
+        Commands::Analysis(cmd) => handle_analysis_command(cmd, &output),
+        Commands::Lr(cmd) => handle_lr_command(cmd, &output),
+        Commands::Todo(cmd) => handle_todo_command(cmd, &output),
         Commands::Completions { shell, install } => {
             handle_completions_command(*shell, *install, &output)
         }
@@ -129,28 +106,255 @@ fn handle_config_init(defaults: bool, force: bool, output: &OutputHandler) -> Re
 }
 
 /// Maintain configuration files
-fn handle_config_maintain(_backup: bool, _cleanup: bool, output: &OutputHandler) -> Result<()> {
-    output.info("Configuration maintenance not yet fully implemented");
-    output.info("This will include:");
-    output.list_item("Backup configuration files");
-    output.list_item("Clean up old backups");
-    output.list_item("Validate all configuration files");
-    output.list_item("Report configuration health");
+fn handle_config_maintain(backup: bool, cleanup: bool, output: &OutputHandler) -> Result<()> {
+    use core::config::Config;
+    use std::fs;
+    use std::path::PathBuf;
+
+    let config_path = Config::default_path()?;
+
+    // Validate configuration
+    output.info("🔍 Validating configuration...");
+    match Config::load(None) {
+        Ok(_) => output.success("✅ Configuration is valid"),
+        Err(e) => {
+            output.error(&format!("❌ Configuration validation failed: {}", e));
+            return Err(e);
+        }
+    }
+
+    // Perform backup if requested
+    if backup {
+        output.info("\n📦 Creating configuration backup...");
+
+        if !config_path.exists() {
+            output.warning("No configuration file found to backup");
+        } else {
+            let backup_dir = config_path
+                .parent()
+                .ok_or_else(|| core::error::CldevError::config("Invalid config path"))?
+                .join("backups");
+
+            fs::create_dir_all(&backup_dir).map_err(|e| {
+                core::error::CldevError::io(format!("Failed to create backup directory: {}", e))
+            })?;
+
+            let timestamp = chrono::Local::now().format("%Y%m%d_%H%M%S");
+            let backup_path = backup_dir.join(format!("config.toml.{}", timestamp));
+
+            fs::copy(&config_path, &backup_path).map_err(|e| {
+                core::error::CldevError::io(format!("Failed to create backup: {}", e))
+            })?;
+
+            output.success(&format!("✅ Backup created: {}", backup_path.display()));
+        }
+    }
+
+    // Cleanup old backups if requested
+    if cleanup {
+        output.info("\n🧹 Cleaning up old backups...");
+
+        let backup_dir = config_path
+            .parent()
+            .ok_or_else(|| core::error::CldevError::config("Invalid config path"))?
+            .join("backups");
+
+        if !backup_dir.exists() {
+            output.info("No backup directory found");
+        } else {
+            let mut backups: Vec<PathBuf> = fs::read_dir(&backup_dir)
+                .map_err(|e| {
+                    core::error::CldevError::io(format!("Failed to read backup directory: {}", e))
+                })?
+                .filter_map(|entry| entry.ok())
+                .map(|entry| entry.path())
+                .filter(|path| {
+                    path.is_file()
+                        && path
+                            .file_name()
+                            .and_then(|n| n.to_str())
+                            .map(|n| n.starts_with("config.toml."))
+                            .unwrap_or(false)
+                })
+                .collect();
+
+            if backups.is_empty() {
+                output.info("No backups found");
+            } else {
+                // Sort by modification time (newest first)
+                backups.sort_by_key(|path| {
+                    fs::metadata(path)
+                        .and_then(|m| m.modified())
+                        .ok()
+                        .map(|t| std::time::SystemTime::now().duration_since(t).ok())
+                        .flatten()
+                });
+
+                let keep_count = 10;
+                let remove_count = backups.len().saturating_sub(keep_count);
+
+                if remove_count > 0 {
+                    output.info(&format!(
+                        "Keeping {} most recent backups, removing {} old backups",
+                        keep_count, remove_count
+                    ));
+
+                    for backup in backups.iter().skip(keep_count) {
+                        match fs::remove_file(backup) {
+                            Ok(_) => output.success(&format!(
+                                "  Removed: {}",
+                                backup.file_name().unwrap().to_string_lossy()
+                            )),
+                            Err(e) => output.warning(&format!(
+                                "  Failed to remove {}: {}",
+                                backup.display(),
+                                e
+                            )),
+                        }
+                    }
+                } else {
+                    output.info(&format!("Found {} backups (keeping all)", backups.len()));
+                }
+            }
+        }
+    }
+
+    // Report configuration health
+    output.info("\n📊 Configuration Health Report:");
+    output.list_item(&format!("Config location: {}", config_path.display()));
+    output.list_item(&format!("Config exists: {}", config_path.exists()));
+
+    if config_path.exists() {
+        if let Ok(metadata) = fs::metadata(&config_path) {
+            output.list_item(&format!("Config size: {} bytes", metadata.len()));
+
+            #[cfg(unix)]
+            {
+                use std::os::unix::fs::PermissionsExt;
+                let mode = metadata.permissions().mode();
+                let mode_str = format!("{:o}", mode & 0o777);
+                output.list_item(&format!("Permissions: {}", mode_str));
+            }
+        }
+    }
+
+    if !backup && !cleanup {
+        output.info("\n💡 Tip: Use --backup to create a backup or --cleanup to remove old backups");
+    }
+
     Ok(())
 }
 
 /// Update documentation
 fn handle_config_update_docs(
-    _doc_type: Option<&cli::args::DocType>,
-    _validate: bool,
+    doc_type: Option<&cli::args::DocType>,
+    validate: bool,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info("Documentation update not yet fully implemented");
-    output.info("This will include:");
-    output.list_item("Update implementation documentation");
-    output.list_item("Update API documentation");
-    output.list_item("Update architecture documentation");
-    output.list_item("Validate documentation completeness");
+    use std::path::Path;
+
+    // If no doc type specified, show available options
+    if doc_type.is_none() {
+        output.section("Available Documentation Types");
+        output.list_item("implementation - Code implementation documentation");
+        output.list_item("api - API reference documentation");
+        output.list_item("architecture - Architecture and design documentation");
+        output.raw("");
+        output.info("Usage: cldev config update-docs --type <TYPE>");
+        output.info("Add --validate to check documentation completeness");
+        return Ok(());
+    }
+
+    let doc_type = doc_type.unwrap();
+
+    // Validation mode
+    if validate {
+        output.section("Validating Documentation");
+
+        let docs_dir = Path::new("docs");
+        if !docs_dir.exists() {
+            output.warning("docs/ directory not found");
+            output.info("Consider creating documentation structure:");
+            output.list_item("docs/implementation/");
+            output.list_item("docs/api/");
+            output.list_item("docs/architecture/");
+            return Ok(());
+        }
+
+        // Count markdown files
+        let mut total_docs = 0;
+        if let Ok(entries) = std::fs::read_dir(docs_dir) {
+            for entry in entries.flatten() {
+                if let Ok(file_type) = entry.file_type() {
+                    if file_type.is_file() {
+                        if let Some(ext) = entry.path().extension() {
+                            if ext == "md" {
+                                total_docs += 1;
+                            }
+                        }
+                    } else if file_type.is_dir() {
+                        // Count files in subdirectories
+                        if let Ok(sub_entries) = std::fs::read_dir(entry.path()) {
+                            for sub_entry in sub_entries.flatten() {
+                                if let Some(ext) = sub_entry.path().extension() {
+                                    if ext == "md" {
+                                        total_docs += 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        output.success(&format!(
+            "Found {} markdown documentation file(s)",
+            total_docs
+        ));
+        output.info("Documentation structure:");
+        output.list_item(&format!("Location: {}", docs_dir.display()));
+        output.list_item(&format!("Total .md files: {}", total_docs));
+    }
+
+    // Show doc type specific message
+    output.section(&format!(
+        "Updating {} Documentation",
+        match doc_type {
+            cli::args::DocType::Implementation => "Implementation",
+            cli::args::DocType::Api => "API",
+            cli::args::DocType::Architecture => "Architecture",
+        }
+    ));
+
+    match doc_type {
+        cli::args::DocType::Implementation => {
+            output.info("Implementation documentation update will include:");
+            output.list_item("Scan source code for modules and functions");
+            output.list_item("Extract inline documentation comments");
+            output.list_item("Generate usage examples");
+            output.list_item("Update implementation guides");
+        }
+        cli::args::DocType::Api => {
+            output.info("API documentation update will include:");
+            output.list_item("Extract API endpoint definitions");
+            output.list_item("Document request/response schemas");
+            output.list_item("Generate API examples and curl commands");
+            output.list_item("Update API reference documentation");
+        }
+        cli::args::DocType::Architecture => {
+            output.info("Architecture documentation update will include:");
+            output.list_item("Analyze project structure and dependencies");
+            output.list_item("Generate component diagrams");
+            output.list_item("Document design patterns and decisions");
+            output.list_item("Update architecture guides");
+        }
+    }
+
+    output.raw("");
+    output.warning("Full implementation coming soon");
+    output.info("Documentation will be generated in: docs/");
+
     Ok(())
 }
 
@@ -159,25 +363,27 @@ fn handle_dev_command(cmd: &cli::args::DevCommands, output: &OutputHandler) -> R
 
     match cmd {
         DevCommands::Urgent { problem, yes: _ } => {
-            commands::dev::handle_urgent(Some(problem.clone()))
+            commands::dev::handle_urgent(Some(problem.clone()), output)
         }
-        DevCommands::Fix { target, branch: _ } => commands::dev::handle_fix(Some(target.clone())),
+        DevCommands::Fix { target, branch: _ } => {
+            commands::dev::handle_fix(Some(target.clone()), output)
+        }
         DevCommands::Debug {
             symptom,
             verbose: _,
-        } => commands::dev::handle_debug(Some(symptom.clone())),
+        } => commands::dev::handle_debug(Some(symptom.clone()), output),
         DevCommands::Feature {
             name,
             skip_confirm: _,
-        } => commands::dev::handle_feature(Some(name.clone())),
+        } => commands::dev::handle_feature(Some(name.clone()), output),
         DevCommands::Refactor { target, scope: _ } => {
-            commands::dev::handle_refactor(Some(target.clone()))
+            commands::dev::handle_refactor(Some(target.clone()), output)
         }
         DevCommands::Optimize { target, focus: _ } => {
-            commands::dev::handle_optimize(Some(target.clone()))
+            commands::dev::handle_optimize(Some(target.clone()), output)
         }
         DevCommands::Research { topic, format: _ } => {
-            commands::dev::handle_research(Some(topic.clone()))
+            commands::dev::handle_research(Some(topic.clone()), output)
         }
     }
 }

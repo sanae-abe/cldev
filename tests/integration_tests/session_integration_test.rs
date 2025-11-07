@@ -5,6 +5,7 @@
 
 use cldev::core::error::Result;
 use cldev::core::session_recorder::{LearningSession, LearningSessionBuilder};
+use serial_test::serial;
 use std::fs;
 use tempfile::TempDir;
 
@@ -58,6 +59,7 @@ fn test_session_builder_fluent_api() -> Result<()> {
 }
 
 #[test]
+#[serial]
 fn test_session_save_and_load() -> Result<()> {
     // Create a temporary directory for sessions
     let temp_dir = TempDir::new()?;
@@ -92,6 +94,7 @@ fn test_session_save_and_load() -> Result<()> {
 }
 
 #[test]
+#[serial]
 fn test_session_list_all() -> Result<()> {
     let temp_dir = TempDir::new()?;
     std::env::set_var("HOME", temp_dir.path());
@@ -117,6 +120,7 @@ fn test_session_list_all() -> Result<()> {
 }
 
 #[test]
+#[serial]
 fn test_session_find_by_tag() -> Result<()> {
     let temp_dir = TempDir::new()?;
     std::env::set_var("HOME", temp_dir.path());
@@ -155,19 +159,25 @@ fn test_session_find_by_tag() -> Result<()> {
 }
 
 #[test]
+#[serial]
 fn test_session_find_by_type() -> Result<()> {
     let temp_dir = TempDir::new()?;
     std::env::set_var("HOME", temp_dir.path());
 
     // Create sessions of different types
     let session1 = LearningSession::new("urgent", "Urgent issue 1");
-    let session2 = LearningSession::new("urgent", "Urgent issue 2");
-    let session3 = LearningSession::new("debug", "Debug session");
-    let session4 = LearningSession::new("feature", "Feature work");
-
     session1.save()?;
+    std::thread::sleep(std::time::Duration::from_millis(2)); // Ensure unique timestamps
+
+    let session2 = LearningSession::new("urgent", "Urgent issue 2");
     session2.save()?;
+    std::thread::sleep(std::time::Duration::from_millis(2));
+
+    let session3 = LearningSession::new("debug", "Debug session");
     session3.save()?;
+    std::thread::sleep(std::time::Duration::from_millis(2));
+
+    let session4 = LearningSession::new("feature", "Feature work");
     session4.save()?;
 
     // Find by type
@@ -184,6 +194,7 @@ fn test_session_find_by_type() -> Result<()> {
 }
 
 #[test]
+#[serial]
 fn test_session_builder_save_directly() -> Result<()> {
     let temp_dir = TempDir::new()?;
     std::env::set_var("HOME", temp_dir.path());
@@ -256,6 +267,7 @@ fn test_session_add_multiple_tags() -> Result<()> {
 }
 
 #[test]
+#[serial]
 fn test_session_complex_workflow() -> Result<()> {
     let temp_dir = TempDir::new()?;
     std::env::set_var("HOME", temp_dir.path());
@@ -311,6 +323,7 @@ fn test_session_complex_workflow() -> Result<()> {
 }
 
 #[test]
+#[serial]
 fn test_session_json_serialization() -> Result<()> {
     let temp_dir = TempDir::new()?;
     std::env::set_var("HOME", temp_dir.path());
@@ -338,11 +351,11 @@ fn test_session_json_serialization() -> Result<()> {
 fn test_session_id_format() -> Result<()> {
     let session = LearningSession::new("urgent", "Test");
 
-    // ID should be in format: type_YYYYMMDD_HHMMSS
+    // ID should be in format: type_YYYYMMDD_HHMMSS_mmm (with milliseconds)
     assert!(session.id.starts_with("urgent_"));
 
     let parts: Vec<&str> = session.id.split('_').collect();
-    assert_eq!(parts.len(), 3); // type, date, time
+    assert_eq!(parts.len(), 4); // type, date, time, milliseconds
 
     Ok(())
 }

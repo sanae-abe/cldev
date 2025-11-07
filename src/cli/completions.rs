@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use clap::CommandFactory;
 use clap_complete::{generate, Shell};
 use std::io;

@@ -1,3 +1,4 @@
+use crate::cli::output::OutputHandler;
 use crate::core::session_recorder::LearningSessionBuilder;
 use crate::core::{CldevError, Result};
 use colored::*;
@@ -12,14 +13,11 @@ use std::time::Instant;
 /// - Optimization implementation
 /// - Performance verification (after optimization)
 /// - Before/after comparison
-pub fn handle_optimize(target: Option<String>) -> Result<()> {
+pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result<()> {
     let start_time = Instant::now();
 
-    println!(
-        "{}",
-        "⚡ OPTIMIZE: Performance Improvement".magenta().bold()
-    );
-    println!("{}", "━".repeat(60).magenta());
+    println!("{}", output.t("optimize-header").magenta().bold());
+    println!("{}", output.t("optimize-separator").magenta());
     println!();
 
     // Step 1: Optimization Target
@@ -27,14 +25,17 @@ pub fn handle_optimize(target: Option<String>) -> Result<()> {
         t
     } else {
         Input::<String>::new()
-            .with_prompt("🎯 What do you want to optimize? (component, API, query, etc.)")
+            .with_prompt(&output.t("optimize-target-prompt"))
             .interact_text()?
     };
 
     println!();
 
     // Step 2: Performance Issue Type
-    println!("{}", "🔍 PERFORMANCE ISSUE CLASSIFICATION".cyan().bold());
+    println!(
+        "{}",
+        output.t("optimize-issue-classification").cyan().bold()
+    );
     println!();
 
     let issue_types = vec![

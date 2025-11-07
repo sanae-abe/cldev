@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use crate::core::i18n::I18n;
 use colored::{ColoredString, Colorize};
 use std::collections::HashMap;
@@ -36,6 +38,28 @@ impl OutputHandler {
             level,
             use_color: !no_color && atty::is(atty::Stream::Stdout),
             i18n: I18n::new(),
+        }
+    }
+
+    /// Create a new output handler with a specific language
+    pub fn with_language(
+        verbose: bool,
+        quiet: bool,
+        no_color: bool,
+        language: crate::core::i18n::Language,
+    ) -> Self {
+        let level = if quiet {
+            OutputLevel::Quiet
+        } else if verbose {
+            OutputLevel::Verbose
+        } else {
+            OutputLevel::Normal
+        };
+
+        Self {
+            level,
+            use_color: !no_color && atty::is(atty::Stream::Stdout),
+            i18n: I18n::with_language(language),
         }
     }
 

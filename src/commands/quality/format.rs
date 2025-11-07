@@ -104,6 +104,7 @@ pub fn format_code(paths: &[String], check: bool, output: &OutputHandler) -> Res
 ///
 /// # Returns
 /// Result indicating success or error
+#[allow(dead_code)]
 pub fn format_code_advanced(
     paths: &[String],
     check: bool,
@@ -304,7 +305,15 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let output = OutputHandler::default();
 
+        // Change to temp directory to avoid detecting current Rust project
+        let original_dir = std::env::current_dir().unwrap();
+        std::env::set_current_dir(temp_dir.path()).unwrap();
+
         let result = format_code(&[], false, &output);
+
+        // Restore original directory
+        std::env::set_current_dir(original_dir).unwrap();
+
         assert!(result.is_err());
     }
 

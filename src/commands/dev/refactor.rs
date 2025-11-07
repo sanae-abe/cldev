@@ -1,3 +1,4 @@
+use crate::cli::output::OutputHandler;
 use crate::core::session_recorder::LearningSessionBuilder;
 use crate::core::{CldevError, Result};
 use colored::*;
@@ -12,11 +13,11 @@ use std::time::Instant;
 /// - Incremental refactoring steps
 /// - Continuous testing
 /// - Impact analysis on existing functionality
-pub fn handle_refactor(target: Option<String>) -> Result<()> {
+pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result<()> {
     let start_time = Instant::now();
 
-    println!("{}", "🔄 REFACTOR: Safe Code Improvement".blue().bold());
-    println!("{}", "━".repeat(60).blue());
+    println!("{}", output.t("refactor-header").blue().bold());
+    println!("{}", output.t("refactor-separator").blue());
     println!();
 
     // Step 1: Refactoring Target
@@ -24,14 +25,14 @@ pub fn handle_refactor(target: Option<String>) -> Result<()> {
         t
     } else {
         Input::<String>::new()
-            .with_prompt("🎯 What do you want to refactor? (component, module, function)")
+            .with_prompt(&output.t("refactor-target-prompt"))
             .interact_text()?
     };
 
     println!();
 
     // Step 2: Motivation for Refactoring
-    println!("{}", "❓ REFACTORING MOTIVATION".cyan().bold());
+    println!("{}", output.t("refactor-motivation-header").cyan().bold());
     println!();
 
     let motivation_options = vec![

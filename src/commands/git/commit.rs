@@ -153,7 +153,7 @@ pub fn create_commit(
     amend: bool,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info("Creating Conventional Commit...");
+    output.info(&output.t("git-commit-creating"));
 
     // Open the Git repository
     let git_utils = GitUtils::open_current()?;
@@ -162,12 +162,12 @@ pub fn create_commit(
     if !amend {
         let files = git_utils.changed_files()?;
         if files.is_empty() {
-            output.warning("No changes to commit");
-            output.info("Hint: Stage files with 'git add' first");
+            output.warning(&output.t("git-commit-no-changes"));
+            output.info(&output.t("git-commit-hint-stage"));
             return Ok(());
         }
 
-        output.info(&format!("Changed files: {}", files.len()));
+        output.info(&output.t_format("git-commit-files-count", "count", &files.len().to_string()));
         for file in &files {
             output.list_item(file);
         }
@@ -206,15 +206,15 @@ pub fn create_commit(
     })?;
 
     if status.success() {
-        output.success(&format!("✅ Commit created successfully"));
-        output.info(&format!("Message: {}", commit_message));
+        output.success(&output.t("git-commit-success"));
+        output.info(&output.t_format("git-commit-message", "message", &commit_message));
 
         // Show next steps
-        output.info("\n💡 Next steps:");
-        output.list_item("git push - Push commits to remote");
-        output.list_item("cldev git status - Check repository status");
+        output.info(&format!("\n{}", output.t("git-commit-next-steps")));
+        output.list_item(&output.t("git-commit-next-push"));
+        output.list_item(&output.t("git-commit-next-status"));
     } else {
-        output.error("Failed to create commit");
+        output.error(&output.t("git-commit-failed"));
         return Err(crate::core::error::CldevError::git("Commit failed"));
     }
 
@@ -243,7 +243,7 @@ fn build_commit_message_interactive(
         0
     };
 
-    output.info("\nSelect commit type:");
+    output.info(&format!("\n{}", output.t("git-commit-select-type")));
     let selection = Select::new()
         .items(&items)
         .default(default_index)
@@ -255,7 +255,7 @@ fn build_commit_message_interactive(
     let commit_type = &types[selection];
 
     // Ask for scope (optional)
-    output.info("\nEnter scope (optional, press Enter to skip):");
+    output.info(&format!("\n{}", output.t("git-commit-scope-prompt")));
     let scope: String = Input::new()
         .allow_empty(true)
         .interact_text()
@@ -264,13 +264,13 @@ fn build_commit_message_interactive(
         })?;
 
     // Ask for description
-    output.info("\nEnter commit description:");
+    output.info(&format!("\n{}", output.t("git-commit-description-prompt")));
     let description: String = Input::new().interact_text().map_err(|e| {
         crate::core::error::CldevError::command(format!("Failed to read description: {}", e))
     })?;
 
     // Ask if breaking change
-    output.info("\nIs this a breaking change? (y/N):");
+    output.info(&format!("\n{}", output.t("git-commit-breaking-prompt")));
     let breaking: String = Input::new()
         .default("n".to_string())
         .interact_text()
@@ -301,7 +301,11 @@ fn build_commit_message_interactive(
         description
     );
 
-    output.info(&format!("\nCommit message preview:\n{}", message));
+    output.info(&format!(
+        "\n{}\n{}",
+        output.t("git-commit-preview"),
+        message
+    ));
 
     Ok(message)
 }

@@ -7,6 +7,8 @@
 
 **cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 29 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese).
 
+English | [日本語](README.ja.md)
+
 <!-- Screenshot placeholder: Add demo GIF showing cldev config init -->
 
 ---
@@ -143,6 +145,8 @@ sudo mv cldev /usr/local/bin/
 cldev --version
 # Output: cldev 1.0.0
 ```
+
+**📋 Detailed Verification**: Use the [Verification Checklist](docs/guides/VERIFICATION_CHECKLIST.md) to verify all features are working correctly.
 
 ---
 
