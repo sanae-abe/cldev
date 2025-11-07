@@ -1,0 +1,32 @@
+# Code Owners for cldev
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owner for everything
+* @sanae-abe
+
+# GitHub workflows and CI/CD
+/.github/ @sanae-abe
+
+# Core functionality
+/src/core/ @sanae-abe
+
+# Security-critical files
+/src/core/security/ @sanae-abe
+deny.toml @sanae-abe
+
+# Configuration
+/src/core/config/ @sanae-abe
+
+# CLI interface
+/src/cli/ @sanae-abe
+
+# Commands
+/src/commands/ @sanae-abe
+
+# Documentation
+README.md @sanae-abe
+/docs/ @sanae-abe
+
+# Build and release
+Cargo.toml @sanae-abe
+Cargo.lock @sanae-abe

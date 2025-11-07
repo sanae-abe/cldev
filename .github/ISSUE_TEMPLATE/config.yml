@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Discussions
+    url: https://github.com/sanae-abe/cldev/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: Documentation
+    url: https://docs.rs/cldev
+    about: Read the official documentation
+  - name: Security Issue
+    url: https://github.com/sanae-abe/cldev/security/advisories/new
+    about: Report a security vulnerability privately
