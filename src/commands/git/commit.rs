@@ -1,0 +1,357 @@
+//! Conventional Commits implementation
+//!
+//! This module provides functionality for creating Git commits following
+//! the Conventional Commits specification with emoji support and
+//! Co-Authored-By attribution for Claude.
+
+use crate::cli::output::OutputHandler;
+use crate::core::error::Result;
+use crate::core::git_utils::GitUtils;
+use dialoguer::{Input, Select};
+use std::process::Command;
+
+/// Conventional commit types with their corresponding emojis
+#[derive(Debug, Clone, Copy)]
+enum CommitType {
+    Feat,
+    Fix,
+    Docs,
+    Style,
+    Refactor,
+    Perf,
+    Test,
+    Build,
+    Ci,
+    Chore,
+    Revert,
+}
+
+impl CommitType {
+    /// Get all commit types
+    fn all() -> Vec<Self> {
+        vec![
+            Self::Feat,
+            Self::Fix,
+            Self::Docs,
+            Self::Style,
+            Self::Refactor,
+            Self::Perf,
+            Self::Test,
+            Self::Build,
+            Self::Ci,
+            Self::Chore,
+            Self::Revert,
+        ]
+    }
+
+    /// Get the commit type prefix (e.g., "feat", "fix")
+    fn prefix(&self) -> &str {
+        match self {
+            Self::Feat => "feat",
+            Self::Fix => "fix",
+            Self::Docs => "docs",
+            Self::Style => "style",
+            Self::Refactor => "refactor",
+            Self::Perf => "perf",
+            Self::Test => "test",
+            Self::Build => "build",
+            Self::Ci => "ci",
+            Self::Chore => "chore",
+            Self::Revert => "revert",
+        }
+    }
+
+    /// Get the emoji for this commit type
+    fn emoji(&self) -> &str {
+        match self {
+            Self::Feat => "✨",
+            Self::Fix => "🐛",
+            Self::Docs => "📝",
+            Self::Style => "💄",
+            Self::Refactor => "♻️",
+            Self::Perf => "⚡",
+            Self::Test => "✅",
+            Self::Build => "📦",
+            Self::Ci => "👷",
+            Self::Chore => "🔧",
+            Self::Revert => "⏪",
+        }
+    }
+
+    /// Get the description of this commit type
+    fn description(&self) -> &str {
+        match self {
+            Self::Feat => "A new feature",
+            Self::Fix => "A bug fix",
+            Self::Docs => "Documentation only changes",
+            Self::Style => "Code style changes (formatting, etc.)",
+            Self::Refactor => "Code refactoring",
+            Self::Perf => "Performance improvements",
+            Self::Test => "Adding or updating tests",
+            Self::Build => "Build system or dependencies",
+            Self::Ci => "CI/CD configuration",
+            Self::Chore => "Other changes (maintenance, etc.)",
+            Self::Revert => "Revert a previous commit",
+        }
+    }
+
+    /// Get display string for selection menu
+    fn display(&self) -> String {
+        format!(
+            "{} {} - {}",
+            self.emoji(),
+            self.prefix(),
+            self.description()
+        )
+    }
+
+    /// Detect commit type from changed files
+    fn detect_from_files(files: &[String]) -> Option<Self> {
+        let has_test_files = files.iter().any(|f| {
+            f.contains("test")
+                || f.contains("spec")
+                || f.ends_with("_test.rs")
+                || f.ends_with(".test.ts")
+        });
+
+        let has_doc_files = files
+            .iter()
+            .any(|f| f.ends_with(".md") || f.starts_with("docs/") || f == "README.md");
+
+        let has_ci_files = files.iter().any(|f| {
+            f.starts_with(".github/")
+                || f.starts_with(".gitlab/")
+                || f.ends_with(".yml")
+                || f.ends_with(".yaml")
+        });
+
+        let has_build_files = files.iter().any(|f| {
+            f == "Cargo.toml" || f == "package.json" || f == "Dockerfile" || f == "Makefile"
+        });
+
+        // Prioritize by specificity
+        if has_test_files && files.len() == files.iter().filter(|f| f.contains("test")).count() {
+            Some(Self::Test)
+        } else if has_doc_files
+            && files.len() == files.iter().filter(|f| f.ends_with(".md")).count()
+        {
+            Some(Self::Docs)
+        } else if has_ci_files {
+            Some(Self::Ci)
+        } else if has_build_files {
+            Some(Self::Build)
+        } else {
+            None // Let user choose
+        }
+    }
+}
+
+/// Create a conventional commit
+pub fn create_commit(
+    message: Option<String>,
+    no_verify: bool,
+    amend: bool,
+    output: &OutputHandler,
+) -> Result<()> {
+    output.info("Creating Conventional Commit...");
+
+    // Open the Git repository
+    let git_utils = GitUtils::open_current()?;
+
+    // Check if there are changes to commit (unless amending)
+    if !amend {
+        let files = git_utils.changed_files()?;
+        if files.is_empty() {
+            output.warning("No changes to commit");
+            output.info("Hint: Stage files with 'git add' first");
+            return Ok(());
+        }
+
+        output.info(&format!("Changed files: {}", files.len()));
+        for file in &files {
+            output.list_item(file);
+        }
+    }
+
+    // If message is provided, use it directly
+    let commit_message = if let Some(msg) = message {
+        msg
+    } else {
+        // Interactive mode: build commit message
+        build_commit_message_interactive(&git_utils, output)?
+    };
+
+    // Add Claude attribution
+    let full_message = format!(
+        "{}\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
+        commit_message
+    );
+
+    // Execute git commit
+    let mut cmd = Command::new("git");
+    cmd.arg("commit").arg("-m").arg(&full_message);
+
+    if no_verify {
+        cmd.arg("--no-verify");
+    }
+
+    if amend {
+        cmd.arg("--amend");
+    }
+
+    output.debug(&format!("Executing: git commit -m \"{}\"", commit_message));
+
+    let status = cmd.status().map_err(|e| {
+        crate::core::error::CldevError::command(format!("Failed to execute git commit: {}", e))
+    })?;
+
+    if status.success() {
+        output.success(&format!("✅ Commit created successfully"));
+        output.info(&format!("Message: {}", commit_message));
+
+        // Show next steps
+        output.info("\n💡 Next steps:");
+        output.list_item("git push - Push commits to remote");
+        output.list_item("cldev git status - Check repository status");
+    } else {
+        output.error("Failed to create commit");
+        return Err(crate::core::error::CldevError::git("Commit failed"));
+    }
+
+    Ok(())
+}
+
+/// Build commit message interactively
+fn build_commit_message_interactive(
+    git_utils: &GitUtils,
+    output: &OutputHandler,
+) -> Result<String> {
+    // Detect commit type from changed files
+    let files = git_utils.changed_files()?;
+    let detected_type = CommitType::detect_from_files(&files);
+
+    // Select commit type
+    let types = CommitType::all();
+    let items: Vec<String> = types.iter().map(|t| t.display()).collect();
+
+    let default_index = if let Some(detected) = detected_type {
+        types
+            .iter()
+            .position(|t| std::mem::discriminant(t) == std::mem::discriminant(&detected))
+            .unwrap_or(0)
+    } else {
+        0
+    };
+
+    output.info("\nSelect commit type:");
+    let selection = Select::new()
+        .items(&items)
+        .default(default_index)
+        .interact()
+        .map_err(|e| {
+            crate::core::error::CldevError::command(format!("Failed to select commit type: {}", e))
+        })?;
+
+    let commit_type = &types[selection];
+
+    // Ask for scope (optional)
+    output.info("\nEnter scope (optional, press Enter to skip):");
+    let scope: String = Input::new()
+        .allow_empty(true)
+        .interact_text()
+        .map_err(|e| {
+            crate::core::error::CldevError::command(format!("Failed to read scope: {}", e))
+        })?;
+
+    // Ask for description
+    output.info("\nEnter commit description:");
+    let description: String = Input::new().interact_text().map_err(|e| {
+        crate::core::error::CldevError::command(format!("Failed to read description: {}", e))
+    })?;
+
+    // Ask if breaking change
+    output.info("\nIs this a breaking change? (y/N):");
+    let breaking: String = Input::new()
+        .default("n".to_string())
+        .interact_text()
+        .map_err(|e| {
+            crate::core::error::CldevError::command(format!(
+                "Failed to read breaking change: {}",
+                e
+            ))
+        })?;
+
+    let is_breaking = breaking.to_lowercase().starts_with('y');
+
+    // Build the commit message
+    let scope_part = if scope.is_empty() {
+        String::new()
+    } else {
+        format!("({})", scope)
+    };
+
+    let breaking_part = if is_breaking { "!" } else { "" };
+
+    let message = format!(
+        "{} {}{}{}: {}",
+        commit_type.emoji(),
+        commit_type.prefix(),
+        scope_part,
+        breaking_part,
+        description
+    );
+
+    output.info(&format!("\nCommit message preview:\n{}", message));
+
+    Ok(message)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_commit_type_prefix() {
+        assert_eq!(CommitType::Feat.prefix(), "feat");
+        assert_eq!(CommitType::Fix.prefix(), "fix");
+        assert_eq!(CommitType::Docs.prefix(), "docs");
+    }
+
+    #[test]
+    fn test_commit_type_emoji() {
+        assert_eq!(CommitType::Feat.emoji(), "✨");
+        assert_eq!(CommitType::Fix.emoji(), "🐛");
+        assert_eq!(CommitType::Docs.emoji(), "📝");
+    }
+
+    #[test]
+    fn test_detect_from_test_files() {
+        let files = vec![
+            "src/lib_test.rs".to_string(),
+            "tests/integration.rs".to_string(),
+        ];
+        let detected = CommitType::detect_from_files(&files);
+        assert!(matches!(detected, Some(CommitType::Test)));
+    }
+
+    #[test]
+    fn test_detect_from_doc_files() {
+        let files = vec!["README.md".to_string(), "docs/guide.md".to_string()];
+        let detected = CommitType::detect_from_files(&files);
+        assert!(matches!(detected, Some(CommitType::Docs)));
+    }
+
+    #[test]
+    fn test_detect_from_ci_files() {
+        let files = vec![".github/workflows/ci.yml".to_string()];
+        let detected = CommitType::detect_from_files(&files);
+        assert!(matches!(detected, Some(CommitType::Ci)));
+    }
+
+    #[test]
+    fn test_detect_from_build_files() {
+        let files = vec!["Cargo.toml".to_string()];
+        let detected = CommitType::detect_from_files(&files);
+        assert!(matches!(detected, Some(CommitType::Build)));
+    }
+}

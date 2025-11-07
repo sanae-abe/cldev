@@ -1,0 +1,2356 @@
+#compdef cldev
+
+autoload -U is-at-least
+
+_cldev() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev_commands" \
+"*::: :->cldev" \
+&& ret=0
+    case $state in
+    (cldev)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-command-$line[1]:"
+        case $line[1] in
+            (config)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev__config_commands" \
+"*::: :->config" \
+&& ret=0
+
+    case $state in
+    (config)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-config-command-$line[1]:"
+        case $line[1] in
+            (init)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-d[Skip interactive prompts and use defaults]' \
+'--defaults[Skip interactive prompts and use defaults]' \
+'-f[Force initialization even if config exists]' \
+'--force[Force initialization even if config exists]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(check)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-d[Perform detailed validation]' \
+'--detailed[Perform detailed validation]' \
+'-f[Fix issues automatically if possible]' \
+'--fix[Fix issues automatically if possible]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(edit)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::target -- Configuration file to edit (global/project/stack):(global project stack)' \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+'-f+[Filter by configuration type]:FILTER:(global project stack)' \
+'--filter=[Filter by configuration type]:FILTER:(global project stack)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-d[Show detailed information]' \
+'--detailed[Show detailed information]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(maintain)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-b[Backup configurations before maintenance]' \
+'--backup[Backup configurations before maintenance]' \
+'-c[Clean up old backups]' \
+'--cleanup[Clean up old backups]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(update-docs)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'--validate[Validate documentation after update]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::doc_type -- Documentation type to update:(implementation api architecture)' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__config__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-config-help-command-$line[1]:"
+        case $line[1] in
+            (init)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(check)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(edit)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(maintain)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(update-docs)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(dev)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev__dev_commands" \
+"*::: :->dev" \
+&& ret=0
+
+    case $state in
+    (dev)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-dev-command-$line[1]:"
+        case $line[1] in
+            (urgent)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-y[Skip confirmation prompts]' \
+'--yes[Skip confirmation prompts]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':problem -- Problem description:_default' \
+&& ret=0
+;;
+(fix)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-b[Create fix branch automatically]' \
+'--branch[Create fix branch automatically]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':target -- Bug or issue to fix:_default' \
+&& ret=0
+;;
+(debug)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose debugging output]' \
+'--verbose[Enable verbose debugging output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':symptom -- Symptom or error description:_default' \
+&& ret=0
+;;
+(feature)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-s[Skip requirements confirmation]' \
+'--skip-confirm[Skip requirements confirmation]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':name -- Feature name or description:_default' \
+&& ret=0
+;;
+(refactor)
+_arguments "${_arguments_options[@]}" : \
+'-s+[Refactoring scope]:SCOPE:(function module package)' \
+'--scope=[Refactoring scope]:SCOPE:(function module package)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':target -- Target to refactor:_default' \
+&& ret=0
+;;
+(optimize)
+_arguments "${_arguments_options[@]}" : \
+'-f+[Focus area for optimization]:FOCUS:(performance memory bundle database)' \
+'--focus=[Focus area for optimization]:FOCUS:(performance memory bundle database)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':target -- Target to optimize:_default' \
+&& ret=0
+;;
+(research)
+_arguments "${_arguments_options[@]}" : \
+'-f+[Output format]:FORMAT:(markdown json html)' \
+'--format=[Output format]:FORMAT:(markdown json html)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':topic -- Research topic:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__dev__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-dev-help-command-$line[1]:"
+        case $line[1] in
+            (urgent)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(fix)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(debug)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(feature)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(refactor)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(optimize)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(research)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(git)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev__git_commands" \
+"*::: :->git" \
+&& ret=0
+
+    case $state in
+    (git)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-git-command-$line[1]:"
+        case $line[1] in
+            (commit)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'--no-verify[Skip pre-commit hooks]' \
+'--amend[Amend previous commit]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::message -- Commit message (optional, will be generated if not provided):_default' \
+&& ret=0
+;;
+(branch)
+_arguments "${_arguments_options[@]}" : \
+'-b+[Branch type]:BRANCH_TYPE:(feature fix hotfix refactor docs test)' \
+'--branch-type=[Branch type]:BRANCH_TYPE:(feature fix hotfix refactor docs test)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::name -- Branch name (optional, will be generated if not provided):_default' \
+&& ret=0
+;;
+(merge-request)
+_arguments "${_arguments_options[@]}" : \
+'-t+[Target branch]:TARGET:_default' \
+'--target=[Target branch]:TARGET:_default' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-d[Enable detailed mode]' \
+'--detailed[Enable detailed mode]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::title -- MR/PR title (will be generated if not provided):_default' \
+&& ret=0
+;;
+(status)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-d[Show detailed branch information]' \
+'--detailed[Show detailed branch information]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__git__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-git-help-command-$line[1]:"
+        case $line[1] in
+            (commit)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(branch)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(merge-request)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(status)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(quality)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev__quality_commands" \
+"*::: :->quality" \
+&& ret=0
+
+    case $state in
+    (quality)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-quality-command-$line[1]:"
+        case $line[1] in
+            (lint)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-f[Auto-fix issues]' \
+'--fix[Auto-fix issues]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'*::paths -- Specific files or patterns:_default' \
+&& ret=0
+;;
+(format)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-c[Check formatting without modifying files]' \
+'--check[Check formatting without modifying files]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'*::paths -- Specific files or patterns:_default' \
+&& ret=0
+;;
+(test)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-c[Generate coverage report]' \
+'--coverage[Generate coverage report]' \
+'-w[Watch mode]' \
+'--watch[Watch mode]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::pattern -- Run specific test pattern:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__quality__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-quality-help-command-$line[1]:"
+        case $line[1] in
+            (lint)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(format)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(test)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(tech)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev__tech_commands" \
+"*::: :->tech" \
+&& ret=0
+
+    case $state in
+    (tech)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-tech-command-$line[1]:"
+        case $line[1] in
+            (start)
+_arguments "${_arguments_options[@]}" : \
+'-p+[Port number]:PORT:_default' \
+'--port=[Port number]:PORT:_default' \
+'-e+[Environment (development/production)]:ENV:(development staging production)' \
+'--env=[Environment (development/production)]:ENV:(development staging production)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':stack -- Tech stack to use:(web api mobile data-science)' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__tech__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-tech-help-command-$line[1]:"
+        case $line[1] in
+            (start)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(ops)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev__ops_commands" \
+"*::: :->ops" \
+&& ret=0
+
+    case $state in
+    (ops)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-ops-command-$line[1]:"
+        case $line[1] in
+            (build)
+_arguments "${_arguments_options[@]}" : \
+'-e+[Build environment]:ENV:(development staging production)' \
+'--env=[Build environment]:ENV:(development staging production)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-a[Analyze bundle after build]' \
+'--analyze[Analyze bundle after build]' \
+'-c[Clean before build]' \
+'--clean[Clean before build]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(deploy)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-y[Skip confirmation prompts]' \
+'--yes[Skip confirmation prompts]' \
+'-d[Dry run (show what would be deployed)]' \
+'--dry-run[Dry run (show what would be deployed)]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':env -- Deploy target environment:(development staging production)' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__ops__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-ops-help-command-$line[1]:"
+        case $line[1] in
+            (build)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(deploy)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(analysis)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev__analysis_commands" \
+"*::: :->analysis" \
+&& ret=0
+
+    case $state in
+    (analysis)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-analysis-command-$line[1]:"
+        case $line[1] in
+            (analyze)
+_arguments "${_arguments_options[@]}" : \
+'-f+[Output format]:FORMAT:(text json html)' \
+'--format=[Output format]:FORMAT:(text json html)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-d[Enable detailed analysis]' \
+'--detailed[Enable detailed analysis]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::target -- Analysis target:(structure performance quality debt overview)' \
+&& ret=0
+;;
+(explain)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-e[Show usage examples]' \
+'--examples[Show usage examples]' \
+'-d[Detailed explanation]' \
+'--detailed[Detailed explanation]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':target -- Target to explain (function/component/concept name):_default' \
+&& ret=0
+;;
+(review-mr)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-d[Enable detailed review]' \
+'--detailed[Enable detailed review]' \
+'--security-focus[Focus on security]' \
+'--performance-focus[Focus on performance]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':number -- MR/PR number:_default' \
+&& ret=0
+;;
+(serena)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+'::mode -- Analysis mode:(interactive batch watch)' \
+'*::targets -- Target files or directories:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__analysis__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-analysis-help-command-$line[1]:"
+        case $line[1] in
+            (analyze)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(explain)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(review-mr)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(serena)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(lr)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev__lr_commands" \
+"*::: :->lr" \
+&& ret=0
+
+    case $state in
+    (lr)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-lr-command-$line[1]:"
+        case $line[1] in
+            (find)
+_arguments "${_arguments_options[@]}" : \
+'-f+[Search in specific field]:FIELD:(topic tag content)' \
+'--field=[Search in specific field]:FIELD:(topic tag content)' \
+'-l+[Limit results]:LIMIT:_default' \
+'--limit=[Limit results]:LIMIT:_default' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':query -- Search query:_default' \
+&& ret=0
+;;
+(stats)
+_arguments "${_arguments_options[@]}" : \
+'-p+[Time period for statistics]:PERIOD:(day week month year)' \
+'--period=[Time period for statistics]:PERIOD:(day week month year)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-d[Show detailed breakdown]' \
+'--detailed[Show detailed breakdown]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(problems)
+_arguments "${_arguments_options[@]}" : \
+'-p+[Priority filter]:PRIORITY:(low medium high critical)' \
+'--priority=[Priority filter]:PRIORITY:(low medium high critical)' \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-r[Show only recent problems]' \
+'--recent[Show only recent problems]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+&& ret=0
+;;
+(new)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-e[Open editor immediately]' \
+'--edit[Open editor immediately]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':topic -- Topic name:_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__lr__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-lr-help-command-$line[1]:"
+        case $line[1] in
+            (find)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(stats)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(problems)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(new)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(todo)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+":: :_cldev__todo_commands" \
+"*::: :->todo" \
+&& ret=0
+
+    case $state in
+    (todo)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-todo-command-$line[1]:"
+        case $line[1] in
+            (manage)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':action -- Action to perform:(add list complete sync interactive)' \
+'::description -- Todo description (for add action):_default' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__todo__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-todo-help-command-$line[1]:"
+        case $line[1] in
+            (manage)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+;;
+(completions)
+_arguments "${_arguments_options[@]}" : \
+'--lang=[Set language (ja/en)]:LANG:((en\:"English"
+ja\:"Japanese"))' \
+'-i[Print installation instructions]' \
+'--install[Print installation instructions]' \
+'-v[Enable verbose output]' \
+'--verbose[Enable verbose output]' \
+'(-v --verbose)-q[Suppress non-error output]' \
+'(-v --verbose)--quiet[Suppress non-error output]' \
+'--no-color[Disable colored output]' \
+'-h[Print help (see more with '\''--help'\'')]' \
+'--help[Print help (see more with '\''--help'\'')]' \
+'-V[Print version]' \
+'--version[Print version]' \
+':shell -- Shell to generate completions for:(bash elvish fish powershell zsh)' \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help_commands" \
+"*::: :->help" \
+&& ret=0
+
+    case $state in
+    (help)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-command-$line[1]:"
+        case $line[1] in
+            (config)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help__config_commands" \
+"*::: :->config" \
+&& ret=0
+
+    case $state in
+    (config)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-config-command-$line[1]:"
+        case $line[1] in
+            (init)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(check)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(edit)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(maintain)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(update-docs)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(dev)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help__dev_commands" \
+"*::: :->dev" \
+&& ret=0
+
+    case $state in
+    (dev)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-dev-command-$line[1]:"
+        case $line[1] in
+            (urgent)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(fix)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(debug)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(feature)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(refactor)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(optimize)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(research)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(git)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help__git_commands" \
+"*::: :->git" \
+&& ret=0
+
+    case $state in
+    (git)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-git-command-$line[1]:"
+        case $line[1] in
+            (commit)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(branch)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(merge-request)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(status)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(quality)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help__quality_commands" \
+"*::: :->quality" \
+&& ret=0
+
+    case $state in
+    (quality)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-quality-command-$line[1]:"
+        case $line[1] in
+            (lint)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(format)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(test)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(tech)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help__tech_commands" \
+"*::: :->tech" \
+&& ret=0
+
+    case $state in
+    (tech)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-tech-command-$line[1]:"
+        case $line[1] in
+            (start)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(ops)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help__ops_commands" \
+"*::: :->ops" \
+&& ret=0
+
+    case $state in
+    (ops)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-ops-command-$line[1]:"
+        case $line[1] in
+            (build)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(deploy)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(analysis)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help__analysis_commands" \
+"*::: :->analysis" \
+&& ret=0
+
+    case $state in
+    (analysis)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-analysis-command-$line[1]:"
+        case $line[1] in
+            (analyze)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(explain)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(review-mr)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(serena)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(lr)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help__lr_commands" \
+"*::: :->lr" \
+&& ret=0
+
+    case $state in
+    (lr)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-lr-command-$line[1]:"
+        case $line[1] in
+            (find)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(stats)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(problems)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(new)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(todo)
+_arguments "${_arguments_options[@]}" : \
+":: :_cldev__help__todo_commands" \
+"*::: :->todo" \
+&& ret=0
+
+    case $state in
+    (todo)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:cldev-help-todo-command-$line[1]:"
+        case $line[1] in
+            (manage)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+(completions)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+(help)
+_arguments "${_arguments_options[@]}" : \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_cldev_commands] )) ||
+_cldev_commands() {
+    local commands; commands=(
+'config:Configuration management commands' \
+'dev:Development workflow commands' \
+'git:Git operation commands' \
+'quality:Code quality commands' \
+'tech:Tech stack specific commands' \
+'ops:Operations commands' \
+'analysis:Analysis and review commands' \
+'lr:Learning record commands' \
+'todo:Todo management commands' \
+'completions:Generate shell completions' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev commands' commands "$@"
+}
+(( $+functions[_cldev__analysis_commands] )) ||
+_cldev__analysis_commands() {
+    local commands; commands=(
+'analyze:Analyze project' \
+'explain:Explain code or concept' \
+'review-mr:Review merge request' \
+'serena:Semantic code analysis (Serena MCP)' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev analysis commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__analyze_commands] )) ||
+_cldev__analysis__analyze_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev analysis analyze commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__explain_commands] )) ||
+_cldev__analysis__explain_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev analysis explain commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__help_commands] )) ||
+_cldev__analysis__help_commands() {
+    local commands; commands=(
+'analyze:Analyze project' \
+'explain:Explain code or concept' \
+'review-mr:Review merge request' \
+'serena:Semantic code analysis (Serena MCP)' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev analysis help commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__help__analyze_commands] )) ||
+_cldev__analysis__help__analyze_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev analysis help analyze commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__help__explain_commands] )) ||
+_cldev__analysis__help__explain_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev analysis help explain commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__help__help_commands] )) ||
+_cldev__analysis__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev analysis help help commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__help__review-mr_commands] )) ||
+_cldev__analysis__help__review-mr_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev analysis help review-mr commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__help__serena_commands] )) ||
+_cldev__analysis__help__serena_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev analysis help serena commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__review-mr_commands] )) ||
+_cldev__analysis__review-mr_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev analysis review-mr commands' commands "$@"
+}
+(( $+functions[_cldev__analysis__serena_commands] )) ||
+_cldev__analysis__serena_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev analysis serena commands' commands "$@"
+}
+(( $+functions[_cldev__completions_commands] )) ||
+_cldev__completions_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev completions commands' commands "$@"
+}
+(( $+functions[_cldev__config_commands] )) ||
+_cldev__config_commands() {
+    local commands; commands=(
+'init:Initialize cldev configuration' \
+'check:Check configuration health' \
+'edit:Edit configuration file' \
+'list:List all configurations' \
+'maintain:Maintain configuration files' \
+'update-docs:Update documentation' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev config commands' commands "$@"
+}
+(( $+functions[_cldev__config__check_commands] )) ||
+_cldev__config__check_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config check commands' commands "$@"
+}
+(( $+functions[_cldev__config__edit_commands] )) ||
+_cldev__config__edit_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config edit commands' commands "$@"
+}
+(( $+functions[_cldev__config__help_commands] )) ||
+_cldev__config__help_commands() {
+    local commands; commands=(
+'init:Initialize cldev configuration' \
+'check:Check configuration health' \
+'edit:Edit configuration file' \
+'list:List all configurations' \
+'maintain:Maintain configuration files' \
+'update-docs:Update documentation' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev config help commands' commands "$@"
+}
+(( $+functions[_cldev__config__help__check_commands] )) ||
+_cldev__config__help__check_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config help check commands' commands "$@"
+}
+(( $+functions[_cldev__config__help__edit_commands] )) ||
+_cldev__config__help__edit_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config help edit commands' commands "$@"
+}
+(( $+functions[_cldev__config__help__help_commands] )) ||
+_cldev__config__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config help help commands' commands "$@"
+}
+(( $+functions[_cldev__config__help__init_commands] )) ||
+_cldev__config__help__init_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config help init commands' commands "$@"
+}
+(( $+functions[_cldev__config__help__list_commands] )) ||
+_cldev__config__help__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config help list commands' commands "$@"
+}
+(( $+functions[_cldev__config__help__maintain_commands] )) ||
+_cldev__config__help__maintain_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config help maintain commands' commands "$@"
+}
+(( $+functions[_cldev__config__help__update-docs_commands] )) ||
+_cldev__config__help__update-docs_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config help update-docs commands' commands "$@"
+}
+(( $+functions[_cldev__config__init_commands] )) ||
+_cldev__config__init_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config init commands' commands "$@"
+}
+(( $+functions[_cldev__config__list_commands] )) ||
+_cldev__config__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config list commands' commands "$@"
+}
+(( $+functions[_cldev__config__maintain_commands] )) ||
+_cldev__config__maintain_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config maintain commands' commands "$@"
+}
+(( $+functions[_cldev__config__update-docs_commands] )) ||
+_cldev__config__update-docs_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev config update-docs commands' commands "$@"
+}
+(( $+functions[_cldev__dev_commands] )) ||
+_cldev__dev_commands() {
+    local commands; commands=(
+'urgent:Emergency response for production issues (5min initial response)' \
+'fix:Fix critical bugs (same-day resolution target)' \
+'debug:Systematic debugging workflow' \
+'feature:Implement new feature (requirements to test)' \
+'refactor:Safe refactoring (incremental execution)' \
+'optimize:Performance optimization (measure -> analyze -> improve)' \
+'research:Technical research and learning records' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev dev commands' commands "$@"
+}
+(( $+functions[_cldev__dev__debug_commands] )) ||
+_cldev__dev__debug_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev debug commands' commands "$@"
+}
+(( $+functions[_cldev__dev__feature_commands] )) ||
+_cldev__dev__feature_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev feature commands' commands "$@"
+}
+(( $+functions[_cldev__dev__fix_commands] )) ||
+_cldev__dev__fix_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev fix commands' commands "$@"
+}
+(( $+functions[_cldev__dev__help_commands] )) ||
+_cldev__dev__help_commands() {
+    local commands; commands=(
+'urgent:Emergency response for production issues (5min initial response)' \
+'fix:Fix critical bugs (same-day resolution target)' \
+'debug:Systematic debugging workflow' \
+'feature:Implement new feature (requirements to test)' \
+'refactor:Safe refactoring (incremental execution)' \
+'optimize:Performance optimization (measure -> analyze -> improve)' \
+'research:Technical research and learning records' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev dev help commands' commands "$@"
+}
+(( $+functions[_cldev__dev__help__debug_commands] )) ||
+_cldev__dev__help__debug_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev help debug commands' commands "$@"
+}
+(( $+functions[_cldev__dev__help__feature_commands] )) ||
+_cldev__dev__help__feature_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev help feature commands' commands "$@"
+}
+(( $+functions[_cldev__dev__help__fix_commands] )) ||
+_cldev__dev__help__fix_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev help fix commands' commands "$@"
+}
+(( $+functions[_cldev__dev__help__help_commands] )) ||
+_cldev__dev__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev help help commands' commands "$@"
+}
+(( $+functions[_cldev__dev__help__optimize_commands] )) ||
+_cldev__dev__help__optimize_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev help optimize commands' commands "$@"
+}
+(( $+functions[_cldev__dev__help__refactor_commands] )) ||
+_cldev__dev__help__refactor_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev help refactor commands' commands "$@"
+}
+(( $+functions[_cldev__dev__help__research_commands] )) ||
+_cldev__dev__help__research_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev help research commands' commands "$@"
+}
+(( $+functions[_cldev__dev__help__urgent_commands] )) ||
+_cldev__dev__help__urgent_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev help urgent commands' commands "$@"
+}
+(( $+functions[_cldev__dev__optimize_commands] )) ||
+_cldev__dev__optimize_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev optimize commands' commands "$@"
+}
+(( $+functions[_cldev__dev__refactor_commands] )) ||
+_cldev__dev__refactor_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev refactor commands' commands "$@"
+}
+(( $+functions[_cldev__dev__research_commands] )) ||
+_cldev__dev__research_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev research commands' commands "$@"
+}
+(( $+functions[_cldev__dev__urgent_commands] )) ||
+_cldev__dev__urgent_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev dev urgent commands' commands "$@"
+}
+(( $+functions[_cldev__git_commands] )) ||
+_cldev__git_commands() {
+    local commands; commands=(
+'commit:Create conventional commit' \
+'branch:Create conventional branch' \
+'merge-request:Create merge request (GitLab) or pull request (GitHub)' \
+'status:Show enhanced git status' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev git commands' commands "$@"
+}
+(( $+functions[_cldev__git__branch_commands] )) ||
+_cldev__git__branch_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev git branch commands' commands "$@"
+}
+(( $+functions[_cldev__git__commit_commands] )) ||
+_cldev__git__commit_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev git commit commands' commands "$@"
+}
+(( $+functions[_cldev__git__help_commands] )) ||
+_cldev__git__help_commands() {
+    local commands; commands=(
+'commit:Create conventional commit' \
+'branch:Create conventional branch' \
+'merge-request:Create merge request (GitLab) or pull request (GitHub)' \
+'status:Show enhanced git status' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev git help commands' commands "$@"
+}
+(( $+functions[_cldev__git__help__branch_commands] )) ||
+_cldev__git__help__branch_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev git help branch commands' commands "$@"
+}
+(( $+functions[_cldev__git__help__commit_commands] )) ||
+_cldev__git__help__commit_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev git help commit commands' commands "$@"
+}
+(( $+functions[_cldev__git__help__help_commands] )) ||
+_cldev__git__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev git help help commands' commands "$@"
+}
+(( $+functions[_cldev__git__help__merge-request_commands] )) ||
+_cldev__git__help__merge-request_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev git help merge-request commands' commands "$@"
+}
+(( $+functions[_cldev__git__help__status_commands] )) ||
+_cldev__git__help__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev git help status commands' commands "$@"
+}
+(( $+functions[_cldev__git__merge-request_commands] )) ||
+_cldev__git__merge-request_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev git merge-request commands' commands "$@"
+}
+(( $+functions[_cldev__git__status_commands] )) ||
+_cldev__git__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev git status commands' commands "$@"
+}
+(( $+functions[_cldev__help_commands] )) ||
+_cldev__help_commands() {
+    local commands; commands=(
+'config:Configuration management commands' \
+'dev:Development workflow commands' \
+'git:Git operation commands' \
+'quality:Code quality commands' \
+'tech:Tech stack specific commands' \
+'ops:Operations commands' \
+'analysis:Analysis and review commands' \
+'lr:Learning record commands' \
+'todo:Todo management commands' \
+'completions:Generate shell completions' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev help commands' commands "$@"
+}
+(( $+functions[_cldev__help__analysis_commands] )) ||
+_cldev__help__analysis_commands() {
+    local commands; commands=(
+'analyze:Analyze project' \
+'explain:Explain code or concept' \
+'review-mr:Review merge request' \
+'serena:Semantic code analysis (Serena MCP)' \
+    )
+    _describe -t commands 'cldev help analysis commands' commands "$@"
+}
+(( $+functions[_cldev__help__analysis__analyze_commands] )) ||
+_cldev__help__analysis__analyze_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help analysis analyze commands' commands "$@"
+}
+(( $+functions[_cldev__help__analysis__explain_commands] )) ||
+_cldev__help__analysis__explain_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help analysis explain commands' commands "$@"
+}
+(( $+functions[_cldev__help__analysis__review-mr_commands] )) ||
+_cldev__help__analysis__review-mr_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help analysis review-mr commands' commands "$@"
+}
+(( $+functions[_cldev__help__analysis__serena_commands] )) ||
+_cldev__help__analysis__serena_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help analysis serena commands' commands "$@"
+}
+(( $+functions[_cldev__help__completions_commands] )) ||
+_cldev__help__completions_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help completions commands' commands "$@"
+}
+(( $+functions[_cldev__help__config_commands] )) ||
+_cldev__help__config_commands() {
+    local commands; commands=(
+'init:Initialize cldev configuration' \
+'check:Check configuration health' \
+'edit:Edit configuration file' \
+'list:List all configurations' \
+'maintain:Maintain configuration files' \
+'update-docs:Update documentation' \
+    )
+    _describe -t commands 'cldev help config commands' commands "$@"
+}
+(( $+functions[_cldev__help__config__check_commands] )) ||
+_cldev__help__config__check_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help config check commands' commands "$@"
+}
+(( $+functions[_cldev__help__config__edit_commands] )) ||
+_cldev__help__config__edit_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help config edit commands' commands "$@"
+}
+(( $+functions[_cldev__help__config__init_commands] )) ||
+_cldev__help__config__init_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help config init commands' commands "$@"
+}
+(( $+functions[_cldev__help__config__list_commands] )) ||
+_cldev__help__config__list_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help config list commands' commands "$@"
+}
+(( $+functions[_cldev__help__config__maintain_commands] )) ||
+_cldev__help__config__maintain_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help config maintain commands' commands "$@"
+}
+(( $+functions[_cldev__help__config__update-docs_commands] )) ||
+_cldev__help__config__update-docs_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help config update-docs commands' commands "$@"
+}
+(( $+functions[_cldev__help__dev_commands] )) ||
+_cldev__help__dev_commands() {
+    local commands; commands=(
+'urgent:Emergency response for production issues (5min initial response)' \
+'fix:Fix critical bugs (same-day resolution target)' \
+'debug:Systematic debugging workflow' \
+'feature:Implement new feature (requirements to test)' \
+'refactor:Safe refactoring (incremental execution)' \
+'optimize:Performance optimization (measure -> analyze -> improve)' \
+'research:Technical research and learning records' \
+    )
+    _describe -t commands 'cldev help dev commands' commands "$@"
+}
+(( $+functions[_cldev__help__dev__debug_commands] )) ||
+_cldev__help__dev__debug_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help dev debug commands' commands "$@"
+}
+(( $+functions[_cldev__help__dev__feature_commands] )) ||
+_cldev__help__dev__feature_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help dev feature commands' commands "$@"
+}
+(( $+functions[_cldev__help__dev__fix_commands] )) ||
+_cldev__help__dev__fix_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help dev fix commands' commands "$@"
+}
+(( $+functions[_cldev__help__dev__optimize_commands] )) ||
+_cldev__help__dev__optimize_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help dev optimize commands' commands "$@"
+}
+(( $+functions[_cldev__help__dev__refactor_commands] )) ||
+_cldev__help__dev__refactor_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help dev refactor commands' commands "$@"
+}
+(( $+functions[_cldev__help__dev__research_commands] )) ||
+_cldev__help__dev__research_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help dev research commands' commands "$@"
+}
+(( $+functions[_cldev__help__dev__urgent_commands] )) ||
+_cldev__help__dev__urgent_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help dev urgent commands' commands "$@"
+}
+(( $+functions[_cldev__help__git_commands] )) ||
+_cldev__help__git_commands() {
+    local commands; commands=(
+'commit:Create conventional commit' \
+'branch:Create conventional branch' \
+'merge-request:Create merge request (GitLab) or pull request (GitHub)' \
+'status:Show enhanced git status' \
+    )
+    _describe -t commands 'cldev help git commands' commands "$@"
+}
+(( $+functions[_cldev__help__git__branch_commands] )) ||
+_cldev__help__git__branch_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help git branch commands' commands "$@"
+}
+(( $+functions[_cldev__help__git__commit_commands] )) ||
+_cldev__help__git__commit_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help git commit commands' commands "$@"
+}
+(( $+functions[_cldev__help__git__merge-request_commands] )) ||
+_cldev__help__git__merge-request_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help git merge-request commands' commands "$@"
+}
+(( $+functions[_cldev__help__git__status_commands] )) ||
+_cldev__help__git__status_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help git status commands' commands "$@"
+}
+(( $+functions[_cldev__help__help_commands] )) ||
+_cldev__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help help commands' commands "$@"
+}
+(( $+functions[_cldev__help__lr_commands] )) ||
+_cldev__help__lr_commands() {
+    local commands; commands=(
+'find:Find learning records' \
+'stats:Show learning statistics' \
+'problems:List unsolved problems' \
+'new:Create new learning record' \
+    )
+    _describe -t commands 'cldev help lr commands' commands "$@"
+}
+(( $+functions[_cldev__help__lr__find_commands] )) ||
+_cldev__help__lr__find_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help lr find commands' commands "$@"
+}
+(( $+functions[_cldev__help__lr__new_commands] )) ||
+_cldev__help__lr__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help lr new commands' commands "$@"
+}
+(( $+functions[_cldev__help__lr__problems_commands] )) ||
+_cldev__help__lr__problems_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help lr problems commands' commands "$@"
+}
+(( $+functions[_cldev__help__lr__stats_commands] )) ||
+_cldev__help__lr__stats_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help lr stats commands' commands "$@"
+}
+(( $+functions[_cldev__help__ops_commands] )) ||
+_cldev__help__ops_commands() {
+    local commands; commands=(
+'build:Build project' \
+'deploy:Deploy project' \
+    )
+    _describe -t commands 'cldev help ops commands' commands "$@"
+}
+(( $+functions[_cldev__help__ops__build_commands] )) ||
+_cldev__help__ops__build_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help ops build commands' commands "$@"
+}
+(( $+functions[_cldev__help__ops__deploy_commands] )) ||
+_cldev__help__ops__deploy_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help ops deploy commands' commands "$@"
+}
+(( $+functions[_cldev__help__quality_commands] )) ||
+_cldev__help__quality_commands() {
+    local commands; commands=(
+'lint:Run linter' \
+'format:Format code' \
+'test:Run tests' \
+    )
+    _describe -t commands 'cldev help quality commands' commands "$@"
+}
+(( $+functions[_cldev__help__quality__format_commands] )) ||
+_cldev__help__quality__format_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help quality format commands' commands "$@"
+}
+(( $+functions[_cldev__help__quality__lint_commands] )) ||
+_cldev__help__quality__lint_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help quality lint commands' commands "$@"
+}
+(( $+functions[_cldev__help__quality__test_commands] )) ||
+_cldev__help__quality__test_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help quality test commands' commands "$@"
+}
+(( $+functions[_cldev__help__tech_commands] )) ||
+_cldev__help__tech_commands() {
+    local commands; commands=(
+'start:Start development environment' \
+    )
+    _describe -t commands 'cldev help tech commands' commands "$@"
+}
+(( $+functions[_cldev__help__tech__start_commands] )) ||
+_cldev__help__tech__start_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help tech start commands' commands "$@"
+}
+(( $+functions[_cldev__help__todo_commands] )) ||
+_cldev__help__todo_commands() {
+    local commands; commands=(
+'manage:Manage todos' \
+    )
+    _describe -t commands 'cldev help todo commands' commands "$@"
+}
+(( $+functions[_cldev__help__todo__manage_commands] )) ||
+_cldev__help__todo__manage_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev help todo manage commands' commands "$@"
+}
+(( $+functions[_cldev__lr_commands] )) ||
+_cldev__lr_commands() {
+    local commands; commands=(
+'find:Find learning records' \
+'stats:Show learning statistics' \
+'problems:List unsolved problems' \
+'new:Create new learning record' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev lr commands' commands "$@"
+}
+(( $+functions[_cldev__lr__find_commands] )) ||
+_cldev__lr__find_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev lr find commands' commands "$@"
+}
+(( $+functions[_cldev__lr__help_commands] )) ||
+_cldev__lr__help_commands() {
+    local commands; commands=(
+'find:Find learning records' \
+'stats:Show learning statistics' \
+'problems:List unsolved problems' \
+'new:Create new learning record' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev lr help commands' commands "$@"
+}
+(( $+functions[_cldev__lr__help__find_commands] )) ||
+_cldev__lr__help__find_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev lr help find commands' commands "$@"
+}
+(( $+functions[_cldev__lr__help__help_commands] )) ||
+_cldev__lr__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev lr help help commands' commands "$@"
+}
+(( $+functions[_cldev__lr__help__new_commands] )) ||
+_cldev__lr__help__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev lr help new commands' commands "$@"
+}
+(( $+functions[_cldev__lr__help__problems_commands] )) ||
+_cldev__lr__help__problems_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev lr help problems commands' commands "$@"
+}
+(( $+functions[_cldev__lr__help__stats_commands] )) ||
+_cldev__lr__help__stats_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev lr help stats commands' commands "$@"
+}
+(( $+functions[_cldev__lr__new_commands] )) ||
+_cldev__lr__new_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev lr new commands' commands "$@"
+}
+(( $+functions[_cldev__lr__problems_commands] )) ||
+_cldev__lr__problems_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev lr problems commands' commands "$@"
+}
+(( $+functions[_cldev__lr__stats_commands] )) ||
+_cldev__lr__stats_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev lr stats commands' commands "$@"
+}
+(( $+functions[_cldev__ops_commands] )) ||
+_cldev__ops_commands() {
+    local commands; commands=(
+'build:Build project' \
+'deploy:Deploy project' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev ops commands' commands "$@"
+}
+(( $+functions[_cldev__ops__build_commands] )) ||
+_cldev__ops__build_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev ops build commands' commands "$@"
+}
+(( $+functions[_cldev__ops__deploy_commands] )) ||
+_cldev__ops__deploy_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev ops deploy commands' commands "$@"
+}
+(( $+functions[_cldev__ops__help_commands] )) ||
+_cldev__ops__help_commands() {
+    local commands; commands=(
+'build:Build project' \
+'deploy:Deploy project' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev ops help commands' commands "$@"
+}
+(( $+functions[_cldev__ops__help__build_commands] )) ||
+_cldev__ops__help__build_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev ops help build commands' commands "$@"
+}
+(( $+functions[_cldev__ops__help__deploy_commands] )) ||
+_cldev__ops__help__deploy_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev ops help deploy commands' commands "$@"
+}
+(( $+functions[_cldev__ops__help__help_commands] )) ||
+_cldev__ops__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev ops help help commands' commands "$@"
+}
+(( $+functions[_cldev__quality_commands] )) ||
+_cldev__quality_commands() {
+    local commands; commands=(
+'lint:Run linter' \
+'format:Format code' \
+'test:Run tests' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev quality commands' commands "$@"
+}
+(( $+functions[_cldev__quality__format_commands] )) ||
+_cldev__quality__format_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev quality format commands' commands "$@"
+}
+(( $+functions[_cldev__quality__help_commands] )) ||
+_cldev__quality__help_commands() {
+    local commands; commands=(
+'lint:Run linter' \
+'format:Format code' \
+'test:Run tests' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev quality help commands' commands "$@"
+}
+(( $+functions[_cldev__quality__help__format_commands] )) ||
+_cldev__quality__help__format_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev quality help format commands' commands "$@"
+}
+(( $+functions[_cldev__quality__help__help_commands] )) ||
+_cldev__quality__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev quality help help commands' commands "$@"
+}
+(( $+functions[_cldev__quality__help__lint_commands] )) ||
+_cldev__quality__help__lint_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev quality help lint commands' commands "$@"
+}
+(( $+functions[_cldev__quality__help__test_commands] )) ||
+_cldev__quality__help__test_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev quality help test commands' commands "$@"
+}
+(( $+functions[_cldev__quality__lint_commands] )) ||
+_cldev__quality__lint_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev quality lint commands' commands "$@"
+}
+(( $+functions[_cldev__quality__test_commands] )) ||
+_cldev__quality__test_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev quality test commands' commands "$@"
+}
+(( $+functions[_cldev__tech_commands] )) ||
+_cldev__tech_commands() {
+    local commands; commands=(
+'start:Start development environment' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev tech commands' commands "$@"
+}
+(( $+functions[_cldev__tech__help_commands] )) ||
+_cldev__tech__help_commands() {
+    local commands; commands=(
+'start:Start development environment' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev tech help commands' commands "$@"
+}
+(( $+functions[_cldev__tech__help__help_commands] )) ||
+_cldev__tech__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev tech help help commands' commands "$@"
+}
+(( $+functions[_cldev__tech__help__start_commands] )) ||
+_cldev__tech__help__start_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev tech help start commands' commands "$@"
+}
+(( $+functions[_cldev__tech__start_commands] )) ||
+_cldev__tech__start_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev tech start commands' commands "$@"
+}
+(( $+functions[_cldev__todo_commands] )) ||
+_cldev__todo_commands() {
+    local commands; commands=(
+'manage:Manage todos' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev todo commands' commands "$@"
+}
+(( $+functions[_cldev__todo__help_commands] )) ||
+_cldev__todo__help_commands() {
+    local commands; commands=(
+'manage:Manage todos' \
+'help:Print this message or the help of the given subcommand(s)' \
+    )
+    _describe -t commands 'cldev todo help commands' commands "$@"
+}
+(( $+functions[_cldev__todo__help__help_commands] )) ||
+_cldev__todo__help__help_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev todo help help commands' commands "$@"
+}
+(( $+functions[_cldev__todo__help__manage_commands] )) ||
+_cldev__todo__help__manage_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev todo help manage commands' commands "$@"
+}
+(( $+functions[_cldev__todo__manage_commands] )) ||
+_cldev__todo__manage_commands() {
+    local commands; commands=()
+    _describe -t commands 'cldev todo manage commands' commands "$@"
+}
+
+if [ "$funcstack[1]" = "_cldev" ]; then
+    _cldev "$@"
+else
+    compdef _cldev cldev
+fi

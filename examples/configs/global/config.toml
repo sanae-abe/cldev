@@ -1,0 +1,47 @@
+# Global cldev Configuration
+# Location: ~/.config/cldev/config.toml
+#
+# This is the base configuration that applies to all projects.
+# Stack and project configs will override these settings.
+
+version = "1.0.0"
+
+[general]
+language = "ja"
+claude_dir = "~/.claude"
+projects_dir = "~/projects"
+
+# Optional: Set a default tech stack
+# tech_stack = "rust-cli"
+
+# Optional: Set current project name
+# project_name = "my-project"
+
+[git]
+github_cli = true
+gitlab_cli = false
+default_base_branch = "main"
+auto_push = true
+
+[quality]
+auto_fix = false
+run_tests_before_commit = true
+
+[dev]
+auto_create_branch = true
+branch_prefix = "feature"
+session_recording = true
+
+[lr]
+sessions_dir = "~/.claude/learning-sessions"
+auto_save = true
+default_tags = ["development", "claude-code"]
+
+[ui]
+color = true
+emoji = true
+progress_bar = true
+
+[performance]
+parallel_tasks = 4
+timeout_seconds = 300

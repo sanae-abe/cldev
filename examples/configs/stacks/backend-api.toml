@@ -1,0 +1,49 @@
+# Backend API Development Stack Configuration
+# Location: ~/.config/cldev/stacks/backend-api.toml
+#
+# Stack for Node.js, Python, Go, Rust API development
+
+[stack]
+name = "backend-api"
+description = "Backend API development with Node.js/Python/Go/Rust"
+languages = ["TypeScript", "Python", "Go", "Rust"]
+frameworks = ["Express", "FastAPI", "Gin", "Axum"]
+version = "1.0.0"
+
+[commands]
+dev = "npm run dev"
+build = "npm run build"
+test = "npm test"
+lint = "npm run lint"
+format = "npm run format"
+migrate = "npm run migrate"
+seed = "npm run seed"
+
+[tools]
+package_manager = "npm"
+formatter = "prettier"
+linter = "eslint"
+type_checker = "tsc"
+build_tool = "tsc"
+test_runner = "jest"
+
+[quality]
+required_rules = [
+    "security/detect-object-injection",
+    "security/detect-non-literal-regexp",
+    "@typescript-eslint/no-explicit-any",
+]
+coverage_threshold = 90
+max_complexity = 15
+strict_mode = true
+
+[testing]
+test_patterns = ["**/*.test.ts", "tests/**/*.ts"]
+test_command = "npm test"
+coverage_command = "npm run test:coverage"
+watch_command = "npm run test:watch"
+
+[environment]
+required_env_vars = ["DATABASE_URL", "API_KEY", "JWT_SECRET"]
+dev_port = 8080
+node_version = ">=18.0.0"

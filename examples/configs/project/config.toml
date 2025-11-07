@@ -1,0 +1,60 @@
+# Project Configuration Example
+# Location: ./.cldev/config.toml (in project root)
+#
+# This configuration is specific to this project and overrides
+# both global and stack configurations.
+
+[project]
+name = "cldev"
+tech_stack = "rust-cli"
+description = "A unified CLI tool for managing multiple development tools"
+version = "1.0.0"
+repository = "https://github.com/sanae-abe/cldev"
+tags = ["cli", "rust", "development-tools"]
+
+[commands]
+# Custom project-specific commands
+completions = "cargo run -- completions"
+install-local = "cargo install --path ."
+release = "cargo build --release && strip target/release/cldev"
+
+[dev]
+port = 8080
+hot_reload = true
+source_maps = true
+
+# Custom environment variables for development (values in .env)
+[dev.env_vars]
+# Keys only - actual values should be in .env file
+# RUST_LOG = "debug"
+
+[quality]
+pre_commit_hooks = true
+min_coverage = 85
+custom_rules = [
+    "clippy::unwrap_used",
+    "clippy::expect_used",
+]
+exclude_patterns = [
+    "target/**",
+    "examples/**",
+    "tests/fixtures/**",
+]
+
+[git]
+base_branch = "main"
+branch_prefix = "feature"
+commit_template = "type(scope): description\n\nBody\n\nFooter"
+required_reviewers = []
+protected_branches = ["main", "develop"]
+
+[paths]
+src = "src"
+tests = "tests"
+docs = "docs"
+dist = "target"
+
+# Custom paths specific to this project
+[paths.custom]
+examples = "examples"
+completions = "completions"

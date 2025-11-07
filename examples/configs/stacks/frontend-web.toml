@@ -1,0 +1,50 @@
+# Frontend Web Development Stack Configuration
+# Location: ~/.config/cldev/stacks/frontend-web.toml
+#
+# Stack for React, Vue, Angular, TypeScript web applications
+
+[stack]
+name = "frontend-web"
+description = "Frontend web development with React/Vue/Angular and TypeScript"
+languages = ["TypeScript", "JavaScript", "HTML", "CSS"]
+frameworks = ["React", "Vue", "Angular", "Svelte"]
+version = "1.0.0"
+
+[commands]
+dev = "npm run dev"
+build = "npm run build"
+test = "npm test"
+lint = "npm run lint"
+format = "npm run format"
+type-check = "npm run type-check"
+preview = "npm run preview"
+
+[tools]
+package_manager = "npm"
+formatter = "prettier"
+linter = "eslint"
+type_checker = "tsc"
+build_tool = "vite"
+test_runner = "vitest"
+
+[quality]
+required_rules = [
+    "no-console",
+    "no-debugger",
+    "@typescript-eslint/no-explicit-any",
+    "react-hooks/rules-of-hooks",
+]
+coverage_threshold = 80
+max_complexity = 10
+strict_mode = true
+
+[testing]
+test_patterns = ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts"]
+test_command = "npm test"
+coverage_command = "npm run test:coverage"
+watch_command = "npm run test:watch"
+
+[environment]
+required_env_vars = []
+dev_port = 3000
+node_version = ">=18.0.0"

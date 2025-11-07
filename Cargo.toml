@@ -1,0 +1,106 @@
+[package]
+name = "cldev"
+version = "1.0.0"
+edition = "2021"
+rust-version = "1.70"
+authors = ["Sanae Abe"]
+description = "A unified CLI tool for managing multiple development tools"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/sanae-abe/cldev"
+keywords = ["cli", "development", "tools", "unified"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "cldev"
+path = "src/main.rs"
+
+[lib]
+name = "cldev"
+path = "src/lib.rs"
+
+[dependencies]
+# CLI framework with derive macros and rich features
+clap = { version = "4.5", features = ["derive", "cargo", "wrap_help", "string"] }
+
+# Shell completion generation
+clap_complete = "4.5"
+
+# Serialization framework
+serde = { version = "1.0", features = ["derive"] }
+
+# TOML parser for configuration files
+toml = "0.8"
+
+# JSON support
+serde_json = "1.0"
+
+# Error handling with context
+anyhow = "1.0"
+
+# Custom error types with derive macros
+thiserror = "1.0"
+
+# Cross-platform directory paths
+dirs = "5.0"
+
+# Terminal color support
+colored = "2.1"
+
+# TTY detection for color output
+atty = "0.2"
+
+# Table formatting for CLI output
+comfy-table = "7.1"
+
+# Interactive prompts and dialogs
+dialoguer = "0.11"
+
+# Progress bars and spinners
+indicatif = "0.17"
+
+# Git repository operations
+git2 = "0.18"
+
+# Process execution and command spawning
+which = "6.0"
+
+# Date and time handling
+chrono = "0.4"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+predicates = "3.1"
+tempfile = "3.10"
+criterion = "0.5"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"
+
+[profile.dev]
+# Faster compilation during development
+opt-level = 0
+debug = true
+
+[profile.test]
+# Balance between compilation speed and test performance
+opt-level = 1
+
+[[bench]]
+name = "config_bench"
+harness = false
+
+[[bench]]
+name = "security_bench"
+harness = false
+
+[[bench]]
+name = "i18n_bench"
+harness = false
+
+[[bench]]
+name = "project_detector_bench"
+harness = false

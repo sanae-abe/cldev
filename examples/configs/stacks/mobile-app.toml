@@ -1,0 +1,49 @@
+# Mobile App Development Stack Configuration
+# Location: ~/.config/cldev/stacks/mobile-app.toml
+#
+# Stack for React Native, Flutter, iOS/Android development
+
+[stack]
+name = "mobile-app"
+description = "Mobile app development with React Native/Flutter"
+languages = ["TypeScript", "Dart", "Swift", "Kotlin"]
+frameworks = ["React Native", "Flutter", "Expo"]
+version = "1.0.0"
+
+[commands]
+dev = "npm run start"
+build = "npm run build"
+test = "npm test"
+lint = "npm run lint"
+format = "npm run format"
+ios = "npm run ios"
+android = "npm run android"
+eject = "npm run eject"
+
+[tools]
+package_manager = "npm"
+formatter = "prettier"
+linter = "eslint"
+type_checker = "tsc"
+build_tool = "metro"
+test_runner = "jest"
+
+[quality]
+required_rules = [
+    "react-native/no-inline-styles",
+    "react-native/no-unused-styles",
+]
+coverage_threshold = 70
+max_complexity = 12
+strict_mode = true
+
+[testing]
+test_patterns = ["**/*.test.tsx", "**/*.test.ts"]
+test_command = "npm test"
+coverage_command = "npm run test:coverage"
+watch_command = "npm run test:watch"
+
+[environment]
+required_env_vars = ["API_URL"]
+dev_port = 8081
+node_version = ">=18.0.0"

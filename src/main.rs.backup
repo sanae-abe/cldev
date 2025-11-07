@@ -1,0 +1,119 @@
+mod cli;
+mod error;
+
+use clap::Parser;
+use cli::{Cli, Commands, OutputHandler};
+use error::Result;
+
+fn main() {
+    if let Err(e) = run() {
+        let output = OutputHandler::default();
+        output.error(&format!("Error: {}", e));
+        std::process::exit(e.exit_code());
+    }
+}
+
+fn run() -> Result<()> {
+    let cli = Cli::parse();
+
+    // Initialize output handler with global flags
+    let output = OutputHandler::new(cli.verbose, cli.quiet, cli.no_color);
+
+    // Route to appropriate command handler
+    match &cli.command {
+        Commands::Config(cmd) => {
+            output.info("Config command execution - implementation pending");
+            handle_config_command(cmd, &output)
+        }
+        Commands::Dev(cmd) => {
+            output.info("Dev command execution - implementation pending");
+            handle_dev_command(cmd, &output)
+        }
+        Commands::Git(cmd) => {
+            output.info("Git command execution - implementation pending");
+            handle_git_command(cmd, &output)
+        }
+        Commands::Quality(cmd) => {
+            output.info("Quality command execution - implementation pending");
+            handle_quality_command(cmd, &output)
+        }
+        Commands::Tech(cmd) => {
+            output.info("Tech command execution - implementation pending");
+            handle_tech_command(cmd, &output)
+        }
+        Commands::Ops(cmd) => {
+            output.info("Ops command execution - implementation pending");
+            handle_ops_command(cmd, &output)
+        }
+        Commands::Analysis(cmd) => {
+            output.info("Analysis command execution - implementation pending");
+            handle_analysis_command(cmd, &output)
+        }
+        Commands::Lr(cmd) => {
+            output.info("Learning Record command execution - implementation pending");
+            handle_lr_command(cmd, &output)
+        }
+        Commands::Todo(cmd) => {
+            output.info("Todo command execution - implementation pending");
+            handle_todo_command(cmd, &output)
+        }
+    }
+}
+
+// Command handler stubs - to be implemented in Phase 1-B
+fn handle_config_command(cmd: &cli::args::ConfigCommands, output: &OutputHandler) -> Result<()> {
+    output.debug(&format!("Config command: {:?}", cmd));
+    output.warning("Config commands not yet implemented");
+    Ok(())
+}
+
+fn handle_dev_command(cmd: &cli::args::DevCommands, output: &OutputHandler) -> Result<()> {
+    output.debug(&format!("Dev command: {:?}", cmd));
+    output.warning("Dev commands not yet implemented");
+    Ok(())
+}
+
+fn handle_git_command(cmd: &cli::args::GitCommands, output: &OutputHandler) -> Result<()> {
+    output.debug(&format!("Git command: {:?}", cmd));
+    output.warning("Git commands not yet implemented");
+    Ok(())
+}
+
+fn handle_quality_command(cmd: &cli::args::QualityCommands, output: &OutputHandler) -> Result<()> {
+    output.debug(&format!("Quality command: {:?}", cmd));
+    output.warning("Quality commands not yet implemented");
+    Ok(())
+}
+
+fn handle_tech_command(cmd: &cli::args::TechCommands, output: &OutputHandler) -> Result<()> {
+    output.debug(&format!("Tech command: {:?}", cmd));
+    output.warning("Tech commands not yet implemented");
+    Ok(())
+}
+
+fn handle_ops_command(cmd: &cli::args::OpsCommands, output: &OutputHandler) -> Result<()> {
+    output.debug(&format!("Ops command: {:?}", cmd));
+    output.warning("Ops commands not yet implemented");
+    Ok(())
+}
+
+fn handle_analysis_command(
+    cmd: &cli::args::AnalysisCommands,
+    output: &OutputHandler,
+) -> Result<()> {
+    output.debug(&format!("Analysis command: {:?}", cmd));
+    output.warning("Analysis commands not yet implemented");
+    Ok(())
+}
+
+fn handle_lr_command(cmd: &cli::args::LrCommands, output: &OutputHandler) -> Result<()> {
+    output.debug(&format!("Learning Record command: {:?}", cmd));
+    output.warning("Learning Record commands not yet implemented");
+    Ok(())
+}
+
+fn handle_todo_command(cmd: &cli::args::TodoCommands, output: &OutputHandler) -> Result<()> {
+    output.debug(&format!("Todo command: {:?}", cmd));
+    output.warning("Todo commands not yet implemented");
+    Ok(())
+}

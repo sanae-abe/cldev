@@ -1,0 +1,47 @@
+# Data Science Stack Configuration
+# Location: ~/.config/cldev/stacks/data-science.toml
+#
+# Stack for Python/R data science and machine learning
+
+[stack]
+name = "data-science"
+description = "Data science and ML with Python/R and Jupyter"
+languages = ["Python", "R"]
+frameworks = ["Jupyter", "pandas", "scikit-learn", "PyTorch", "TensorFlow"]
+version = "1.0.0"
+
+[commands]
+notebook = "jupyter notebook"
+lab = "jupyter lab"
+test = "pytest"
+lint = "pylint **/*.py"
+format = "black ."
+type-check = "mypy ."
+train = "python train.py"
+
+[tools]
+package_manager = "pip"
+formatter = "black"
+linter = "pylint"
+type_checker = "mypy"
+build_tool = "setuptools"
+test_runner = "pytest"
+
+[quality]
+required_rules = [
+    "pylint:disable=C0111",  # Missing docstrings
+]
+coverage_threshold = 75
+max_complexity = 15
+strict_mode = false
+
+[testing]
+test_patterns = ["tests/**/*.py", "test_*.py", "*_test.py"]
+test_command = "pytest"
+coverage_command = "pytest --cov"
+watch_command = "pytest-watch"
+
+[environment]
+required_env_vars = []
+dev_port = 8888
+python_version = ">=3.9"

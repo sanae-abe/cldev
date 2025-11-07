@@ -1,0 +1,49 @@
+# Rust CLI Development Stack Configuration
+# Location: ~/.config/cldev/stacks/rust-cli.toml
+#
+# Stack for Rust CLI tool development
+
+[stack]
+name = "rust-cli"
+description = "Rust CLI development with clap and modern tooling"
+languages = ["Rust"]
+frameworks = ["clap", "tokio", "serde"]
+version = "1.0.0"
+
+[commands]
+build = "cargo build"
+build-release = "cargo build --release"
+test = "cargo test"
+lint = "cargo clippy -- -D warnings"
+format = "cargo fmt"
+check = "cargo check"
+run = "cargo run"
+doc = "cargo doc --open"
+bench = "cargo bench"
+
+[tools]
+package_manager = "cargo"
+formatter = "rustfmt"
+linter = "clippy"
+build_tool = "cargo"
+test_runner = "cargo"
+
+[quality]
+required_rules = [
+    "clippy::all",
+    "clippy::pedantic",
+    "clippy::nursery",
+]
+coverage_threshold = 80
+max_complexity = 10
+strict_mode = true
+
+[testing]
+test_patterns = ["tests/**/*.rs", "src/**/*_test.rs"]
+test_command = "cargo test"
+coverage_command = "cargo tarpaulin --out Html"
+watch_command = "cargo watch -x test"
+
+[environment]
+required_env_vars = []
+rust_version = ">=1.70"
