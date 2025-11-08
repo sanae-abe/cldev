@@ -65,7 +65,7 @@ dialoguer = "0.12"
 indicatif = "0.18"
 
 # Git repository operations
-git2 = "0.18"
+git2 = "0.20"
 
 # Process execution and command spawning
 which = "8.0"
