@@ -3,7 +3,7 @@
 use crate::core::i18n::I18n;
 use colored::{ColoredString, Colorize};
 use std::collections::HashMap;
-use std::io::{self, Write};
+use std::io::{self, IsTerminal, Write};
 
 /// Output level for controlling verbosity
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -36,7 +36,7 @@ impl OutputHandler {
 
         Self {
             level,
-            use_color: !no_color && atty::is(atty::Stream::Stdout),
+            use_color: !no_color && io::stdout().is_terminal(),
             i18n: I18n::new(),
         }
     }
@@ -58,7 +58,7 @@ impl OutputHandler {
 
         Self {
             level,
-            use_color: !no_color && atty::is(atty::Stream::Stdout),
+            use_color: !no_color && io::stdout().is_terminal(),
             i18n: I18n::with_language(language),
         }
     }

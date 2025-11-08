@@ -55,9 +55,6 @@ dirs = "5.0"
 # Terminal color support
 colored = "2.1"
 
-# TTY detection for color output
-atty = "0.2"
-
 # Table formatting for CLI output
 comfy-table = "7.1"
 
