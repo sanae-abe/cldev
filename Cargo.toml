@@ -68,7 +68,7 @@ indicatif = "0.18"
 git2 = "0.18"
 
 # Process execution and command spawning
-which = "6.0"
+which = "8.0"
 
 # Date and time handling
 chrono = "0.4"
