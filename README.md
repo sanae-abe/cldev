@@ -1,9 +1,11 @@
 # cldev - Claude Development CLI
 
 [![Build Status](https://github.com/sanae-abe/cldev/workflows/CI/badge.svg)](https://github.com/sanae-abe/cldev/actions)
+[![Crates.io](https://img.shields.io/crates/v/cldev.svg)](https://crates.io/crates/cldev)
+[![Documentation](https://docs.rs/cldev/badge.svg)](https://docs.rs/cldev)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)](Cargo.toml)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
+[![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev)
 
 **cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 29 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese).
 
