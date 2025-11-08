@@ -415,8 +415,15 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let output = OutputHandler::default();
 
+        // Change to temp directory to avoid detecting current project
+        let original_dir = std::env::current_dir().unwrap();
+        std::env::set_current_dir(temp_dir.path()).unwrap();
+
         let result = run_tests(None, false, false, &output);
         assert!(result.is_err());
+
+        // Restore original directory
+        std::env::set_current_dir(original_dir).unwrap();
     }
 
     #[test]

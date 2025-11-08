@@ -36,7 +36,7 @@ fn test_config_help() {
     cmd.env("LANG", "en").args(&["config", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Configuration management"))
+        .stdout(predicate::str::contains("Manage cldev configuration"))
         .stdout(predicate::str::contains("init"))
         .stdout(predicate::str::contains("check"))
         .stdout(predicate::str::contains("list"));
@@ -50,7 +50,7 @@ fn test_config_init_help() {
     cmd.args(&["config", "init", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Initialize configuration"));
+        .stdout(predicate::str::contains("Initialize cldev configuration"));
 }
 
 #[test]
@@ -61,7 +61,7 @@ fn test_config_check_help() {
     cmd.args(&["config", "check", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Check configuration"));
+        .stdout(predicate::str::contains("Validate configuration health"));
 }
 
 #[test]
@@ -72,7 +72,7 @@ fn test_config_list_help() {
     cmd.args(&["config", "list", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("List configuration"));
+        .stdout(predicate::str::contains("List all configurations"));
 }
 
 #[test]
@@ -111,7 +111,7 @@ fn test_dev_help() {
     cmd.args(&["dev", "--help"])
         .assert()
         .success()
-        .stdout(predicate::str::contains("Development workflow"))
+        .stdout(predicate::str::contains("Core development workflows"))
         .stdout(predicate::str::contains("urgent"))
         .stdout(predicate::str::contains("fix"))
         .stdout(predicate::str::contains("debug"));

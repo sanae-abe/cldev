@@ -74,11 +74,17 @@ const CONFIG_FILE_PERMISSION: u32 = 0o600;
 /// # Example
 ///
 /// ```
-/// use std::path::PathBuf;
+/// use std::path::{Path, PathBuf};
 /// use cldev::core::security::SecurePath;
+/// use tempfile::TempDir;
 ///
-/// let secure_path = SecurePath::new(PathBuf::from("/home/user/.claude"));
-/// let result = secure_path.validate(Path::new("config.toml"));
+/// let temp_dir = TempDir::new().unwrap();
+/// let secure_path = SecurePath::new(temp_dir.path().to_path_buf()).unwrap();
+///
+/// // Valid path within base directory
+/// let config_path = temp_dir.path().join("config.toml");
+/// std::fs::write(&config_path, "").unwrap();
+/// let result = secure_path.validate(&config_path);
 /// assert!(result.is_ok());
 ///
 /// // Path traversal attempt
