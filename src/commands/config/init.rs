@@ -492,10 +492,12 @@ fn generate_config_with_progress(
 
     let msg_finalizing = output.i18n().get("config-init-progress-finalizing");
     pb.set_message(msg_finalizing);
-    let mut config = Config::default();
-    config.general = general;
-    config.git = git;
-    config.ui = ui;
+    let config = Config {
+        general,
+        git,
+        ui,
+        ..Default::default()
+    };
     std::thread::sleep(std::time::Duration::from_millis(200));
     pb.inc(1);
 

@@ -558,6 +558,5 @@ mod tests {
     #[test]
     fn test_feature_command_structure() {
         // Test that the command structure is well-formed
-        assert!(true);
     }
 }

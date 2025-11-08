@@ -7,9 +7,9 @@
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 [![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev)
 
-**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 33 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese).
+**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 33 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
 
-English | [日本語](README.ja.md)
+English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
 
 <!-- Screenshot placeholder: Add demo GIF showing cldev config init -->
 
@@ -38,7 +38,7 @@ English | [日本語](README.ja.md)
 - **Unifies** 33 commands across 9 categories (config, dev, git, quality, tech, ops, analysis, learning, todo)
 - **Accelerates** workflows with faster startup (~21ms, 1.5x faster than gh CLI's 32ms)
 - **Simplifies** installation (`cargo install cldev` or `brew install cldev`)
-- **Internationalizes** all outputs (English/Japanese with extensible i18n)
+- **Internationalizes** all outputs (English/Japanese/Chinese with extensible i18n)
 - **Secures** operations (path traversal prevention, command injection protection)
 - **Autodetects** project types (Node.js, Rust, Go, Python, etc.)
 
@@ -66,7 +66,7 @@ cldev lr find "encryption"
 - 80% faster installation
 - 1.5x faster execution (vs gh CLI)
 - Full type safety (Rust)
-- i18n support (English/Japanese, Chinese in Phase 2)
+- i18n support (English/Japanese/Chinese Simplified & Traditional)
 
 ---
 
@@ -79,8 +79,8 @@ cldev lr find "encryption"
 - **Efficient resource usage**: Minimal memory footprint
 
 ### 🌐 Internationalization
-- **Current support**: English (en), Japanese (ja)
-- **Roadmap**: Chinese Simplified (zh) - Year 2 Q1, Korean (ko) - Year 2 Q2
+- **Current support**: English (en), Japanese (ja), Chinese Simplified (zh), Chinese Traditional (zh-TW)
+- **Roadmap**: Korean (ko) - Year 2 Q2, additional languages on request
 - **Auto-detection**: Uses `LANG` environment variable
 - **Extensible**: JSON-based i18n system (upgradable to fluent-rs)
 
@@ -102,6 +102,25 @@ cldev lr find "encryption"
 - **3-layer config**: Global → Tech Stack → Project
 - **Type-safe**: Rust's compile-time guarantees
 - **Extensible**: Plugin-ready command system
+
+### 📚 Learning Record System
+- **Built-in knowledge base**: Search past solutions with `cldev lr find "topic"`
+- **Problem tracking**: Keep track of unresolved issues with `cldev lr problems`
+- **Learning analytics**: View statistics and patterns with `cldev lr stats`
+- **UTF-8 support**: Full Japanese/Chinese text search capabilities
+
+Unlike typical development CLIs, cldev includes a searchable learning record system. While many developers manually maintain TIL (Today I Learned) repositories or engineering logs in separate tools, cldev integrates this directly into your workflow—making past solutions instantly retrievable from the command line.
+
+```bash
+# Record a learning session
+cldev lr new "JWT authentication implementation"
+
+# Search past solutions
+cldev lr find "authentication" --field topic
+
+# View learning statistics
+cldev lr stats --period week
+```
 
 ---
 
@@ -512,7 +531,7 @@ cldev completions zsh --install
 version = "1.0.0"
 
 [general]
-language = "ja"  # en or ja
+language = "ja"  # en, ja, zh, or zh-TW
 claude_dir = "/Users/sanae.abe/.claude"
 projects_dir = "/Users/sanae.abe/projects"
 
@@ -663,7 +682,7 @@ All commands support these global flags:
 --verbose, -v      # Detailed output
 --quiet, -q        # Suppress non-error output
 --no-color         # Disable colored output
---lang <LANG>      # Override language (en/ja)
+--lang <LANG>      # Override language (en/ja/zh/zh-TW)
 --help, -h         # Show help
 --version, -V      # Show version
 ```
@@ -792,7 +811,7 @@ cldev/
 │   │   ├── error.rs        # Error types
 │   │   └── security.rs     # Security utilities
 │   └── i18n/               # i18n resources
-│       └── messages.json   # Translation catalog (63 keys, 2 languages)
+│       └── messages.json   # Translation catalog (584 keys, 4 languages)
 ├── tests/                  # Integration tests
 │   └── integration_test.rs # Integration tests
 ├── examples/               # Usage examples

@@ -42,10 +42,7 @@ fn display_branch_info(git_utils: &GitUtils, output: &OutputHandler) -> Result<(
     output.info(&format!("  Current branch: {}", branch));
 
     // Check if branch is tracking a remote
-    let unpushed = match git_utils.unpushed_commits("origin") {
-        Ok(count) => count,
-        Err(_) => 0, // Remote might not exist
-    };
+    let unpushed = git_utils.unpushed_commits("origin").unwrap_or_default();
 
     if unpushed > 0 {
         output.warning(&format!("  {} unpushed commit(s)", unpushed));

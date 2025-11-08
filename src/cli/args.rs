@@ -26,7 +26,7 @@ pub struct Cli {
     #[arg(long, global = true)]
     pub no_color: bool,
 
-    /// Set language (en/ja/zh)
+    /// Set language (en/ja/zh/zh-TW)
     #[arg(long, global = true, value_enum, default_value = "en")]
     pub lang: Language,
 
@@ -43,6 +43,9 @@ pub enum Language {
     Ja,
     /// Chinese (Simplified)
     Zh,
+    /// Chinese (Traditional)
+    #[value(name = "zh-TW")]
+    ZhTw,
 }
 
 impl Language {
@@ -52,6 +55,7 @@ impl Language {
             Language::En => crate::core::i18n::Language::English,
             Language::Ja => crate::core::i18n::Language::Japanese,
             Language::Zh => crate::core::i18n::Language::Chinese,
+            Language::ZhTw => crate::core::i18n::Language::ChineseTraditional,
         }
     }
 }

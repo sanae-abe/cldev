@@ -193,7 +193,7 @@ mod tests {
 
     #[test]
     fn test_fallback_editors_list() {
-        assert!(!FALLBACK_EDITORS.is_empty());
+        assert_eq!(FALLBACK_EDITORS.len(), 3);
         assert!(FALLBACK_EDITORS.contains(&"vim"));
     }
 

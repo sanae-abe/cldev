@@ -5,9 +5,9 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)](Cargo.toml)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 
-**cldev**は、Claude Codeでの開発ワークフローを管理する統合CLIツールです。32の重要な開発コマンドを、型安全で超高速なRustバイナリに統合し、完全な多言語対応（英語・日本語）を提供します。
+**cldev**は、Claude Codeでの開発ワークフローを管理する統合CLIツールです。33の重要な開発コマンドを、型安全で超高速なRustバイナリに統合し、完全な多言語対応（英語・日本語・中国語）を提供します。
 
-[English](README.md) | 日本語
+[English](README.md) | 日本語 | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
 
 <!-- スクリーンショットプレースホルダー: cldev config init のデモGIFを追加 -->
 
@@ -33,10 +33,10 @@
 
 **cldev**は、断片化したシェルスクリプトを統合された開発ツールキットに置き換えます：
 
-- **統合**: 9カテゴリ32コマンドを単一ツールに（config、dev、git、quality、tech、ops、analysis、learning、todo）
-- **高速化**: 起動時間90%高速化（5-10ms vs 50-100ms bash）
+- **統合**: 9カテゴリ33コマンドを単一ツールに（config、dev、git、quality、tech、ops、analysis、learning、todo）
+- **高速化**: 起動時間1.5倍高速化（~21ms vs gh CLIの32ms）
 - **簡単**: インストール簡単（`cargo install cldev` または `brew install cldev`）
-- **多言語**: 全出力を多言語化（英語・日本語、拡張可能なi18nシステム）
+- **多言語**: 全出力を多言語化（英語・日本語・簡体字中国語・繁体字中国語、拡張可能なi18nシステム）
 - **セキュア**: セキュアな操作（パストラバーサル防止、コマンドインジェクション保護）
 - **自動検出**: プロジェクトタイプ自動検出（Node.js、Rust、Go、Python等）
 
@@ -59,24 +59,26 @@ cldev lr find "encryption"
 ```
 
 **改善点:**
-- コマンド数22%削減（41 → 32）
+- コマンド数20%削減（41 → 33）
 - コマンド構文77%短縮
 - インストール時間80%高速化
-- 実行時間90%高速化
+- 実行速度1.5倍向上（gh CLIと比較）
 - 完全な型安全性（Rust）
-- 完全なi18n対応
+- i18n対応（英語/日本語/簡体字中国語/繁体字中国語）
 
 ---
 
 ## 主な機能
 
 ### 🚀 パフォーマンス
-- **超高速起動**: 5-10ms（bashの50-100msと比較）
+- **超高速起動**: ~21ms（gh CLIの32msと比較して1.5倍高速）
+- **コンパクトなバイナリ**: 1.5MB（gh CLIの51MBと比較して97%小さい）
 - **最適化されたリリースビルド**: LTO、strip、codegen-units=1
 - **効率的なリソース使用**: 最小限のメモリフットプリント
 
 ### 🌐 国際化
-- **多言語サポート**: 英語（en）と日本語（ja）
+- **現在のサポート**: 英語（en）、日本語（ja）、簡体字中国語（zh）、繁体字中国語（zh-TW）
+- **ロードマップ**: 韓国語（ko）- Year 2 Q2、その他の言語はリクエストベース
 - **自動検出**: `LANG`環境変数を使用
 - **拡張可能**: JSONベースのi18nシステム（fluent-rsへアップグレード可能）
 
@@ -98,6 +100,25 @@ cldev lr find "encryption"
 - **3層設定**: グローバル → 技術スタック → プロジェクト
 - **型安全**: Rustのコンパイル時保証
 - **拡張可能**: プラグイン対応コマンドシステム
+
+### 📚 学習記録システム
+- **組み込み知識ベース**: `cldev lr find "トピック"` で過去の解決策を検索
+- **問題追跡**: `cldev lr problems` で未解決の課題を管理
+- **学習分析**: `cldev lr stats` で統計とパターンを可視化
+- **UTF-8対応**: 日本語・中国語の全文検索に完全対応
+
+一般的な開発CLIとは異なり、cldevは検索可能な学習記録システムを内蔵しています。多くの開発者がTIL（Today I Learned）リポジトリやエンジニアログを別ツールで手動管理していますが、cldevはこれをワークフローに直接統合—過去の解決策をコマンドラインから即座に検索できます。
+
+```bash
+# 学習セッションの記録
+cldev lr new "JWT認証の実装"
+
+# 過去の解決策を検索
+cldev lr find "認証" --field topic
+
+# 学習統計の表示
+cldev lr stats --period week
+```
 
 ---
 
@@ -506,7 +527,7 @@ cldev completions zsh --install
 version = "1.0.0"
 
 [general]
-language = "ja"  # en または ja
+language = "ja"  # en, ja, zh, または zh-TW
 claude_dir = "/Users/sanae.abe/.claude"
 projects_dir = "/Users/sanae.abe/projects"
 
@@ -657,7 +678,7 @@ cldev completions <shell>  # 補完生成
 --verbose, -v      # 詳細出力
 --quiet, -q        # エラー以外の出力を抑制
 --no-color         # 色付き出力を無効化
---lang <LANG>      # 言語オーバーライド（en/ja）
+--lang <LANG>      # 言語オーバーライド（en/ja/zh/zh-TW）
 --help, -h         # ヘルプ表示
 --version, -V      # バージョン表示
 ```

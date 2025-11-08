@@ -274,6 +274,5 @@ mod tests {
     fn test_urgent_command_structure() {
         // Test that the command structure is well-formed
         // Actual interactive testing would require mock inputs
-        assert!(true);
     }
 }

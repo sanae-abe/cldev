@@ -90,10 +90,8 @@ pub fn list_commands(
 fn print_category(category: &CommandCategory, detailed: bool, output: &OutputHandler) {
     // Category header
     output.subheader(&format!(
-        "{} {} {}",
-        category.emoji,
-        category.name,
-        format!("({})", category.description)
+        "{} {} ({})",
+        category.emoji, category.name, category.description
     ));
 
     if detailed {

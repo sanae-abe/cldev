@@ -26,6 +26,9 @@ pub enum Language {
     /// Chinese (Simplified)
     #[serde(rename = "zh")]
     Chinese,
+    /// Chinese (Traditional)
+    #[serde(rename = "zh-TW")]
+    ChineseTraditional,
 }
 
 impl Language {
@@ -37,6 +40,9 @@ impl Language {
             if lang_lower.starts_with("ja") {
                 return Language::Japanese;
             }
+            if lang_lower.contains("zh_tw") || lang_lower.contains("zh-tw") {
+                return Language::ChineseTraditional;
+            }
             if lang_lower.starts_with("zh") {
                 return Language::Chinese;
             }
@@ -47,6 +53,9 @@ impl Language {
             let lang_lower = lang.to_lowercase();
             if lang_lower.starts_with("ja") {
                 return Language::Japanese;
+            }
+            if lang_lower.contains("zh_tw") || lang_lower.contains("zh-tw") {
+                return Language::ChineseTraditional;
             }
             if lang_lower.starts_with("zh") {
                 return Language::Chinese;
@@ -63,6 +72,7 @@ impl Language {
             Language::English => "en",
             Language::Japanese => "ja",
             Language::Chinese => "zh",
+            Language::ChineseTraditional => "zh-TW",
         }
     }
 
@@ -72,6 +82,7 @@ impl Language {
             "en" | "english" => Some(Language::English),
             "ja" | "japanese" | "jp" => Some(Language::Japanese),
             "zh" | "chinese" | "zh-cn" | "zh-hans" => Some(Language::Chinese),
+            "zh-tw" | "zh_tw" | "zh-hant" | "traditional" => Some(Language::ChineseTraditional),
             _ => None,
         }
     }

@@ -2,7 +2,6 @@
 ///
 /// VULN-02: Deploy script execution validation
 /// VULN-06: Learning record path traversal prevention
-
 #[cfg(test)]
 mod security_tests {
     // Note: These tests verify the security fixes are in place
@@ -16,7 +15,6 @@ mod security_tests {
         // 1. Permission checks (world-writable detection)
         // 2. User confirmation before execution
         println!("VULN-02: Deploy script validation implemented");
-        assert!(true);
     }
 
     #[test]
@@ -28,6 +26,5 @@ mod security_tests {
         // 2. Shell injection via dangerous characters
         // 3. Overly long topic names (>200 chars)
         println!("VULN-06: Path traversal prevention implemented");
-        assert!(true);
     }
 }
