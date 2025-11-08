@@ -8,6 +8,7 @@ use predicates::prelude::*;
 #[test]
 fn test_completion_bash() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     cmd.args(&["completions", "bash"])
         .assert()
@@ -18,6 +19,7 @@ fn test_completion_bash() {
 #[test]
 fn test_completion_zsh() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     cmd.args(&["completions", "zsh"])
         .assert()
@@ -28,6 +30,7 @@ fn test_completion_zsh() {
 #[test]
 fn test_completion_fish() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     cmd.args(&["completions", "fish"])
         .assert()
@@ -38,6 +41,7 @@ fn test_completion_fish() {
 #[test]
 fn test_completion_powershell() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     cmd.args(&["completions", "powershell"])
         .assert()
@@ -51,6 +55,7 @@ fn test_completion_powershell() {
 #[test]
 fn test_completion_elvish() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     cmd.args(&["completions", "elvish"])
         .assert()
@@ -61,6 +66,7 @@ fn test_completion_elvish() {
 #[test]
 fn test_completion_invalid_shell() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     cmd.args(&["completions", "invalid-shell"])
         .assert()
@@ -71,6 +77,7 @@ fn test_completion_invalid_shell() {
 #[test]
 fn test_completion_help() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     cmd.args(&["completions", "--help"])
         .assert()
@@ -86,6 +93,7 @@ fn test_completion_output_not_empty() {
 
     for shell in shells {
         let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
         let output = cmd.args(&["completions", shell]).output().unwrap();
 
@@ -100,6 +108,7 @@ fn test_completion_output_not_empty() {
 #[test]
 fn test_completion_bash_contains_commands() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     cmd.args(&["completions", "bash"]).assert().success().stdout(
         predicate::str::contains("config")
@@ -111,6 +120,7 @@ fn test_completion_bash_contains_commands() {
 #[test]
 fn test_completion_installation_instructions() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     cmd.args(&["completions", "--help"])
         .assert()
@@ -121,6 +131,7 @@ fn test_completion_installation_instructions() {
 #[test]
 fn test_completion_bash_syntax_valid() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     let output = cmd.args(&["completions", "bash"]).output().unwrap();
 
@@ -136,6 +147,7 @@ fn test_completion_bash_syntax_valid() {
 #[test]
 fn test_completion_zsh_syntax_valid() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     let output = cmd.args(&["completions", "zsh"]).output().unwrap();
 
@@ -151,6 +163,7 @@ fn test_completion_zsh_syntax_valid() {
 #[test]
 fn test_completion_fish_syntax_valid() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
     let output = cmd.args(&["completions", "fish"]).output().unwrap();
 
@@ -169,6 +182,7 @@ fn test_completion_stdout_only() {
 
     for shell in shells {
         let mut cmd = Command::cargo_bin("cldev").unwrap();
+    cmd.env("LANG", "en");
 
         let output = cmd.args(&["completions", shell]).output().unwrap();
 

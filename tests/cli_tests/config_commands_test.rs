@@ -5,7 +5,20 @@
 use assert_cmd::Command;
 use predicates::prelude::*;
 use std::fs;
+use std::path::Path;
 use tempfile::TempDir;
+
+/// Helper function to write config file with secure permissions
+fn write_config_with_permissions(path: &Path, content: &str) {
+    fs::write(path, content).unwrap();
+
+    // Set secure permissions (Unix only)
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(path, fs::Permissions::from_mode(0o600)).unwrap();
+    }
+}
 
 #[test]
 fn test_config_init_basic() {
@@ -44,7 +57,7 @@ fn test_config_init_force() {
     let config_path = config_dir.join("config.toml");
 
     // Create existing config
-    fs::write(&config_path, "version = \"1.0.0\"").unwrap();
+    write_config_with_permissions(&config_path, "version = \"1.0.0\"");
 
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
@@ -66,6 +79,10 @@ fn test_config_check_valid() {
 
     fs::create_dir_all(&config_dir).unwrap();
 
+    // Create required directories for validation
+    fs::create_dir_all(temp_dir.path().join(".claude/learning-sessions")).unwrap();
+    fs::create_dir_all(temp_dir.path().join("projects")).unwrap();
+
     // Create valid config
     let config_content = r#"
 version = "1.0.0"
@@ -77,7 +94,7 @@ language = "ja"
 default_base_branch = "main"
 "#;
 
-    fs::write(config_dir.join("config.toml"), config_content).unwrap();
+    write_config_with_permissions(&config_dir.join("config.toml"), config_content);
 
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
@@ -86,7 +103,9 @@ default_base_branch = "main"
         .assert()
         .success()
         .stdout(
-            predicate::str::contains("Configuration is valid").or(predicate::str::contains("OK")),
+            predicate::str::contains("All checks passed")
+                .or(predicate::str::contains("Configuration is healthy"))
+                .or(predicate::str::contains("checks passed")),
         );
 }
 
@@ -108,7 +127,7 @@ version = "invalid"
 language = "ja"
 "#;
 
-    fs::write(config_dir.join("config.toml"), invalid_config).unwrap();
+    write_config_with_permissions(&config_dir.join("config.toml"), invalid_config);
 
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
@@ -153,7 +172,7 @@ default_base_branch = "develop"
 auto_push = false
 "#;
 
-    fs::write(config_dir.join("config.toml"), config_content).unwrap();
+    write_config_with_permissions(&config_dir.join("config.toml"), config_content);
 
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
@@ -185,7 +204,7 @@ language = "ja"
 default_base_branch = "main"
 "#;
 
-    fs::write(config_dir.join("config.toml"), config_content).unwrap();
+    write_config_with_permissions(&config_dir.join("config.toml"), config_content);
 
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
@@ -215,7 +234,7 @@ version = "1.0.0"
 language = "ja"
 "#;
 
-    fs::write(config_dir.join("config.toml"), config_content).unwrap();
+    write_config_with_permissions(&config_dir.join("config.toml"), config_content);
 
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
@@ -250,7 +269,7 @@ fn test_config_edit_command() {
     fs::create_dir_all(&config_dir).unwrap();
 
     // Create initial config
-    fs::write(config_dir.join("config.toml"), "version = \"1.0.0\"").unwrap();
+    write_config_with_permissions(&config_dir.join("config.toml"), "version = \"1.0.0\"");
 
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
@@ -287,7 +306,7 @@ fn test_config_validate_permissions() {
 
     let config_content = "version = \"1.0.0\"";
     let config_path = config_dir.join("config.toml");
-    fs::write(&config_path, config_content).unwrap();
+    write_config_with_permissions(&config_path, config_content);
 
     // On Unix, set permissions to 600
     #[cfg(unix)]
@@ -313,7 +332,7 @@ fn test_config_migration() {
     fs::create_dir_all(&old_config_dir).unwrap();
 
     // Create old-style config
-    fs::write(old_config_dir.join("config.toml"), "version = \"1.0.0\"").unwrap();
+    write_config_with_permissions(&old_config_dir.join("config.toml"), "version = \"1.0.0\"");
 
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
