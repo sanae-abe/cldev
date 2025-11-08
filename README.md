@@ -7,7 +7,7 @@
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 [![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev)
 
-**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 29 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese).
+**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 32 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese).
 
 English | [日本語](README.ja.md)
 
@@ -35,7 +35,7 @@ English | [日本語](README.ja.md)
 
 **cldev** replaces fragmented shell scripts with a cohesive development toolkit that:
 
-- **Unifies** 29 commands across 9 categories (config, dev, git, quality, tech, ops, analysis, learning, todo)
+- **Unifies** 32 commands across 9 categories (config, dev, git, quality, tech, ops, analysis, learning, todo)
 - **Accelerates** workflows with 90% faster startup (5-10ms vs 50-100ms bash)
 - **Simplifies** installation (`cargo install cldev` or `brew install cldev`)
 - **Internationalizes** all outputs (English/Japanese with extensible i18n)
@@ -61,7 +61,7 @@ cldev lr find "encryption"
 ```
 
 **Improvements:**
-- 29% reduction in command count (41 → 29)
+- 22% reduction in command count (41 → 32)
 - 77% shorter command syntax
 - 80% faster installation
 - 90% faster execution
@@ -560,7 +560,7 @@ cldev automatically validates and migrates configurations when needed.
 
 ### Command Categories
 
-cldev organizes 29 commands into 9 logical categories:
+cldev organizes 32 commands into 9 logical categories:
 
 ```
 ┌─────────────────────────────────────────────────────┐
