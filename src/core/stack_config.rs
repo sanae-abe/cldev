@@ -251,7 +251,6 @@ impl Default for StackMetadata {
     }
 }
 
-
 impl Default for StackQualityConfig {
     fn default() -> Self {
         Self {
@@ -262,9 +261,6 @@ impl Default for StackQualityConfig {
         }
     }
 }
-
-
-
 
 impl StackConfig {
     /// Get the default stack configuration directory

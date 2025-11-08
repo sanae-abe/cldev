@@ -93,7 +93,7 @@ fn test_completion_output_not_empty() {
 
     for shell in shells {
         let mut cmd = cargo_bin_cmd!();
-    cmd.env("LANG", "en");
+        cmd.env("LANG", "en");
 
         let output = cmd.args(["completions", shell]).output().unwrap();
 
@@ -182,7 +182,7 @@ fn test_completion_stdout_only() {
 
     for shell in shells {
         let mut cmd = cargo_bin_cmd!();
-    cmd.env("LANG", "en");
+        cmd.env("LANG", "en");
 
         let output = cmd.args(["completions", shell]).output().unwrap();
 

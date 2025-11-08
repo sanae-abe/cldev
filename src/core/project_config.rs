@@ -238,7 +238,6 @@ impl Default for ProjectQualityConfig {
     }
 }
 
-
 impl Default for ProjectPaths {
     fn default() -> Self {
         Self {
@@ -250,7 +249,6 @@ impl Default for ProjectPaths {
         }
     }
 }
-
 
 impl ProjectConfig {
     /// Get the project configuration directory path

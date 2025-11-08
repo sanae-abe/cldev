@@ -256,11 +256,11 @@ fn detect_shell_and_offer_completion(
     let shell = std::env::var("SHELL").unwrap_or_else(|_| "unknown".to_string());
     let shell_name = shell.split('/').next_back().unwrap_or("unknown");
 
-    output.info(&output.i18n().format(
-        "config-init-shell-detected",
-        "shell",
-        shell_name,
-    ));
+    output.info(
+        &output
+            .i18n()
+            .format("config-init-shell-detected", "shell", shell_name),
+    );
 
     // Determine shell config file
     let config_file = match shell_name {
@@ -289,11 +289,11 @@ fn detect_shell_and_offer_completion(
             return Ok(config_file);
         }
     } else {
-        output.warning(&output.i18n().format(
-            "config-init-shell-unsupported",
-            "shell",
-            shell_name,
-        ));
+        output.warning(
+            &output
+                .i18n()
+                .format("config-init-shell-unsupported", "shell", shell_name),
+        );
         output.info("");
     }
 

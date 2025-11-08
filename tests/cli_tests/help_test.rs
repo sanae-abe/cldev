@@ -10,7 +10,8 @@ fn test_help_flag() {
     let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.env("LANG", "en").arg("--help")
+    cmd.env("LANG", "en")
+        .arg("--help")
         .assert()
         .success()
         .stdout(predicate::str::contains("cldev"))
@@ -22,7 +23,8 @@ fn test_help_command() {
     let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.env("LANG", "en").arg("help")
+    cmd.env("LANG", "en")
+        .arg("help")
         .assert()
         .success()
         .stdout(predicate::str::contains("cldev"));
@@ -33,7 +35,8 @@ fn test_config_help() {
     let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.env("LANG", "en").args(["config", "--help"])
+    cmd.env("LANG", "en")
+        .args(["config", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Manage cldev configuration"))
@@ -171,7 +174,8 @@ fn test_help_output_formatting() {
     let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.env("LANG", "en").arg("--help")
+    cmd.env("LANG", "en")
+        .arg("--help")
         .assert()
         .success()
         .stdout(predicate::str::contains("Commands:"))
@@ -184,7 +188,7 @@ fn test_subcommand_help_consistency() {
 
     for subcommand in subcommands {
         let mut cmd = cargo_bin_cmd!();
-    cmd.env("LANG", "en");
+        cmd.env("LANG", "en");
 
         cmd.args([subcommand, "--help"])
             .assert()

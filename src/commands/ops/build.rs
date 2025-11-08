@@ -84,13 +84,14 @@ fn clean_build() -> Result<()> {
 fn run_prebuild_checks() -> Result<()> {
     // Check if node_modules exists for Node.js projects
     if std::path::Path::new("package.json").exists()
-        && !std::path::Path::new("node_modules").exists() {
-            println!("  {} Installing dependencies...", "⚠️".yellow());
-            let status = Command::new("npm").arg("install").status()?;
-            if !status.success() {
-                return Err(CldevError::command("Failed to install dependencies"));
-            }
+        && !std::path::Path::new("node_modules").exists()
+    {
+        println!("  {} Installing dependencies...", "⚠️".yellow());
+        let status = Command::new("npm").arg("install").status()?;
+        if !status.success() {
+            return Err(CldevError::command("Failed to install dependencies"));
         }
+    }
 
     // Check if Cargo.lock exists for Rust projects
     if std::path::Path::new("Cargo.toml").exists() {

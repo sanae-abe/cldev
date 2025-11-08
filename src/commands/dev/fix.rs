@@ -101,14 +101,16 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     println!();
 
     // Step 5: Investigation Checklist
-    let investigation_areas = ["Review recent code changes (git log, blame)",
+    let investigation_areas = [
+        "Review recent code changes (git log, blame)",
         "Check error logs and stack traces",
         "Add debug logging/breakpoints",
         "Review related test cases",
         "Check dependencies/library versions",
         "Verify environment configurations",
         "Review data flow and state management",
-        "Check boundary conditions and edge cases"];
+        "Check boundary conditions and edge cases",
+    ];
 
     println!("{}", output.t("fix-investigation-checklist"));
     for (i, area) in investigation_areas.iter().enumerate() {
@@ -345,7 +347,6 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
 
 #[cfg(test)]
 mod tests {
-    
 
     #[test]
     fn test_fix_command_structure() {

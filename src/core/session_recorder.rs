@@ -247,11 +247,7 @@ impl LearningSession {
         let date_str = lines
             .iter()
             .find(|line| line.contains("**日付**:") || line.contains("**Date**:"))
-            .and_then(|line| {
-                line.split(':')
-                    .nth(1)
-                    .map(|s| s.trim().to_string())
-            })
+            .and_then(|line| line.split(':').nth(1).map(|s| s.trim().to_string()))
             .unwrap_or_else(|| chrono::Local::now().format("%Y-%m-%d").to_string());
 
         // Add default time to make it compatible with stats.rs timestamp parsing
@@ -274,17 +270,19 @@ impl LearningSession {
         );
 
         // Try to extract session type from filename or content
-        let session_type = if description.contains("セキュリティ") || description.contains("security") {
-            "security"
-        } else if description.contains("監査") || description.contains("audit") {
-            "audit"
-        } else if description.contains("実装") || description.contains("implementation") {
-            "feature"
-        } else if description.contains("修正") || description.contains("fix") {
-            "fix"
-        } else {
-            "learning"
-        }.to_string();
+        let session_type =
+            if description.contains("セキュリティ") || description.contains("security") {
+                "security"
+            } else if description.contains("監査") || description.contains("audit") {
+                "audit"
+            } else if description.contains("実装") || description.contains("implementation") {
+                "feature"
+            } else if description.contains("修正") || description.contains("fix") {
+                "fix"
+            } else {
+                "learning"
+            }
+            .to_string();
 
         Ok(Self {
             id,
@@ -306,7 +304,8 @@ impl LearningSession {
     /// Parse Markdown content and extract YAML frontmatter
     fn from_markdown(content: &str) -> Result<Self> {
         // Check if content starts with YAML frontmatter (---\n at the beginning)
-        let has_frontmatter = content.trim_start().starts_with("---\n") || content.trim_start().starts_with("---\r\n");
+        let has_frontmatter = content.trim_start().starts_with("---\n")
+            || content.trim_start().starts_with("---\r\n");
 
         if !has_frontmatter {
             // Legacy/custom format without frontmatter - extract from markdown content

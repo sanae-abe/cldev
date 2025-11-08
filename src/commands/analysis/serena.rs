@@ -690,10 +690,7 @@ fn display_summary(result: &SerenaResult, output: &OutputHandler) {
 fn extract_name_after_keyword(line: &str, keyword: &str) -> Option<String> {
     if let Some(start) = line.find(keyword) {
         let after = &line[start + keyword.len()..];
-        let name = after
-            .split(['(', '<', ' ', '{'])
-            .next()?
-            .trim();
+        let name = after.split(['(', '<', ' ', '{']).next()?.trim();
 
         if !name.is_empty() {
             return Some(name.to_string());

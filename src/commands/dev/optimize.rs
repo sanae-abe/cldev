@@ -311,14 +311,16 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     println!("{}", "✅ VALIDATION CHECKLIST".cyan().bold());
     println!();
 
-    let validation_checks = ["Run existing tests (ensure no breakage)",
+    let validation_checks = [
+        "Run existing tests (ensure no breakage)",
         "Measure performance after optimization",
         "Compare before/after metrics",
         "Test with realistic data volumes",
         "Verify functionality remains correct",
         "Check for memory leaks",
         "Test on different devices/browsers (if frontend)",
-        "Load testing / stress testing"];
+        "Load testing / stress testing",
+    ];
 
     println!("Validation requirements:");
     for (i, check) in validation_checks.iter().enumerate() {
@@ -600,7 +602,6 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
 #[cfg(test)]
 mod tests {
-    
 
     #[test]
     fn test_optimize_command_structure() {

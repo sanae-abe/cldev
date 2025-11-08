@@ -40,7 +40,9 @@ fn test_config_init_basic() {
 
     // Verify config file was created - check platform-specific location
     #[cfg(target_os = "macos")]
-    let config_path = temp_dir.path().join("Library/Application Support/cldev/config.toml");
+    let config_path = temp_dir
+        .path()
+        .join("Library/Application Support/cldev/config.toml");
     #[cfg(not(target_os = "macos"))]
     let config_path = temp_dir.path().join(".config/cldev/config.toml");
 

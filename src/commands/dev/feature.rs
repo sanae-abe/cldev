@@ -41,11 +41,13 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!("{}", output.t("feature-requirements-header").cyan().bold());
     println!();
 
-    let requirements_items = ["What problem does this solve?",
+    let requirements_items = [
+        "What problem does this solve?",
         "Who are the users/stakeholders?",
         "What are the acceptance criteria?",
         "Are there any constraints or dependencies?",
-        "What is the expected timeline?"];
+        "What is the expected timeline?",
+    ];
 
     println!("Key questions to answer:");
     for (i, item) in requirements_items.iter().enumerate() {
@@ -552,7 +554,6 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
 
 #[cfg(test)]
 mod tests {
-    
 
     #[test]
     fn test_feature_command_structure() {

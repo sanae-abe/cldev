@@ -173,7 +173,6 @@ fn display_session_brief(session: &LearningSession, index: usize) {
 
 #[cfg(test)]
 mod tests {
-    
 
     #[test]
     fn test_query_matching() {

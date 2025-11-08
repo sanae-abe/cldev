@@ -352,8 +352,12 @@ fn test_feature_dependency_tracking() -> Result<()> {
     // Verify learnings are stored instead
     let loaded = LearningSession::load(&session.id)?;
     assert_eq!(loaded.learnings.len(), 2);
-    assert!(loaded.learnings.contains(&"New dependency: tokio 1.0".to_string()));
-    assert!(loaded.learnings.contains(&"New dependency: serde 1.0".to_string()));
+    assert!(loaded
+        .learnings
+        .contains(&"New dependency: tokio 1.0".to_string()));
+    assert!(loaded
+        .learnings
+        .contains(&"New dependency: serde 1.0".to_string()));
 
     Ok(())
 }

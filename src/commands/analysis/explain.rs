@@ -326,9 +326,7 @@ fn extract_item_name(line: &str) -> Option<String> {
     ] {
         if let Some(start) = trimmed.find(keyword) {
             let after_keyword = &trimmed[start + keyword.len()..];
-            if let Some(end) =
-                after_keyword.find(['(', '<', ' ', '{'])
-            {
+            if let Some(end) = after_keyword.find(['(', '<', ' ', '{']) {
                 return Some(after_keyword[..end].trim().to_string());
             }
         }

@@ -420,7 +420,6 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
 
 #[cfg(test)]
 mod tests {
-    
 
     #[test]
     fn test_debug_command_structure() {

@@ -277,16 +277,18 @@ fn scan_security_issues(file: &str, content: &str) -> Vec<SecurityIssue> {
 
         // 6. Secret exposure
         if (line.contains("API_KEY") || line.contains("SECRET") || line.contains("PASSWORD"))
-            && !line.contains("env::var") && !line.contains("get_env") {
-                issues.push(SecurityIssue {
-                    file: file.to_string(),
-                    line: i + 1,
-                    severity: "critical".to_string(),
-                    category: SecurityCategory::SecretExposure,
-                    description: "Hardcoded secret detected".to_string(),
-                    recommendation: "Use environment variables or secure vault".to_string(),
-                });
-            }
+            && !line.contains("env::var")
+            && !line.contains("get_env")
+        {
+            issues.push(SecurityIssue {
+                file: file.to_string(),
+                line: i + 1,
+                severity: "critical".to_string(),
+                category: SecurityCategory::SecretExposure,
+                description: "Hardcoded secret detected".to_string(),
+                recommendation: "Use environment variables or secure vault".to_string(),
+            });
+        }
 
         // 7. Logging sensitive data
         if (line.contains("log") || line.contains("println!"))
@@ -367,17 +369,20 @@ fn scan_performance_issues(file: &str, content: &str) -> Vec<PerformanceIssue> {
         }
 
         // Unoptimized loops
-        if line.contains("for") && line.contains("..") && line.contains("len()")
-            && line.contains("vec[") {
-                issues.push(PerformanceIssue {
-                    file: file.to_string(),
-                    line: i + 1,
-                    severity: "low".to_string(),
-                    issue_type: "Iterator optimization".to_string(),
-                    description: "Index-based iteration".to_string(),
-                    suggestion: "Use iterator methods for better performance".to_string(),
-                });
-            }
+        if line.contains("for")
+            && line.contains("..")
+            && line.contains("len()")
+            && line.contains("vec[")
+        {
+            issues.push(PerformanceIssue {
+                file: file.to_string(),
+                line: i + 1,
+                severity: "low".to_string(),
+                issue_type: "Iterator optimization".to_string(),
+                description: "Index-based iteration".to_string(),
+                suggestion: "Use iterator methods for better performance".to_string(),
+            });
+        }
 
         // Large capacity allocations
         if line.contains("Vec::with_capacity") {
@@ -413,18 +418,17 @@ fn scan_performance_issues(file: &str, content: &str) -> Vec<PerformanceIssue> {
                     .skip(i)
                     .take(20)
                     .any(|l| l.contains(&fn_name))
-                && !line.contains("tail") {
-                    issues.push(PerformanceIssue {
-                        file: file.to_string(),
-                        line: i + 1,
-                        severity: "low".to_string(),
-                        issue_type: "Recursion".to_string(),
-                        description: "Recursive function without tail call optimization"
-                            .to_string(),
-                        suggestion: "Consider iterative approach or ensure tail recursion"
-                            .to_string(),
-                    });
-                }
+                && !line.contains("tail")
+            {
+                issues.push(PerformanceIssue {
+                    file: file.to_string(),
+                    line: i + 1,
+                    severity: "low".to_string(),
+                    issue_type: "Recursion".to_string(),
+                    description: "Recursive function without tail call optimization".to_string(),
+                    suggestion: "Consider iterative approach or ensure tail recursion".to_string(),
+                });
+            }
         }
     }
 
