@@ -9,7 +9,7 @@ use predicates::prelude::*;
 fn test_completion_bash() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    cmd.args(&["completion", "bash"])
+    cmd.args(&["completions", "bash"])
         .assert()
         .success()
         .stdout(predicate::str::contains("_cldev").or(predicate::str::contains("complete")));
@@ -19,7 +19,7 @@ fn test_completion_bash() {
 fn test_completion_zsh() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    cmd.args(&["completion", "zsh"])
+    cmd.args(&["completions", "zsh"])
         .assert()
         .success()
         .stdout(predicate::str::contains("#compdef").or(predicate::str::contains("_cldev")));
@@ -29,7 +29,7 @@ fn test_completion_zsh() {
 fn test_completion_fish() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    cmd.args(&["completion", "fish"])
+    cmd.args(&["completions", "fish"])
         .assert()
         .success()
         .stdout(predicate::str::contains("complete").or(predicate::str::contains("cldev")));
@@ -39,7 +39,7 @@ fn test_completion_fish() {
 fn test_completion_powershell() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    cmd.args(&["completion", "powershell"])
+    cmd.args(&["completions", "powershell"])
         .assert()
         .success()
         .stdout(
@@ -52,7 +52,7 @@ fn test_completion_powershell() {
 fn test_completion_elvish() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    cmd.args(&["completion", "elvish"])
+    cmd.args(&["completions", "elvish"])
         .assert()
         .success()
         .stdout(predicate::str::contains("edit:completion").or(predicate::str::contains("cldev")));
@@ -62,7 +62,7 @@ fn test_completion_elvish() {
 fn test_completion_invalid_shell() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    cmd.args(&["completion", "invalid-shell"])
+    cmd.args(&["completions", "invalid-shell"])
         .assert()
         .failure()
         .stderr(predicate::str::contains("invalid").or(predicate::str::contains("value")));
@@ -72,7 +72,7 @@ fn test_completion_invalid_shell() {
 fn test_completion_help() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    cmd.args(&["completion", "--help"])
+    cmd.args(&["completions", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("shell completion"))
@@ -87,7 +87,7 @@ fn test_completion_output_not_empty() {
     for shell in shells {
         let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-        let output = cmd.args(&["completion", shell]).output().unwrap();
+        let output = cmd.args(&["completions", shell]).output().unwrap();
 
         assert!(
             !output.stdout.is_empty(),
@@ -101,7 +101,7 @@ fn test_completion_output_not_empty() {
 fn test_completion_bash_contains_commands() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    cmd.args(&["completion", "bash"]).assert().success().stdout(
+    cmd.args(&["completions", "bash"]).assert().success().stdout(
         predicate::str::contains("config")
             .or(predicate::str::contains("git"))
             .or(predicate::str::contains("quality")),
@@ -112,7 +112,7 @@ fn test_completion_bash_contains_commands() {
 fn test_completion_installation_instructions() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    cmd.args(&["completion", "--help"])
+    cmd.args(&["completions", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Install").or(predicate::str::contains("installation")));
@@ -122,7 +122,7 @@ fn test_completion_installation_instructions() {
 fn test_completion_bash_syntax_valid() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    let output = cmd.args(&["completion", "bash"]).output().unwrap();
+    let output = cmd.args(&["completions", "bash"]).output().unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
 
@@ -137,7 +137,7 @@ fn test_completion_bash_syntax_valid() {
 fn test_completion_zsh_syntax_valid() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    let output = cmd.args(&["completion", "zsh"]).output().unwrap();
+    let output = cmd.args(&["completions", "zsh"]).output().unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
 
@@ -152,7 +152,7 @@ fn test_completion_zsh_syntax_valid() {
 fn test_completion_fish_syntax_valid() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-    let output = cmd.args(&["completion", "fish"]).output().unwrap();
+    let output = cmd.args(&["completions", "fish"]).output().unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
 
@@ -170,7 +170,7 @@ fn test_completion_stdout_only() {
     for shell in shells {
         let mut cmd = Command::cargo_bin("cldev").unwrap();
 
-        let output = cmd.args(&["completion", shell]).output().unwrap();
+        let output = cmd.args(&["completions", shell]).output().unwrap();
 
         // Completion should only output to stdout, not stderr
         assert!(

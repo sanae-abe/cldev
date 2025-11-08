@@ -313,7 +313,7 @@ fn test_session_complex_workflow() -> Result<()> {
     // Load and verify
     let loaded = LearningSession::load(&session.id)?;
     assert_eq!(loaded.tags.len(), 3);
-    assert_eq!(loaded.steps_taken.len(), 3);
+    // Note: steps_taken not stored in compact markdown format
     assert_eq!(loaded.files_affected.len(), 2);
     assert_eq!(loaded.learnings.len(), 2);
     assert!(loaded.resolved);
@@ -335,14 +335,16 @@ fn test_session_json_serialization() -> Result<()> {
 
     let path = session.save()?;
 
-    // Read raw JSON
-    let json_content = fs::read_to_string(&path)?;
+    // Read raw Markdown (new format)
+    let markdown_content = fs::read_to_string(&path)?;
 
-    // Verify JSON structure
-    assert!(json_content.contains("\"session_type\""));
-    assert!(json_content.contains("\"description\""));
-    assert!(json_content.contains("\"tags\""));
-    assert!(json_content.contains("\"learnings\""));
+    // Verify Markdown structure with YAML frontmatter
+    assert!(markdown_content.contains("---"));
+    assert!(markdown_content.contains("id:"));
+    assert!(markdown_content.contains("type: test"));
+    assert!(markdown_content.contains("tags: [serialization]"));
+    assert!(markdown_content.contains("## 学び"));
+    assert!(markdown_content.contains("- JSON works correctly"));
 
     Ok(())
 }

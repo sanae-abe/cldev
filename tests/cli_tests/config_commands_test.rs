@@ -35,6 +35,10 @@ fn test_config_init_basic() {
 #[test]
 fn test_config_init_force() {
     let temp_dir = TempDir::new().unwrap();
+    // Use platform-specific config directory
+    #[cfg(target_os = "macos")]
+    let config_dir = temp_dir.path().join("Library/Application Support/cldev");
+    #[cfg(not(target_os = "macos"))]
     let config_dir = temp_dir.path().join(".config/cldev");
     fs::create_dir_all(&config_dir).unwrap();
     let config_path = config_dir.join("config.toml");
@@ -53,7 +57,13 @@ fn test_config_init_force() {
 #[test]
 fn test_config_check_valid() {
     let temp_dir = TempDir::new().unwrap();
+
+    // Use platform-specific config directory
+    #[cfg(target_os = "macos")]
+    let config_dir = temp_dir.path().join("Library/Application Support/cldev");
+    #[cfg(not(target_os = "macos"))]
     let config_dir = temp_dir.path().join(".config/cldev");
+
     fs::create_dir_all(&config_dir).unwrap();
 
     // Create valid config
@@ -83,6 +93,10 @@ default_base_branch = "main"
 #[test]
 fn test_config_check_invalid() {
     let temp_dir = TempDir::new().unwrap();
+    // Use platform-specific config directory
+    #[cfg(target_os = "macos")]
+    let config_dir = temp_dir.path().join("Library/Application Support/cldev");
+    #[cfg(not(target_os = "macos"))]
     let config_dir = temp_dir.path().join(".config/cldev");
     fs::create_dir_all(&config_dir).unwrap();
 
@@ -120,6 +134,10 @@ fn test_config_check_missing() {
 #[test]
 fn test_config_list_all() {
     let temp_dir = TempDir::new().unwrap();
+    // Use platform-specific config directory
+    #[cfg(target_os = "macos")]
+    let config_dir = temp_dir.path().join("Library/Application Support/cldev");
+    #[cfg(not(target_os = "macos"))]
     let config_dir = temp_dir.path().join(".config/cldev");
     fs::create_dir_all(&config_dir).unwrap();
 
@@ -150,6 +168,10 @@ auto_push = false
 #[test]
 fn test_config_list_specific_section() {
     let temp_dir = TempDir::new().unwrap();
+    // Use platform-specific config directory
+    #[cfg(target_os = "macos")]
+    let config_dir = temp_dir.path().join("Library/Application Support/cldev");
+    #[cfg(not(target_os = "macos"))]
     let config_dir = temp_dir.path().join(".config/cldev");
     fs::create_dir_all(&config_dir).unwrap();
 
@@ -179,6 +201,10 @@ default_base_branch = "main"
 #[test]
 fn test_config_list_json_format() {
     let temp_dir = TempDir::new().unwrap();
+    // Use platform-specific config directory
+    #[cfg(target_os = "macos")]
+    let config_dir = temp_dir.path().join("Library/Application Support/cldev");
+    #[cfg(not(target_os = "macos"))]
     let config_dir = temp_dir.path().join(".config/cldev");
     fs::create_dir_all(&config_dir).unwrap();
 
@@ -216,6 +242,10 @@ fn test_config_init_interactive_skip() {
 #[test]
 fn test_config_edit_command() {
     let temp_dir = TempDir::new().unwrap();
+    // Use platform-specific config directory
+    #[cfg(target_os = "macos")]
+    let config_dir = temp_dir.path().join("Library/Application Support/cldev");
+    #[cfg(not(target_os = "macos"))]
     let config_dir = temp_dir.path().join(".config/cldev");
     fs::create_dir_all(&config_dir).unwrap();
 
@@ -248,6 +278,10 @@ fn test_config_path_display() {
 #[test]
 fn test_config_validate_permissions() {
     let temp_dir = TempDir::new().unwrap();
+    // Use platform-specific config directory
+    #[cfg(target_os = "macos")]
+    let config_dir = temp_dir.path().join("Library/Application Support/cldev");
+    #[cfg(not(target_os = "macos"))]
     let config_dir = temp_dir.path().join(".config/cldev");
     fs::create_dir_all(&config_dir).unwrap();
 

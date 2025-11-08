@@ -484,9 +484,23 @@ impl LearningSession {
             for entry in entries.flatten() {
                 let path = entry.path();
                 if path.extension().and_then(|s| s.to_str()) == Some(ext) {
+                    // Check filename stem first
                     if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
                         if stem.starts_with(id) {
                             return Ok(path);
+                        }
+                    }
+
+                    // For .md files, check frontmatter ID
+                    if ext == "md" {
+                        if let Ok(content) = fs::read_to_string(&path) {
+                            // Quick check for frontmatter without full parsing
+                            if let Some(id_line) = content.lines().find(|l| l.starts_with("id:")) {
+                                let file_id = id_line.trim_start_matches("id:").trim();
+                                if file_id == id {
+                                    return Ok(path);
+                                }
+                            }
                         }
                     }
                 }
