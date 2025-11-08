@@ -8,7 +8,7 @@ use crate::core::config::{Config, GeneralConfig, GitConfig, UiConfig};
 use crate::core::error::{CldevError, Result};
 use dialoguer::{theme::ColorfulTheme, Confirm, Input, Select};
 use indicatif::{ProgressBar, ProgressStyle};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 /// Language option for the interactive setup
@@ -322,7 +322,7 @@ fn offer_aliases(theme: &ColorfulTheme, output: &OutputHandler) -> Result<bool> 
 /// Step 7: Offer Claude Code integration
 fn offer_claude_integration(
     theme: &ColorfulTheme,
-    claude_dir: &PathBuf,
+    claude_dir: &Path,
     output: &OutputHandler,
 ) -> Result<bool> {
     output.info(&output.i18n().get("config-init-step7-claude-integration"));
@@ -361,7 +361,7 @@ fn offer_claude_integration(
 }
 
 /// Setup Claude Code integration
-fn setup_claude_integration(claude_dir: &PathBuf, output: &OutputHandler) -> Result<()> {
+fn setup_claude_integration(claude_dir: &Path, output: &OutputHandler) -> Result<()> {
     use std::fs::OpenOptions;
     use std::io::Write;
 

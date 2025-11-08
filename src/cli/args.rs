@@ -45,7 +45,7 @@ pub enum Language {
 
 impl Language {
     /// Convert CLI language to i18n language
-    pub fn to_i18n(&self) -> crate::core::i18n::Language {
+    pub fn to_i18n(self) -> crate::core::i18n::Language {
         match self {
             Language::En => crate::core::i18n::Language::English,
             Language::Ja => crate::core::i18n::Language::Japanese,

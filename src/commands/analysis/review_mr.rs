@@ -151,11 +151,11 @@ fn perform_review(
                 if let Some(path_str) = new_file.to_str() {
                     // Read file content and analyze
                     if let Ok(content) = std::fs::read_to_string(new_file) {
-                        if security_focus || !security_focus && !performance_focus {
+                        if security_focus || !performance_focus {
                             security_issues.extend(scan_security_issues(path_str, &content));
                         }
 
-                        if performance_focus || !security_focus && !performance_focus {
+                        if performance_focus || !security_focus {
                             performance_issues.extend(scan_performance_issues(path_str, &content));
                         }
 

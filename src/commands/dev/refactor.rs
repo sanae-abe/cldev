@@ -526,7 +526,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_refactor_command_structure() {

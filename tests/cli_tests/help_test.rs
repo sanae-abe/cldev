@@ -2,12 +2,12 @@
 //!
 //! Tests the --help option for all commands and subcommands.
 
-use assert_cmd::Command;
+use assert_cmd::cargo::cargo_bin_cmd;
 use predicates::prelude::*;
 
 #[test]
 fn test_help_flag() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
     cmd.env("LANG", "en").arg("--help")
@@ -19,7 +19,7 @@ fn test_help_flag() {
 
 #[test]
 fn test_help_command() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
     cmd.env("LANG", "en").arg("help")
@@ -30,10 +30,10 @@ fn test_help_command() {
 
 #[test]
 fn test_config_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.env("LANG", "en").args(&["config", "--help"])
+    cmd.env("LANG", "en").args(["config", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Manage cldev configuration"))
@@ -44,10 +44,10 @@ fn test_config_help() {
 
 #[test]
 fn test_config_init_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["config", "init", "--help"])
+    cmd.args(["config", "init", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Initialize cldev configuration"));
@@ -55,10 +55,10 @@ fn test_config_init_help() {
 
 #[test]
 fn test_config_check_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["config", "check", "--help"])
+    cmd.args(["config", "check", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Validate configuration health"));
@@ -66,10 +66,10 @@ fn test_config_check_help() {
 
 #[test]
 fn test_config_list_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["config", "list", "--help"])
+    cmd.args(["config", "list", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("List all configurations"));
@@ -77,10 +77,10 @@ fn test_config_list_help() {
 
 #[test]
 fn test_git_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["git", "--help"])
+    cmd.args(["git", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Git operations"))
@@ -91,10 +91,10 @@ fn test_git_help() {
 
 #[test]
 fn test_quality_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["quality", "--help"])
+    cmd.args(["quality", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Code quality"))
@@ -105,10 +105,10 @@ fn test_quality_help() {
 
 #[test]
 fn test_dev_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["dev", "--help"])
+    cmd.args(["dev", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Core development workflows"))
@@ -119,10 +119,10 @@ fn test_dev_help() {
 
 #[test]
 fn test_lr_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["lr", "--help"])
+    cmd.args(["lr", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Learning record"))
@@ -133,10 +133,10 @@ fn test_lr_help() {
 
 #[test]
 fn test_analysis_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["analysis", "--help"])
+    cmd.args(["analysis", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Code analysis"))
@@ -146,7 +146,7 @@ fn test_analysis_help() {
 
 #[test]
 fn test_no_args_shows_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
     // Running without args should show help or usage
@@ -157,7 +157,7 @@ fn test_no_args_shows_help() {
 
 #[test]
 fn test_invalid_subcommand() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
     cmd.arg("invalid-subcommand")
@@ -168,7 +168,7 @@ fn test_invalid_subcommand() {
 
 #[test]
 fn test_help_output_formatting() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
     cmd.env("LANG", "en").arg("--help")
@@ -183,10 +183,10 @@ fn test_subcommand_help_consistency() {
     let subcommands = vec!["config", "git", "quality", "dev", "lr", "analysis"];
 
     for subcommand in subcommands {
-        let mut cmd = Command::cargo_bin("cldev").unwrap();
+        let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-        cmd.args(&[subcommand, "--help"])
+        cmd.args([subcommand, "--help"])
             .assert()
             .success()
             .stdout(predicate::str::contains("Usage:"));

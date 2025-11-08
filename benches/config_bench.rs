@@ -25,7 +25,10 @@ fn bench_config_save(c: &mut Criterion) {
         let config_path = temp_dir.path().join("config.toml");
         let config = Config::default();
 
-        b.iter(|| black_box(config.save(Some(config_path.clone())).unwrap()))
+        b.iter(|| {
+            let _: () = config.save(Some(config_path.clone())).unwrap();
+            black_box(())
+        })
     });
 }
 

@@ -2,15 +2,15 @@
 //!
 //! Tests completion generation for various shells.
 
-use assert_cmd::Command;
+use assert_cmd::cargo::cargo_bin_cmd;
 use predicates::prelude::*;
 
 #[test]
 fn test_completion_bash() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["completions", "bash"])
+    cmd.args(["completions", "bash"])
         .assert()
         .success()
         .stdout(predicate::str::contains("_cldev").or(predicate::str::contains("complete")));
@@ -18,10 +18,10 @@ fn test_completion_bash() {
 
 #[test]
 fn test_completion_zsh() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["completions", "zsh"])
+    cmd.args(["completions", "zsh"])
         .assert()
         .success()
         .stdout(predicate::str::contains("#compdef").or(predicate::str::contains("_cldev")));
@@ -29,10 +29,10 @@ fn test_completion_zsh() {
 
 #[test]
 fn test_completion_fish() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["completions", "fish"])
+    cmd.args(["completions", "fish"])
         .assert()
         .success()
         .stdout(predicate::str::contains("complete").or(predicate::str::contains("cldev")));
@@ -40,10 +40,10 @@ fn test_completion_fish() {
 
 #[test]
 fn test_completion_powershell() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["completions", "powershell"])
+    cmd.args(["completions", "powershell"])
         .assert()
         .success()
         .stdout(
@@ -54,10 +54,10 @@ fn test_completion_powershell() {
 
 #[test]
 fn test_completion_elvish() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["completions", "elvish"])
+    cmd.args(["completions", "elvish"])
         .assert()
         .success()
         .stdout(predicate::str::contains("edit:completion").or(predicate::str::contains("cldev")));
@@ -65,10 +65,10 @@ fn test_completion_elvish() {
 
 #[test]
 fn test_completion_invalid_shell() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["completions", "invalid-shell"])
+    cmd.args(["completions", "invalid-shell"])
         .assert()
         .failure()
         .stderr(predicate::str::contains("invalid").or(predicate::str::contains("value")));
@@ -76,10 +76,10 @@ fn test_completion_invalid_shell() {
 
 #[test]
 fn test_completion_help() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["completions", "--help"])
+    cmd.args(["completions", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("shell completion"))
@@ -92,10 +92,10 @@ fn test_completion_output_not_empty() {
     let shells = vec!["bash", "zsh", "fish", "powershell", "elvish"];
 
     for shell in shells {
-        let mut cmd = Command::cargo_bin("cldev").unwrap();
+        let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-        let output = cmd.args(&["completions", shell]).output().unwrap();
+        let output = cmd.args(["completions", shell]).output().unwrap();
 
         assert!(
             !output.stdout.is_empty(),
@@ -107,10 +107,10 @@ fn test_completion_output_not_empty() {
 
 #[test]
 fn test_completion_bash_contains_commands() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["completions", "bash"]).assert().success().stdout(
+    cmd.args(["completions", "bash"]).assert().success().stdout(
         predicate::str::contains("config")
             .or(predicate::str::contains("git"))
             .or(predicate::str::contains("quality")),
@@ -119,10 +119,10 @@ fn test_completion_bash_contains_commands() {
 
 #[test]
 fn test_completion_installation_instructions() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    cmd.args(&["completions", "--help"])
+    cmd.args(["completions", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Install").or(predicate::str::contains("installation")));
@@ -130,10 +130,10 @@ fn test_completion_installation_instructions() {
 
 #[test]
 fn test_completion_bash_syntax_valid() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    let output = cmd.args(&["completions", "bash"]).output().unwrap();
+    let output = cmd.args(["completions", "bash"]).output().unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
 
@@ -146,10 +146,10 @@ fn test_completion_bash_syntax_valid() {
 
 #[test]
 fn test_completion_zsh_syntax_valid() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    let output = cmd.args(&["completions", "zsh"]).output().unwrap();
+    let output = cmd.args(["completions", "zsh"]).output().unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
 
@@ -162,10 +162,10 @@ fn test_completion_zsh_syntax_valid() {
 
 #[test]
 fn test_completion_fish_syntax_valid() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-    let output = cmd.args(&["completions", "fish"]).output().unwrap();
+    let output = cmd.args(["completions", "fish"]).output().unwrap();
 
     let stdout = String::from_utf8(output.stdout).unwrap();
 
@@ -181,10 +181,10 @@ fn test_completion_stdout_only() {
     let shells = vec!["bash", "zsh", "fish"];
 
     for shell in shells {
-        let mut cmd = Command::cargo_bin("cldev").unwrap();
+        let mut cmd = cargo_bin_cmd!();
     cmd.env("LANG", "en");
 
-        let output = cmd.args(&["completions", shell]).output().unwrap();
+        let output = cmd.args(["completions", shell]).output().unwrap();
 
         // Completion should only output to stdout, not stderr
         assert!(

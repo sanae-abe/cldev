@@ -345,7 +345,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_fix_command_structure() {

@@ -931,7 +931,7 @@ fn calculate_maintainability_index(avg_complexity: f32) -> f32 {
     }
 
     let base = 100.0 - (avg_complexity * 5.0);
-    base.max(0.0).min(100.0)
+    base.clamp(0.0, 100.0)
 }
 
 // Score calculation functions
@@ -955,13 +955,11 @@ fn calculate_quality_score(
     smells: &[CodeSmell],
     coverage: f32,
 ) -> f32 {
-    let complexity_score = (15.0 - metrics.cyclomatic_avg).max(0.0).min(10.0);
+    let complexity_score = (15.0 - metrics.cyclomatic_avg).clamp(0.0, 10.0);
     let smell_penalty = (smells.len() as f32 * 0.1).min(5.0);
     let coverage_bonus = (coverage / 10.0).min(2.0);
 
-    (complexity_score - smell_penalty + coverage_bonus)
-        .max(0.0)
-        .min(10.0)
+    (complexity_score - smell_penalty + coverage_bonus).clamp(0.0, 10.0)
 }
 
 fn calculate_debt_score(total_hours: f32, item_count: usize) -> f32 {
@@ -988,7 +986,7 @@ fn calculate_overall_score(
     } else {
         8.0
     };
-    let quality_score = (15.0 - quality.avg_complexity).max(0.0).min(10.0);
+    let quality_score = (15.0 - quality.avg_complexity).clamp(0.0, 10.0);
     let debt_score = (10.0 - (debt.total_hours / 10.0)).max(0.0);
 
     (structure_score + performance_score + quality_score + debt_score) / 4.0

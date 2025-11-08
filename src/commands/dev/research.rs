@@ -549,7 +549,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_research_command_structure() {

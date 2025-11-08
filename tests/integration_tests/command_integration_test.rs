@@ -210,7 +210,7 @@ fn test_multiple_config_updates() -> Result<()> {
     let config_path = temp_dir.path().join("config.toml");
 
     // Initial save
-    let mut config = Config::default();
+    let config = Config::default();
     config.save(Some(config_path.clone()))?;
 
     // Multiple updates

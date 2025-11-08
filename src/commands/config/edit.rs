@@ -13,6 +13,7 @@ use crate::cli::output::OutputHandler;
 use crate::core::config::Config;
 use crate::core::error::{CldevError, Result};
 use std::env;
+use std::path::Path;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -88,7 +89,7 @@ pub fn edit_config(
 /// Determine which editor to use based on priority
 fn determine_editor(
     editor_override: Option<String>,
-    config_path: &PathBuf,
+    config_path: &Path,
     output: &OutputHandler,
 ) -> Result<String> {
     // Priority 1: --editor command-line option
@@ -99,7 +100,7 @@ fn determine_editor(
 
     // Priority 2: Config file editor.command setting
     if config_path.exists() {
-        if let Ok(_config) = Config::load(Some(config_path.clone())) {
+        if let Ok(_config) = Config::load(Some(config_path.to_path_buf())) {
             // Note: We don't have editor.command in current Config structure
             // This is a placeholder for future implementation
             output.debug("No editor configured in config file");

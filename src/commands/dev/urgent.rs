@@ -269,7 +269,7 @@ pub fn handle_urgent(problem: Option<String>, output: &OutputHandler) -> Result<
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_urgent_command_structure() {

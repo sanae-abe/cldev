@@ -552,7 +552,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_feature_command_structure() {

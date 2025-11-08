@@ -2,12 +2,12 @@
 //!
 //! Tests the --version option and version output format.
 
-use assert_cmd::Command;
+use assert_cmd::cargo::cargo_bin_cmd;
 use predicates::prelude::*;
 
 #[test]
 fn test_version_flag() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     cmd.arg("--version")
         .assert()
@@ -18,7 +18,7 @@ fn test_version_flag() {
 
 #[test]
 fn test_short_version_flag() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     cmd.arg("-V")
         .assert()
@@ -28,7 +28,7 @@ fn test_short_version_flag() {
 
 #[test]
 fn test_version_format() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     // Version should follow semantic versioning format
     cmd.arg("--version")
@@ -39,7 +39,7 @@ fn test_version_format() {
 
 #[test]
 fn test_version_no_extra_output() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     let output = cmd.arg("--version").output().unwrap();
 
@@ -51,8 +51,8 @@ fn test_version_no_extra_output() {
 
 #[test]
 fn test_version_consistency() {
-    let mut cmd1 = Command::cargo_bin("cldev").unwrap();
-    let mut cmd2 = Command::cargo_bin("cldev").unwrap();
+    let mut cmd1 = cargo_bin_cmd!();
+    let mut cmd2 = cargo_bin_cmd!();
 
     let output1 = cmd1.arg("--version").output().unwrap();
     let output2 = cmd2.arg("-V").output().unwrap();

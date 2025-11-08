@@ -285,7 +285,7 @@ fn create_gitlab_mr(title: &str, body: &str, target: &str, output: &OutputHandle
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_generate_title_from_branch() {

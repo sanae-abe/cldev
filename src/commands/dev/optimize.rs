@@ -600,7 +600,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    
 
     #[test]
     fn test_optimize_command_structure() {

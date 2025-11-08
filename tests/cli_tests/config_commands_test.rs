@@ -2,7 +2,7 @@
 //!
 //! Tests config init, check, and list commands with various options.
 
-use assert_cmd::Command;
+use assert_cmd::cargo::cargo_bin_cmd;
 use predicates::prelude::*;
 use std::fs;
 use std::path::Path;
@@ -31,9 +31,9 @@ fn test_config_init_basic() {
     let temp_dir = TempDir::new().unwrap();
     create_required_dirs(temp_dir.path());
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
-    cmd.args(&["config", "init", "--defaults"])
+    cmd.args(["config", "init", "--defaults"])
         .env("HOME", temp_dir.path())
         .assert()
         .success();
@@ -67,9 +67,9 @@ fn test_config_init_force() {
     // Create existing config
     write_config_with_permissions(&config_path, "version = \"1.0.0\"");
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
-    cmd.args(&["config", "init", "--force", "--defaults"])
+    cmd.args(["config", "init", "--force", "--defaults"])
         .env("HOME", temp_dir.path())
         .assert()
         .success();
@@ -101,9 +101,9 @@ default_base_branch = "main"
 
     write_config_with_permissions(&config_dir.join("config.toml"), config_content);
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
-    cmd.args(&["config", "check"])
+    cmd.args(["config", "check"])
         .env("HOME", temp_dir.path())
         .assert()
         .success()
@@ -134,10 +134,10 @@ language = "ja"
 
     write_config_with_permissions(&config_dir.join("config.toml"), invalid_config);
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     // Check should fail or warn about invalid config
-    cmd.args(&["config", "check"])
+    cmd.args(["config", "check"])
         .env("HOME", temp_dir.path())
         .assert();
     // May succeed with warnings or fail - either is acceptable
@@ -147,9 +147,9 @@ language = "ja"
 fn test_config_check_missing() {
     let temp_dir = TempDir::new().unwrap();
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
-    cmd.args(&["config", "check"])
+    cmd.args(["config", "check"])
         .env("HOME", temp_dir.path())
         .assert();
     // Should handle missing config gracefully
@@ -181,10 +181,10 @@ auto_push = false
 
     write_config_with_permissions(&config_dir.join("config.toml"), config_content);
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     // config list shows all available commands, not config settings
-    cmd.args(&["config", "list"])
+    cmd.args(["config", "list"])
         .env("HOME", temp_dir.path())
         .assert()
         .success()
@@ -216,10 +216,10 @@ default_base_branch = "main"
 
     write_config_with_permissions(&config_dir.join("config.toml"), config_content);
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     // config list with --detailed shows detailed command information
-    cmd.args(&["config", "list", "--detailed"])
+    cmd.args(["config", "list", "--detailed"])
         .env("HOME", temp_dir.path())
         .assert()
         .success()
@@ -248,10 +248,10 @@ language = "ja"
 
     write_config_with_permissions(&config_dir.join("config.toml"), config_content);
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     // config list doesn't support JSON format - just verify it shows commands
-    cmd.args(&["config", "list"])
+    cmd.args(["config", "list"])
         .env("HOME", temp_dir.path())
         .assert()
         .success()
@@ -263,10 +263,10 @@ fn test_config_init_interactive_skip() {
     let temp_dir = TempDir::new().unwrap();
     create_required_dirs(temp_dir.path());
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     // With --defaults flag
-    cmd.args(&["config", "init", "--defaults"])
+    cmd.args(["config", "init", "--defaults"])
         .env("HOME", temp_dir.path())
         .assert()
         .success();
@@ -287,10 +287,10 @@ fn test_config_edit_command() {
     // Create initial config
     write_config_with_permissions(&config_dir.join("config.toml"), "version = \"1.0.0\"");
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     // Edit command requires EDITOR environment variable
-    cmd.args(&["config", "edit"])
+    cmd.args(["config", "edit"])
         .env("HOME", temp_dir.path())
         .env("EDITOR", "cat") // Use cat as a safe editor for testing
         .assert();
@@ -319,10 +319,10 @@ language = "en"
 
     write_config_with_permissions(&config_dir.join("config.toml"), config_content);
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     // config check shows config path information
-    cmd.args(&["config", "check"])
+    cmd.args(["config", "check"])
         .env("HOME", temp_dir.path())
         .assert()
         .success();
@@ -353,9 +353,9 @@ fn test_config_validate_permissions() {
         fs::set_permissions(&config_path, permissions).unwrap();
     }
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
-    cmd.args(&["config", "check"])
+    cmd.args(["config", "check"])
         .env("HOME", temp_dir.path())
         .assert()
         .success();
@@ -370,10 +370,10 @@ fn test_config_migration() {
     // Create old-style config
     write_config_with_permissions(&old_config_dir.join("config.toml"), "version = \"1.0.0\"");
 
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
+    let mut cmd = cargo_bin_cmd!();
 
     // Migration should handle old config location
-    cmd.args(&["config", "check"])
+    cmd.args(["config", "check"])
         .env("HOME", temp_dir.path())
         .assert();
 }
