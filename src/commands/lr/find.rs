@@ -131,9 +131,10 @@ fn display_session_brief(session: &LearningSession, index: usize) {
     // Timestamp
     table.add_row(vec!["Timestamp", &session.timestamp]);
 
-    // Description
-    let truncated_desc = if session.description.len() > 60 {
-        format!("{}...", &session.description[..57])
+    // Description (safe UTF-8 truncation)
+    let truncated_desc = if session.description.chars().count() > 60 {
+        let truncated: String = session.description.chars().take(57).collect();
+        format!("{}...", truncated)
     } else {
         session.description.clone()
     };
@@ -173,11 +174,68 @@ fn display_session_brief(session: &LearningSession, index: usize) {
 
 #[cfg(test)]
 mod tests {
-
     #[test]
     fn test_query_matching() {
         let query = "test".to_lowercase();
         assert!("testing".to_lowercase().contains(&query));
         assert!(!"example".to_lowercase().contains(&query));
+    }
+
+    #[test]
+    fn test_safe_utf8_truncation() {
+        // Test ASCII string
+        let ascii = "This is a short description";
+        assert_eq!(ascii.len(), 27);
+        assert!(ascii.chars().count() < 60);
+
+        // Test Japanese string (multi-byte UTF-8 characters)
+        // Creating a string longer than 60 characters
+        let japanese = "これは非常に長い説明文です。マルチバイト文字を含むテストケースとして使用します。60文字を超える場合は切り捨てられます。さらに追加のテキストを含めて確実に60文字を超えるようにします。";
+        assert!(
+            japanese.chars().count() > 60,
+            "Japanese string should be > 60 chars, got {}",
+            japanese.chars().count()
+        );
+
+        // Verify safe truncation doesn't panic
+        let truncated: String = japanese.chars().take(57).collect();
+        assert_eq!(truncated.chars().count(), 57);
+        assert!(truncated.len() <= japanese.len());
+
+        // Verify original code would panic at char boundary
+        // This would fail: &japanese[..57] - panics at non-char boundary
+        // Our fix uses chars().take(57) which is always safe
+    }
+
+    #[test]
+    fn test_description_truncation_various_lengths() {
+        // Create owned strings to avoid temporary lifetime issues
+        let long_b = "B".repeat(60);
+        let long_a = "A".repeat(70);
+        let long_j = "日本語".repeat(30);
+
+        let test_cases = vec![
+            ("Short", false),
+            ("This is exactly 50 chars long with some padding!", false),
+            (long_b.as_str(), false),
+            (long_a.as_str(), true), // Should truncate
+            (long_j.as_str(), true), // 90 chars, should truncate
+        ];
+
+        for (desc, should_truncate) in test_cases {
+            let truncated = if desc.chars().count() > 60 {
+                let t: String = desc.chars().take(57).collect();
+                format!("{}...", t)
+            } else {
+                desc.to_string()
+            };
+
+            if should_truncate {
+                assert!(truncated.ends_with("..."));
+                assert!(truncated.chars().count() <= 60);
+            } else {
+                assert!(!truncated.ends_with("..."));
+            }
+        }
     }
 }

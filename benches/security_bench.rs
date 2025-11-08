@@ -1,5 +1,6 @@
 use cldev::core::security::SecurePath;
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
 use tempfile::TempDir;
 
 fn bench_secure_path_new(c: &mut Criterion) {

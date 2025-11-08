@@ -126,7 +126,7 @@ fn test_quality_workflow_sequence() -> Result<()> {
 
 #[test]
 fn test_lint_workflow() -> Result<()> {
-    let temp_dir = setup_quality_env()?;
+    let _temp_dir = setup_quality_env()?;
 
     // Simulate lint workflow
     let steps = vec![
@@ -163,7 +163,7 @@ x+y
 
 #[test]
 fn test_test_workflow() -> Result<()> {
-    let temp_dir = setup_quality_env()?;
+    let _temp_dir = setup_quality_env()?;
 
     // Simulate test workflow
     let test_commands = vec![
@@ -199,7 +199,7 @@ fn test_quality_before_commit() -> Result<()> {
 
 #[test]
 fn test_coverage_workflow() -> Result<()> {
-    let temp_dir = setup_quality_env()?;
+    let _temp_dir = setup_quality_env()?;
 
     // Simulate coverage workflow
     let coverage_steps = vec![
@@ -217,7 +217,7 @@ fn test_coverage_workflow() -> Result<()> {
 
 #[test]
 fn test_quality_ci_workflow() -> Result<()> {
-    let temp_dir = setup_quality_env()?;
+    let _temp_dir = setup_quality_env()?;
 
     // Simulate CI quality workflow
     let ci_steps = vec![
@@ -327,7 +327,7 @@ fn test_quality_with_timeout() -> Result<()> {
 
 #[test]
 fn test_incremental_quality_checks() -> Result<()> {
-    let temp_dir = setup_quality_env()?;
+    let _temp_dir = setup_quality_env()?;
 
     // Simulate incremental checks (only changed files)
     let changed_files = vec!["src/lib.rs", "src/utils.rs"];
@@ -341,7 +341,7 @@ fn test_incremental_quality_checks() -> Result<()> {
 
 #[test]
 fn test_quality_report_generation() -> Result<()> {
-    let temp_dir = setup_quality_env()?;
+    let _temp_dir = setup_quality_env()?;
 
     // Simulate quality report generation
     let report_sections = vec![
@@ -360,7 +360,7 @@ fn test_quality_report_generation() -> Result<()> {
 
 #[test]
 fn test_quality_pre_push_hooks() -> Result<()> {
-    let temp_dir = setup_quality_env()?;
+    let _temp_dir = setup_quality_env()?;
 
     // Simulate pre-push quality checks
     let pre_push_checks = vec![

@@ -40,6 +40,98 @@ pub enum ProjectType {
     Unknown,
 }
 
+/// Supported frontend/backend frameworks
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Framework {
+    // Frontend frameworks
+    React,
+    Vue,
+    Angular,
+    Svelte,
+    Solid,
+    // Meta frameworks
+    Next,
+    Nuxt,
+    SvelteKit,
+    Remix,
+    Astro,
+    Gatsby,
+    // Build tools / Dev servers
+    Vite,
+    Webpack,
+    Parcel,
+    Rollup,
+    Esbuild,
+    // Backend frameworks
+    Express,
+    Fastify,
+    NestJS,
+    Koa,
+    Hapi,
+    Django,
+    Flask,
+    FastAPI,
+    Rails,
+    Sinatra,
+    SpringBoot,
+    // Rust frameworks
+    Actix,
+    Axum,
+    Rocket,
+    Warp,
+    // Unknown
+    Unknown,
+}
+
+/// Supported build tools and package managers
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BuildTool {
+    // Node.js package managers
+    Npm,
+    Yarn,
+    YarnBerry, // Yarn 2+
+    Pnpm,
+    Bun,
+    // Rust
+    Cargo,
+    // Go
+    GoMod,
+    // Python
+    Pip,
+    Poetry,
+    Pipenv,
+    Uv,
+    // Ruby
+    Bundler,
+    // Java/Kotlin
+    Maven,
+    Gradle,
+    // PHP
+    Composer,
+    // .NET
+    Nuget,
+    // Swift
+    SwiftPM,
+    // Scala
+    Sbt,
+    // Unknown
+    Unknown,
+}
+
+/// Supported monorepo tools
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MonorepoType {
+    Lerna,
+    Nx,
+    Turborepo,
+    Rush,
+    Pnpm,  // pnpm workspaces
+    Yarn,  // Yarn workspaces
+    Npm,   // npm workspaces
+    Cargo, // Cargo workspaces
+    None,
+}
+
 impl ProjectType {
     /// Get human-readable name for the project type
     pub fn name(&self) -> &'static str {
@@ -80,6 +172,90 @@ impl ProjectType {
     }
 }
 
+impl Framework {
+    /// Get human-readable name for the framework
+    pub fn name(&self) -> &'static str {
+        match self {
+            Framework::React => "React",
+            Framework::Vue => "Vue",
+            Framework::Angular => "Angular",
+            Framework::Svelte => "Svelte",
+            Framework::Solid => "Solid",
+            Framework::Next => "Next.js",
+            Framework::Nuxt => "Nuxt",
+            Framework::SvelteKit => "SvelteKit",
+            Framework::Remix => "Remix",
+            Framework::Astro => "Astro",
+            Framework::Gatsby => "Gatsby",
+            Framework::Vite => "Vite",
+            Framework::Webpack => "Webpack",
+            Framework::Parcel => "Parcel",
+            Framework::Rollup => "Rollup",
+            Framework::Esbuild => "esbuild",
+            Framework::Express => "Express",
+            Framework::Fastify => "Fastify",
+            Framework::NestJS => "NestJS",
+            Framework::Koa => "Koa",
+            Framework::Hapi => "Hapi",
+            Framework::Django => "Django",
+            Framework::Flask => "Flask",
+            Framework::FastAPI => "FastAPI",
+            Framework::Rails => "Rails",
+            Framework::Sinatra => "Sinatra",
+            Framework::SpringBoot => "Spring Boot",
+            Framework::Actix => "Actix-web",
+            Framework::Axum => "Axum",
+            Framework::Rocket => "Rocket",
+            Framework::Warp => "Warp",
+            Framework::Unknown => "Unknown",
+        }
+    }
+}
+
+impl BuildTool {
+    /// Get human-readable name for the build tool
+    pub fn name(&self) -> &'static str {
+        match self {
+            BuildTool::Npm => "npm",
+            BuildTool::Yarn => "Yarn",
+            BuildTool::YarnBerry => "Yarn Berry",
+            BuildTool::Pnpm => "pnpm",
+            BuildTool::Bun => "Bun",
+            BuildTool::Cargo => "Cargo",
+            BuildTool::GoMod => "Go Modules",
+            BuildTool::Pip => "pip",
+            BuildTool::Poetry => "Poetry",
+            BuildTool::Pipenv => "Pipenv",
+            BuildTool::Uv => "uv",
+            BuildTool::Bundler => "Bundler",
+            BuildTool::Maven => "Maven",
+            BuildTool::Gradle => "Gradle",
+            BuildTool::Composer => "Composer",
+            BuildTool::Nuget => "NuGet",
+            BuildTool::SwiftPM => "Swift Package Manager",
+            BuildTool::Sbt => "sbt",
+            BuildTool::Unknown => "Unknown",
+        }
+    }
+}
+
+impl MonorepoType {
+    /// Get human-readable name for the monorepo type
+    pub fn name(&self) -> &'static str {
+        match self {
+            MonorepoType::Lerna => "Lerna",
+            MonorepoType::Nx => "Nx",
+            MonorepoType::Turborepo => "Turborepo",
+            MonorepoType::Rush => "Rush",
+            MonorepoType::Pnpm => "pnpm workspaces",
+            MonorepoType::Yarn => "Yarn workspaces",
+            MonorepoType::Npm => "npm workspaces",
+            MonorepoType::Cargo => "Cargo workspaces",
+            MonorepoType::None => "None",
+        }
+    }
+}
+
 /// Project detector for automatic project type recognition
 #[derive(Debug)]
 pub struct ProjectDetector {
@@ -87,6 +263,12 @@ pub struct ProjectDetector {
     root: PathBuf,
     /// Detected project type
     project_type: ProjectType,
+    /// Detected frameworks (can be multiple)
+    frameworks: Vec<Framework>,
+    /// Detected build tool
+    build_tool: BuildTool,
+    /// Detected monorepo type
+    monorepo_type: MonorepoType,
 }
 
 impl ProjectDetector {
@@ -121,8 +303,17 @@ impl ProjectDetector {
         }
 
         let project_type = Self::detect_project_type(&root)?;
+        let frameworks = Self::detect_frameworks(&root, project_type);
+        let build_tool = Self::detect_build_tool(&root, project_type);
+        let monorepo_type = Self::detect_monorepo_type(&root);
 
-        Ok(Self { root, project_type })
+        Ok(Self {
+            root,
+            project_type,
+            frameworks,
+            build_tool,
+            monorepo_type,
+        })
     }
 
     /// Detect project type based on configuration files
@@ -207,6 +398,330 @@ impl ProjectDetector {
         Ok(ProjectType::Unknown)
     }
 
+    /// Detect frameworks used in the project
+    fn detect_frameworks(root: &Path, project_type: ProjectType) -> Vec<Framework> {
+        let mut frameworks = Vec::new();
+
+        match project_type {
+            ProjectType::NodeJs => {
+                // Read package.json to detect frameworks
+                if let Ok(content) = fs::read_to_string(root.join("package.json")) {
+                    if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
+                        let deps = Self::get_all_dependencies(&json);
+
+                        // Meta frameworks (check first, as they include base frameworks)
+                        if deps.contains_key("next") {
+                            frameworks.push(Framework::Next);
+                            frameworks.push(Framework::React);
+                        } else if deps.contains_key("nuxt") {
+                            frameworks.push(Framework::Nuxt);
+                            frameworks.push(Framework::Vue);
+                        } else if deps.contains_key("@sveltejs/kit") {
+                            frameworks.push(Framework::SvelteKit);
+                            frameworks.push(Framework::Svelte);
+                        } else if deps.contains_key("@remix-run/react") {
+                            frameworks.push(Framework::Remix);
+                            frameworks.push(Framework::React);
+                        } else if deps.contains_key("astro") {
+                            frameworks.push(Framework::Astro);
+                        } else if deps.contains_key("gatsby") {
+                            frameworks.push(Framework::Gatsby);
+                            frameworks.push(Framework::React);
+                        }
+                        // Base frameworks (if not already detected via meta framework)
+                        else if deps.contains_key("react") || deps.contains_key("react-dom") {
+                            frameworks.push(Framework::React);
+                        } else if deps.contains_key("vue") {
+                            frameworks.push(Framework::Vue);
+                        } else if deps.contains_key("@angular/core") {
+                            frameworks.push(Framework::Angular);
+                        } else if deps.contains_key("svelte") {
+                            frameworks.push(Framework::Svelte);
+                        } else if deps.contains_key("solid-js") {
+                            frameworks.push(Framework::Solid);
+                        }
+
+                        // Build tools / Dev servers
+                        if deps.contains_key("vite")
+                            || root.join("vite.config.ts").exists()
+                            || root.join("vite.config.js").exists()
+                        {
+                            frameworks.push(Framework::Vite);
+                        } else if deps.contains_key("webpack")
+                            || root.join("webpack.config.js").exists()
+                        {
+                            frameworks.push(Framework::Webpack);
+                        } else if deps.contains_key("parcel") {
+                            frameworks.push(Framework::Parcel);
+                        } else if deps.contains_key("rollup")
+                            || root.join("rollup.config.js").exists()
+                        {
+                            frameworks.push(Framework::Rollup);
+                        } else if deps.contains_key("esbuild") {
+                            frameworks.push(Framework::Esbuild);
+                        }
+
+                        // Backend frameworks
+                        if deps.contains_key("express") {
+                            frameworks.push(Framework::Express);
+                        }
+                        if deps.contains_key("fastify") {
+                            frameworks.push(Framework::Fastify);
+                        }
+                        if deps.contains_key("@nestjs/core") {
+                            frameworks.push(Framework::NestJS);
+                        }
+                        if deps.contains_key("koa") {
+                            frameworks.push(Framework::Koa);
+                        }
+                        if deps.contains_key("@hapi/hapi") {
+                            frameworks.push(Framework::Hapi);
+                        }
+                    }
+                }
+            }
+            ProjectType::Python => {
+                // Check requirements.txt, pyproject.toml
+                if let Ok(content) = fs::read_to_string(root.join("requirements.txt")) {
+                    let lower = content.to_lowercase();
+                    if lower.contains("django") {
+                        frameworks.push(Framework::Django);
+                    }
+                    if lower.contains("flask") {
+                        frameworks.push(Framework::Flask);
+                    }
+                    if lower.contains("fastapi") {
+                        frameworks.push(Framework::FastAPI);
+                    }
+                }
+
+                // Check pyproject.toml
+                if let Ok(content) = fs::read_to_string(root.join("pyproject.toml")) {
+                    let lower = content.to_lowercase();
+                    if lower.contains("django") {
+                        frameworks.push(Framework::Django);
+                    }
+                    if lower.contains("flask") {
+                        frameworks.push(Framework::Flask);
+                    }
+                    if lower.contains("fastapi") {
+                        frameworks.push(Framework::FastAPI);
+                    }
+                }
+            }
+            ProjectType::Ruby => {
+                if let Ok(content) = fs::read_to_string(root.join("Gemfile")) {
+                    let lower = content.to_lowercase();
+                    if lower.contains("'rails'") || lower.contains("\"rails\"") {
+                        frameworks.push(Framework::Rails);
+                    }
+                    if lower.contains("'sinatra'") || lower.contains("\"sinatra\"") {
+                        frameworks.push(Framework::Sinatra);
+                    }
+                }
+            }
+            ProjectType::Java | ProjectType::Kotlin => {
+                // Check for Spring Boot
+                if let Ok(content) = fs::read_to_string(root.join("pom.xml")) {
+                    if content.contains("spring-boot") {
+                        frameworks.push(Framework::SpringBoot);
+                    }
+                } else if let Ok(content) = fs::read_to_string(root.join("build.gradle")) {
+                    if content.contains("spring-boot") {
+                        frameworks.push(Framework::SpringBoot);
+                    }
+                } else if let Ok(content) = fs::read_to_string(root.join("build.gradle.kts")) {
+                    if content.contains("spring-boot") {
+                        frameworks.push(Framework::SpringBoot);
+                    }
+                }
+            }
+            ProjectType::Rust => {
+                // Check Cargo.toml for Rust web frameworks
+                if let Ok(content) = fs::read_to_string(root.join("Cargo.toml")) {
+                    let lower = content.to_lowercase();
+                    if lower.contains("actix-web") {
+                        frameworks.push(Framework::Actix);
+                    }
+                    if lower.contains("axum") {
+                        frameworks.push(Framework::Axum);
+                    }
+                    if lower.contains("rocket") {
+                        frameworks.push(Framework::Rocket);
+                    }
+                    if lower.contains("warp") {
+                        frameworks.push(Framework::Warp);
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        if frameworks.is_empty() {
+            frameworks.push(Framework::Unknown);
+        }
+
+        frameworks
+    }
+
+    /// Detect build tool used in the project
+    fn detect_build_tool(root: &Path, project_type: ProjectType) -> BuildTool {
+        match project_type {
+            ProjectType::NodeJs => {
+                // Check lock files first (most reliable)
+                if root.join("bun.lockb").exists() {
+                    return BuildTool::Bun;
+                }
+                if root.join("pnpm-lock.yaml").exists() {
+                    return BuildTool::Pnpm;
+                }
+                if root.join("yarn.lock").exists() {
+                    // Check if it's Yarn Berry (v2+)
+                    if root.join(".yarnrc.yml").exists() {
+                        return BuildTool::YarnBerry;
+                    }
+                    return BuildTool::Yarn;
+                }
+                if root.join("package-lock.json").exists() {
+                    return BuildTool::Npm;
+                }
+
+                // Check for package.json with packageManager field
+                if let Ok(content) = fs::read_to_string(root.join("package.json")) {
+                    if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
+                        if let Some(pkg_manager) =
+                            json.get("packageManager").and_then(|v| v.as_str())
+                        {
+                            if pkg_manager.starts_with("pnpm") {
+                                return BuildTool::Pnpm;
+                            }
+                            if pkg_manager.starts_with("yarn") {
+                                return BuildTool::Yarn;
+                            }
+                            if pkg_manager.starts_with("bun") {
+                                return BuildTool::Bun;
+                            }
+                            if pkg_manager.starts_with("npm") {
+                                return BuildTool::Npm;
+                            }
+                        }
+                    }
+                }
+
+                // Default to npm if package.json exists
+                BuildTool::Npm
+            }
+            ProjectType::Rust => BuildTool::Cargo,
+            ProjectType::Go => BuildTool::GoMod,
+            ProjectType::Python => {
+                // Check for Poetry
+                if root.join("poetry.lock").exists() || root.join("pyproject.toml").exists() {
+                    if let Ok(content) = fs::read_to_string(root.join("pyproject.toml")) {
+                        if content.contains("[tool.poetry]") {
+                            return BuildTool::Poetry;
+                        }
+                    }
+                }
+                // Check for Pipenv
+                if root.join("Pipfile").exists() || root.join("Pipfile.lock").exists() {
+                    return BuildTool::Pipenv;
+                }
+                // Check for uv
+                if root.join("uv.lock").exists() {
+                    return BuildTool::Uv;
+                }
+                // Default to pip
+                BuildTool::Pip
+            }
+            ProjectType::Ruby => BuildTool::Bundler,
+            ProjectType::Java | ProjectType::Kotlin => {
+                if root.join("pom.xml").exists() {
+                    BuildTool::Maven
+                } else {
+                    BuildTool::Gradle
+                }
+            }
+            ProjectType::Php => BuildTool::Composer,
+            ProjectType::DotNet => BuildTool::Nuget,
+            ProjectType::Swift => BuildTool::SwiftPM,
+            ProjectType::Scala => BuildTool::Sbt,
+            _ => BuildTool::Unknown,
+        }
+    }
+
+    /// Detect monorepo type
+    fn detect_monorepo_type(root: &Path) -> MonorepoType {
+        // Check for Turborepo
+        if root.join("turbo.json").exists() {
+            return MonorepoType::Turborepo;
+        }
+
+        // Check for Nx
+        if root.join("nx.json").exists() {
+            return MonorepoType::Nx;
+        }
+
+        // Check for Lerna
+        if root.join("lerna.json").exists() {
+            return MonorepoType::Lerna;
+        }
+
+        // Check for Rush
+        if root.join("rush.json").exists() {
+            return MonorepoType::Rush;
+        }
+
+        // Check for pnpm workspaces
+        if root.join("pnpm-workspace.yaml").exists() {
+            return MonorepoType::Pnpm;
+        }
+
+        // Check for Cargo workspaces
+        if let Ok(content) = fs::read_to_string(root.join("Cargo.toml")) {
+            if content.contains("[workspace]") {
+                return MonorepoType::Cargo;
+            }
+        }
+
+        // Check package.json for workspaces (Yarn or npm)
+        if let Ok(content) = fs::read_to_string(root.join("package.json")) {
+            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
+                if json.get("workspaces").is_some() {
+                    // Determine if it's Yarn or npm based on lock file
+                    if root.join("yarn.lock").exists() {
+                        return MonorepoType::Yarn;
+                    }
+                    if root.join("package-lock.json").exists() {
+                        return MonorepoType::Npm;
+                    }
+                    // Default to npm if no lock file
+                    return MonorepoType::Npm;
+                }
+            }
+        }
+
+        MonorepoType::None
+    }
+
+    /// Helper to get all dependencies from package.json
+    fn get_all_dependencies(json: &serde_json::Value) -> std::collections::HashMap<String, String> {
+        let mut deps = std::collections::HashMap::new();
+
+        if let Some(dependencies) = json.get("dependencies").and_then(|v| v.as_object()) {
+            for (key, value) in dependencies {
+                deps.insert(key.clone(), value.as_str().unwrap_or_default().to_string());
+            }
+        }
+
+        if let Some(dev_dependencies) = json.get("devDependencies").and_then(|v| v.as_object()) {
+            for (key, value) in dev_dependencies {
+                deps.insert(key.clone(), value.as_str().unwrap_or_default().to_string());
+            }
+        }
+
+        deps
+    }
+
     /// Check if directory has files with specific extensions
     fn has_files_with_extension(root: &Path, extensions: &[&str]) -> bool {
         if let Ok(entries) = fs::read_dir(root) {
@@ -230,6 +745,21 @@ impl ProjectDetector {
     /// Get the detected project type
     pub fn project_type(&self) -> ProjectType {
         self.project_type
+    }
+
+    /// Get the detected frameworks
+    pub fn frameworks(&self) -> &[Framework] {
+        &self.frameworks
+    }
+
+    /// Get the detected build tool
+    pub fn build_tool(&self) -> BuildTool {
+        self.build_tool
+    }
+
+    /// Get the detected monorepo type
+    pub fn monorepo_type(&self) -> MonorepoType {
+        self.monorepo_type
     }
 
     /// Get the project root directory
@@ -1041,5 +1571,261 @@ mod tests {
         assert!(ProjectType::Kotlin.extensions().contains(&"kt"));
         assert!(ProjectType::Swift.extensions().contains(&"swift"));
         assert!(ProjectType::Scala.extensions().contains(&"scala"));
+    }
+
+    #[test]
+    fn test_framework_detection_react() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(
+            temp_dir.path().join("package.json"),
+            r#"{"dependencies": {"react": "^18.0.0", "react-dom": "^18.0.0"}}"#,
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.project_type(), ProjectType::NodeJs);
+        assert!(detector.frameworks().contains(&Framework::React));
+    }
+
+    #[test]
+    fn test_framework_detection_next() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(
+            temp_dir.path().join("package.json"),
+            r#"{"dependencies": {"next": "^14.0.0", "react": "^18.0.0"}}"#,
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert!(detector.frameworks().contains(&Framework::Next));
+        assert!(detector.frameworks().contains(&Framework::React));
+    }
+
+    #[test]
+    fn test_framework_detection_vue() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(
+            temp_dir.path().join("package.json"),
+            r#"{"dependencies": {"vue": "^3.0.0"}}"#,
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert!(detector.frameworks().contains(&Framework::Vue));
+    }
+
+    #[test]
+    fn test_framework_detection_vite() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(
+            temp_dir.path().join("package.json"),
+            r#"{"devDependencies": {"vite": "^5.0.0"}}"#,
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert!(detector.frameworks().contains(&Framework::Vite));
+    }
+
+    #[test]
+    fn test_framework_detection_rust_axum() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(
+            temp_dir.path().join("Cargo.toml"),
+            r#"[package]
+name = "test"
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1", features = ["full"] }
+"#,
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.project_type(), ProjectType::Rust);
+        assert!(detector.frameworks().contains(&Framework::Axum));
+    }
+
+    #[test]
+    fn test_build_tool_detection_npm() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(temp_dir.path().join("package.json"), r#"{"name": "test"}"#).unwrap();
+        fs::write(temp_dir.path().join("package-lock.json"), "{}").unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.build_tool(), BuildTool::Npm);
+    }
+
+    #[test]
+    fn test_build_tool_detection_yarn() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(temp_dir.path().join("package.json"), r#"{"name": "test"}"#).unwrap();
+        fs::write(temp_dir.path().join("yarn.lock"), "").unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.build_tool(), BuildTool::Yarn);
+    }
+
+    #[test]
+    fn test_build_tool_detection_pnpm() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(temp_dir.path().join("package.json"), r#"{"name": "test"}"#).unwrap();
+        fs::write(temp_dir.path().join("pnpm-lock.yaml"), "").unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.build_tool(), BuildTool::Pnpm);
+    }
+
+    #[test]
+    fn test_build_tool_detection_bun() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(temp_dir.path().join("package.json"), r#"{"name": "test"}"#).unwrap();
+        fs::write(temp_dir.path().join("bun.lockb"), "").unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.build_tool(), BuildTool::Bun);
+    }
+
+    #[test]
+    fn test_build_tool_detection_cargo() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(
+            temp_dir.path().join("Cargo.toml"),
+            "[package]\nname = \"test\"",
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.build_tool(), BuildTool::Cargo);
+    }
+
+    #[test]
+    fn test_build_tool_detection_poetry() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(
+            temp_dir.path().join("pyproject.toml"),
+            r#"[tool.poetry]
+name = "test"
+version = "0.1.0"
+"#,
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.build_tool(), BuildTool::Poetry);
+    }
+
+    #[test]
+    fn test_monorepo_detection_turborepo() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(temp_dir.path().join("package.json"), r#"{"name": "test"}"#).unwrap();
+        fs::write(temp_dir.path().join("turbo.json"), r#"{"pipeline": {}}"#).unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.monorepo_type(), MonorepoType::Turborepo);
+    }
+
+    #[test]
+    fn test_monorepo_detection_nx() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(temp_dir.path().join("package.json"), r#"{"name": "test"}"#).unwrap();
+        fs::write(temp_dir.path().join("nx.json"), r#"{}"#).unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.monorepo_type(), MonorepoType::Nx);
+    }
+
+    #[test]
+    fn test_monorepo_detection_lerna() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(temp_dir.path().join("package.json"), r#"{"name": "test"}"#).unwrap();
+        fs::write(
+            temp_dir.path().join("lerna.json"),
+            r#"{"version": "0.0.0"}"#,
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.monorepo_type(), MonorepoType::Lerna);
+    }
+
+    #[test]
+    fn test_monorepo_detection_pnpm_workspace() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(temp_dir.path().join("package.json"), r#"{"name": "test"}"#).unwrap();
+        fs::write(
+            temp_dir.path().join("pnpm-workspace.yaml"),
+            "packages:\n  - 'packages/*'",
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.monorepo_type(), MonorepoType::Pnpm);
+    }
+
+    #[test]
+    fn test_monorepo_detection_npm_workspace() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(
+            temp_dir.path().join("package.json"),
+            r#"{"name": "test", "workspaces": ["packages/*"]}"#,
+        )
+        .unwrap();
+        fs::write(temp_dir.path().join("package-lock.json"), "{}").unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.monorepo_type(), MonorepoType::Npm);
+    }
+
+    #[test]
+    fn test_monorepo_detection_cargo_workspace() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(
+            temp_dir.path().join("Cargo.toml"),
+            r#"[workspace]
+members = ["crates/*"]
+"#,
+        )
+        .unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.monorepo_type(), MonorepoType::Cargo);
+    }
+
+    #[test]
+    fn test_monorepo_detection_none() {
+        let temp_dir = TempDir::new().unwrap();
+        fs::write(temp_dir.path().join("package.json"), r#"{"name": "test"}"#).unwrap();
+
+        let detector = ProjectDetector::new(Some(temp_dir.path())).unwrap();
+        assert_eq!(detector.monorepo_type(), MonorepoType::None);
+    }
+
+    #[test]
+    fn test_framework_names() {
+        assert_eq!(Framework::React.name(), "React");
+        assert_eq!(Framework::Vue.name(), "Vue");
+        assert_eq!(Framework::Next.name(), "Next.js");
+        assert_eq!(Framework::Vite.name(), "Vite");
+        assert_eq!(Framework::Axum.name(), "Axum");
+    }
+
+    #[test]
+    fn test_build_tool_names() {
+        assert_eq!(BuildTool::Npm.name(), "npm");
+        assert_eq!(BuildTool::Yarn.name(), "Yarn");
+        assert_eq!(BuildTool::Pnpm.name(), "pnpm");
+        assert_eq!(BuildTool::Cargo.name(), "Cargo");
+        assert_eq!(BuildTool::Poetry.name(), "Poetry");
+    }
+
+    #[test]
+    fn test_monorepo_type_names() {
+        assert_eq!(MonorepoType::Turborepo.name(), "Turborepo");
+        assert_eq!(MonorepoType::Nx.name(), "Nx");
+        assert_eq!(MonorepoType::Lerna.name(), "Lerna");
+        assert_eq!(MonorepoType::Pnpm.name(), "pnpm workspaces");
+        assert_eq!(MonorepoType::None.name(), "None");
     }
 }

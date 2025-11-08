@@ -89,7 +89,7 @@ pub fn edit_config(
 /// Determine which editor to use based on priority
 fn determine_editor(
     editor_override: Option<String>,
-    config_path: &Path,
+    _config_path: &Path,
     output: &OutputHandler,
 ) -> Result<String> {
     // Priority 1: --editor command-line option
@@ -99,13 +99,7 @@ fn determine_editor(
     }
 
     // Priority 2: Config file editor.command setting
-    if config_path.exists() {
-        if let Ok(_config) = Config::load(Some(config_path.to_path_buf())) {
-            // Note: We don't have editor.command in current Config structure
-            // This is a placeholder for future implementation
-            output.debug("No editor configured in config file");
-        }
-    }
+    // Currently not implemented - will be added when Config structure supports editor settings
 
     // Priority 3: $EDITOR environment variable
     if let Ok(editor) = env::var("EDITOR") {

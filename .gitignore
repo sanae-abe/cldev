@@ -1,5 +1,8 @@
 # Build artifacts
 /target
+/target/debug/incremental/
+/target/debug/deps/
+/target/debug/.fingerprint/
 
 # Backup files
 *.bak
@@ -21,3 +24,6 @@ desktop.ini
 # Environment
 .env
 .env.*
+
+# Private documentation
+docs/private/

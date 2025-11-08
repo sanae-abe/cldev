@@ -23,6 +23,9 @@ pub enum Language {
     /// Japanese
     #[serde(rename = "ja")]
     Japanese,
+    /// Chinese (Simplified)
+    #[serde(rename = "zh")]
+    Chinese,
 }
 
 impl Language {
@@ -34,6 +37,9 @@ impl Language {
             if lang_lower.starts_with("ja") {
                 return Language::Japanese;
             }
+            if lang_lower.starts_with("zh") {
+                return Language::Chinese;
+            }
         }
 
         // Check LC_ALL as fallback
@@ -41,6 +47,9 @@ impl Language {
             let lang_lower = lang.to_lowercase();
             if lang_lower.starts_with("ja") {
                 return Language::Japanese;
+            }
+            if lang_lower.starts_with("zh") {
+                return Language::Chinese;
             }
         }
 
@@ -53,6 +62,7 @@ impl Language {
         match self {
             Language::English => "en",
             Language::Japanese => "ja",
+            Language::Chinese => "zh",
         }
     }
 
@@ -61,6 +71,7 @@ impl Language {
         match code.to_lowercase().as_str() {
             "en" | "english" => Some(Language::English),
             "ja" | "japanese" | "jp" => Some(Language::Japanese),
+            "zh" | "chinese" | "zh-cn" | "zh-hans" => Some(Language::Chinese),
             _ => None,
         }
     }
@@ -244,13 +255,16 @@ mod tests {
     fn test_language_detection() {
         // Language detection depends on environment, so just check it doesn't panic
         let lang = Language::detect();
-        assert!(lang == Language::English || lang == Language::Japanese);
+        assert!(
+            lang == Language::English || lang == Language::Japanese || lang == Language::Chinese
+        );
     }
 
     #[test]
     fn test_language_code() {
         assert_eq!(Language::English.code(), "en");
         assert_eq!(Language::Japanese.code(), "ja");
+        assert_eq!(Language::Chinese.code(), "zh");
     }
 
     #[test]
@@ -258,6 +272,9 @@ mod tests {
         assert_eq!(Language::from_code("en"), Some(Language::English));
         assert_eq!(Language::from_code("ja"), Some(Language::Japanese));
         assert_eq!(Language::from_code("japanese"), Some(Language::Japanese));
+        assert_eq!(Language::from_code("zh"), Some(Language::Chinese));
+        assert_eq!(Language::from_code("chinese"), Some(Language::Chinese));
+        assert_eq!(Language::from_code("zh-cn"), Some(Language::Chinese));
         assert_eq!(Language::from_code("invalid"), None);
     }
 

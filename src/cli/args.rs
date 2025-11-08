@@ -9,25 +9,25 @@ pub use clap_complete::Shell;
     name = "cldev",
     version,
     author,
-    about = super::help::app_about(),
+    about = "Claude Dev CLI - Unified development environment management tool",
     long_about = None,
     propagate_version = true
 )]
 pub struct Cli {
     /// Enable verbose output
-    #[arg(short, long, global = true, help = super::help::verbose_help())]
+    #[arg(short, long, global = true)]
     pub verbose: bool,
 
     /// Suppress non-error output
-    #[arg(short, long, global = true, conflicts_with = "verbose", help = super::help::quiet_help())]
+    #[arg(short, long, global = true, conflicts_with = "verbose")]
     pub quiet: bool,
 
     /// Disable colored output
-    #[arg(long, global = true, help = super::help::no_color_help())]
+    #[arg(long, global = true)]
     pub no_color: bool,
 
-    /// Set language (ja/en)
-    #[arg(long, global = true, value_enum, default_value = "en", help = super::help::lang_help())]
+    /// Set language (en/ja/zh)
+    #[arg(long, global = true, value_enum, default_value = "en")]
     pub lang: Language,
 
     #[command(subcommand)]
@@ -41,6 +41,8 @@ pub enum Language {
     En,
     /// Japanese
     Ja,
+    /// Chinese (Simplified)
+    Zh,
 }
 
 impl Language {
@@ -49,6 +51,7 @@ impl Language {
         match self {
             Language::En => crate::core::i18n::Language::English,
             Language::Ja => crate::core::i18n::Language::Japanese,
+            Language::Zh => crate::core::i18n::Language::Chinese,
         }
     }
 }

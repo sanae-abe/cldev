@@ -1,5 +1,6 @@
 use cldev::core::i18n::{I18n, Language};
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, Criterion};
+use std::hint::black_box;
 
 fn bench_i18n_new(c: &mut Criterion) {
     c.bench_function("i18n_new", |b| b.iter(|| black_box(I18n::new())));

@@ -16,9 +16,11 @@ pub fn init_help_i18n(language: Language) {
     HELP_I18N.get_or_init(|| I18n::with_language(language));
 }
 
-/// Get the I18n instance, initializing with default language if not set
+/// Get the I18n instance, initializing with English (default) if not set
+/// Note: Help messages use default language (English) because clap evaluates them
+/// at compile time. Runtime messages use the user-specified language.
 fn get_i18n() -> &'static I18n {
-    HELP_I18N.get_or_init(I18n::new)
+    HELP_I18N.get_or_init(|| I18n::with_language(Language::English))
 }
 
 /// Get a help message by key

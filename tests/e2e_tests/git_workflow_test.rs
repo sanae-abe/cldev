@@ -95,7 +95,7 @@ fn test_git_branch_workflow() -> Result<()> {
 
 #[test]
 fn test_git_conventional_commit_workflow() -> Result<()> {
-    let temp_dir = setup_git_workflow_env()?;
+    let _temp_dir = setup_git_workflow_env()?;
 
     // Conventional commit types
     let commit_types = vec![
@@ -345,7 +345,7 @@ fn test_git_commit_message_validation() -> Result<()> {
 
 #[test]
 fn test_git_tag_workflow() -> Result<()> {
-    let temp_dir = setup_git_workflow_env()?;
+    let _temp_dir = setup_git_workflow_env()?;
 
     // Simulate versioning workflow
     let versions = vec!["v1.0.0", "v1.1.0", "v2.0.0"];
@@ -373,7 +373,7 @@ fn test_git_rebase_workflow() -> Result<()> {
 
 #[test]
 fn test_git_squash_workflow() -> Result<()> {
-    let temp_dir = setup_git_workflow_env()?;
+    let _temp_dir = setup_git_workflow_env()?;
 
     // Simulate squash workflow
     println!("Would execute: git rebase -i HEAD~3");
@@ -384,7 +384,7 @@ fn test_git_squash_workflow() -> Result<()> {
 
 #[test]
 fn test_git_cherry_pick_workflow() -> Result<()> {
-    let temp_dir = setup_git_workflow_env()?;
+    let _temp_dir = setup_git_workflow_env()?;
 
     // Simulate cherry-pick workflow
     println!("Would execute: git cherry-pick <commit-hash>");
@@ -436,7 +436,7 @@ cargo test
 
 #[test]
 fn test_git_merge_conflict_workflow() -> Result<()> {
-    let temp_dir = setup_git_workflow_env()?;
+    let _temp_dir = setup_git_workflow_env()?;
 
     // Simulate merge conflict scenario
     println!("Simulating merge conflict:");

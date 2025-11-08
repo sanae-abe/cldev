@@ -29,7 +29,7 @@ path = "src/lib.rs"
 
 [dependencies]
 # CLI framework with derive macros and rich features
-clap = { version = "4.5", features = ["derive", "cargo"], default-features = false }
+clap = { version = "4.5", features = ["derive", "cargo", "help", "usage", "error-context"] }
 
 # Shell completion generation
 clap_complete = "4.5"
