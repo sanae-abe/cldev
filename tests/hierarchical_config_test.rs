@@ -176,7 +176,7 @@ fn test_hierarchical_config_priority() {
 
     // Load stack config
     let stack = if let Some(ref stack_name) = global.general.tech_stack {
-        TechStack::from_str(stack_name)
+        TechStack::parse(stack_name)
             .ok()
             .map(|s| StackConfig::default_for_stack(&s))
     } else {
@@ -318,26 +318,26 @@ fn test_stack_defaults() {
 #[test]
 fn test_tech_stack_from_string() {
     assert!(matches!(
-        TechStack::from_str("frontend-web").unwrap(),
+        TechStack::parse("frontend-web").unwrap(),
         TechStack::FrontendWeb
     ));
     assert!(matches!(
-        TechStack::from_str("backend-api").unwrap(),
+        TechStack::parse("backend-api").unwrap(),
         TechStack::BackendApi
     ));
     assert!(matches!(
-        TechStack::from_str("mobile-app").unwrap(),
+        TechStack::parse("mobile-app").unwrap(),
         TechStack::MobileApp
     ));
     assert!(matches!(
-        TechStack::from_str("data-science").unwrap(),
+        TechStack::parse("data-science").unwrap(),
         TechStack::DataScience
     ));
     assert!(matches!(
-        TechStack::from_str("rust-cli").unwrap(),
+        TechStack::parse("rust-cli").unwrap(),
         TechStack::RustCli
     ));
-    assert!(TechStack::from_str("invalid").is_err());
+    assert!(TechStack::parse("invalid").is_err());
 }
 
 #[test]

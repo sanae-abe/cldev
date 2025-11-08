@@ -25,7 +25,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
         t
     } else {
         Input::<String>::new()
-            .with_prompt(&output.t("refactor-target-prompt"))
+            .with_prompt(output.t("refactor-target-prompt"))
             .interact_text()?
     };
 
@@ -216,7 +216,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
 
     loop {
         let step = Input::<String>::new()
-            .with_prompt(&format!("Step {}", step_num))
+            .with_prompt(format!("Step {}", step_num))
             .allow_empty(true)
             .interact_text()?;
 
@@ -241,16 +241,14 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
     println!("{}", "✅ SAFETY CHECKLIST".cyan().bold());
     println!();
 
-    let safety_checks = vec![
-        "Run all tests before starting (establish baseline)",
+    let safety_checks = ["Run all tests before starting (establish baseline)",
         "Make small, incremental changes",
         "Run tests after each step",
         "Keep commits small and focused",
         "Verify no behavioral changes (tests still pass)",
         "Check for compilation/type errors after each change",
         "Review impact on dependent code",
-        "Update documentation if interfaces change",
-    ];
+        "Update documentation if interfaces change"];
 
     println!("Safety practices to follow:");
     for (i, check) in safety_checks.iter().enumerate() {

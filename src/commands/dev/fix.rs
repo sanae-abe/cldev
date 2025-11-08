@@ -21,7 +21,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
         t
     } else {
         Input::<String>::new()
-            .with_prompt(&output.t("fix-describe-bug"))
+            .with_prompt(output.t("fix-describe-bug"))
             .interact_text()?
     };
 
@@ -40,7 +40,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     ];
 
     let category_idx = Select::new()
-        .with_prompt(&output.t("fix-bug-category"))
+        .with_prompt(output.t("fix-bug-category"))
         .items(&bug_categories)
         .interact()?;
 
@@ -58,7 +58,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     ];
 
     let repro_idx = Select::new()
-        .with_prompt(&output.t("fix-reproducibility"))
+        .with_prompt(output.t("fix-reproducibility"))
         .items(&reproducibility_options)
         .interact()?;
 
@@ -79,7 +79,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
 
         loop {
             let step = Input::<String>::new()
-                .with_prompt(&output.t_format("fix-step-num", "num", &step_num.to_string()))
+                .with_prompt(output.t_format("fix-step-num", "num", &step_num.to_string()))
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -101,16 +101,14 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     println!();
 
     // Step 5: Investigation Checklist
-    let investigation_areas = vec![
-        "Review recent code changes (git log, blame)",
+    let investigation_areas = ["Review recent code changes (git log, blame)",
         "Check error logs and stack traces",
         "Add debug logging/breakpoints",
         "Review related test cases",
         "Check dependencies/library versions",
         "Verify environment configurations",
         "Review data flow and state management",
-        "Check boundary conditions and edge cases",
-    ];
+        "Check boundary conditions and edge cases"];
 
     println!("{}", output.t("fix-investigation-checklist"));
     for (i, area) in investigation_areas.iter().enumerate() {
@@ -121,7 +119,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
 
     // Step 6: Root Cause Input
     let root_cause = Input::<String>::new()
-        .with_prompt(&output.t("fix-root-cause-prompt"))
+        .with_prompt(output.t("fix-root-cause-prompt"))
         .interact_text()?;
 
     println!();
@@ -145,7 +143,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     ];
 
     let pattern_idx = Select::new()
-        .with_prompt(&output.t("fix-select-pattern"))
+        .with_prompt(output.t("fix-select-pattern"))
         .items(&fix_patterns)
         .interact()?;
 
@@ -155,7 +153,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
 
     // Step 8: Implementation Plan
     let implementation = Input::<String>::new()
-        .with_prompt(&output.t("fix-implementation-plan"))
+        .with_prompt(output.t("fix-implementation-plan"))
         .interact_text()?;
 
     println!();
@@ -168,7 +166,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     let mut files = Vec::new();
     loop {
         let file = Input::<String>::new()
-            .with_prompt(&output.t("fix-file-prompt"))
+            .with_prompt(output.t("fix-file-prompt"))
             .allow_empty(true)
             .interact_text()?;
 
@@ -196,7 +194,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     ];
 
     let selected_tests = MultiSelect::new()
-        .with_prompt(&output.t("fix-select-tests"))
+        .with_prompt(output.t("fix-select-tests"))
         .items(&test_requirements)
         .defaults(&vec![true; test_requirements.len()])
         .interact()?;
@@ -260,7 +258,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
 
     // Step 12: Mark as Resolved
     let resolved = Confirm::new()
-        .with_prompt(&output.t("fix-is-resolved"))
+        .with_prompt(output.t("fix-is-resolved"))
         .default(false)
         .interact()?;
 

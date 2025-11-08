@@ -281,9 +281,7 @@ impl ProjectDetector {
                     cmd.push("--all-targets".to_string());
                     cmd.push("--all-features".to_string());
                 }
-                cmd.push("--".to_string());
-                cmd.push("-D".to_string());
-                cmd.push("warnings".to_string());
+                // Don't fail on warnings, just report them
                 Ok(cmd)
             }
             ProjectType::Go => {

@@ -5,7 +5,6 @@
 
 use cldev::core::security::{SecurePath, SecurityError};
 use std::fs::{self, File};
-use std::io::Write;
 use std::path::Path;
 use tempfile::TempDir;
 

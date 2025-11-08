@@ -5,6 +5,7 @@ use clap_complete::{generate, Shell};
 use std::io;
 
 use crate::cli::args::Cli;
+use crate::cli::output::OutputHandler;
 
 /// Generate shell completions for the specified shell
 ///
@@ -42,10 +43,12 @@ pub fn generate_completions(shell: Shell) {
 ///
 /// ```no_run
 /// use cldev::cli::completions::generate_all_completions;
+/// use cldev::cli::output::OutputHandler;
 ///
-/// generate_all_completions().expect("Failed to generate completions");
+/// let output = OutputHandler::default();
+/// generate_all_completions(&output).expect("Failed to generate completions");
 /// ```
-pub fn generate_all_completions() -> io::Result<()> {
+pub fn generate_all_completions(output: &OutputHandler) -> io::Result<()> {
     use std::fs;
     use std::path::Path;
 
@@ -73,11 +76,11 @@ pub fn generate_all_completions() -> io::Result<()> {
 
         generate(*shell, &mut cmd, bin_name.clone(), &mut file);
 
-        println!(
+        output.success(&format!(
             "Generated {} completion: {}",
             shell_name(*shell),
             output_path.display()
-        );
+        ));
     }
 
     Ok(())
@@ -95,12 +98,13 @@ fn shell_name(shell: Shell) -> &'static str {
 }
 
 /// Print installation instructions for the generated completions
-pub fn print_installation_instructions(shell: Shell) {
-    println!(
-        "\n{} Completion Installation Instructions:",
+pub fn print_installation_instructions(shell: Shell, output: &OutputHandler) {
+    output.print_newline();
+    output.info(&format!(
+        "{} Completion Installation Instructions:",
         shell_name(shell)
-    );
-    println!("{}", get_installation_instructions(shell));
+    ));
+    output.println_raw(get_installation_instructions(shell));
 }
 
 /// Get installation instructions for a specific shell

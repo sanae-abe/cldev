@@ -276,8 +276,8 @@ fn scan_security_issues(file: &str, content: &str) -> Vec<SecurityIssue> {
         }
 
         // 6. Secret exposure
-        if line.contains("API_KEY") || line.contains("SECRET") || line.contains("PASSWORD") {
-            if !line.contains("env::var") && !line.contains("get_env") {
+        if (line.contains("API_KEY") || line.contains("SECRET") || line.contains("PASSWORD"))
+            && !line.contains("env::var") && !line.contains("get_env") {
                 issues.push(SecurityIssue {
                     file: file.to_string(),
                     line: i + 1,
@@ -287,7 +287,6 @@ fn scan_security_issues(file: &str, content: &str) -> Vec<SecurityIssue> {
                     recommendation: "Use environment variables or secure vault".to_string(),
                 });
             }
-        }
 
         // 7. Logging sensitive data
         if (line.contains("log") || line.contains("println!"))
@@ -368,8 +367,8 @@ fn scan_performance_issues(file: &str, content: &str) -> Vec<PerformanceIssue> {
         }
 
         // Unoptimized loops
-        if line.contains("for") && line.contains("..") && line.contains("len()") {
-            if line.contains("vec[") {
+        if line.contains("for") && line.contains("..") && line.contains("len()")
+            && line.contains("vec[") {
                 issues.push(PerformanceIssue {
                     file: file.to_string(),
                     line: i + 1,
@@ -379,7 +378,6 @@ fn scan_performance_issues(file: &str, content: &str) -> Vec<PerformanceIssue> {
                     suggestion: "Use iterator methods for better performance".to_string(),
                 });
             }
-        }
 
         // Large capacity allocations
         if line.contains("Vec::with_capacity") {
@@ -415,8 +413,7 @@ fn scan_performance_issues(file: &str, content: &str) -> Vec<PerformanceIssue> {
                     .skip(i)
                     .take(20)
                     .any(|l| l.contains(&fn_name))
-            {
-                if !line.contains("tail") {
+                && !line.contains("tail") {
                     issues.push(PerformanceIssue {
                         file: file.to_string(),
                         line: i + 1,
@@ -428,7 +425,6 @@ fn scan_performance_issues(file: &str, content: &str) -> Vec<PerformanceIssue> {
                             .to_string(),
                     });
                 }
-            }
         }
     }
 
@@ -683,7 +679,7 @@ fn display_approval(status: ApprovalStatus, output: &OutputHandler) {
 fn extract_function_name(line: &str) -> String {
     if let Some(start) = line.find("fn ") {
         let after_fn = &line[start + 3..];
-        if let Some(end) = after_fn.find(|c: char| c == '(' || c == '<') {
+        if let Some(end) = after_fn.find(['(', '<']) {
             return after_fn[..end].trim().to_string();
         }
     }

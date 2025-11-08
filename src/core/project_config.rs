@@ -30,7 +30,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 /// Project-specific configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[allow(dead_code)]
 pub struct ProjectConfig {
     /// Project metadata
@@ -129,7 +129,7 @@ pub struct ProjectQualityConfig {
 }
 
 /// Project-specific Git workflow settings
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[allow(dead_code)]
 pub struct ProjectGitConfig {
     /// Default base branch for this project
@@ -238,17 +238,6 @@ impl Default for ProjectQualityConfig {
     }
 }
 
-impl Default for ProjectGitConfig {
-    fn default() -> Self {
-        Self {
-            base_branch: None,
-            branch_prefix: None,
-            commit_template: None,
-            required_reviewers: Vec::new(),
-            protected_branches: Vec::new(),
-        }
-    }
-}
 
 impl Default for ProjectPaths {
     fn default() -> Self {
@@ -262,18 +251,6 @@ impl Default for ProjectPaths {
     }
 }
 
-impl Default for ProjectConfig {
-    fn default() -> Self {
-        Self {
-            project: ProjectMetadata::default(),
-            commands: HashMap::new(),
-            dev: ProjectDevConfig::default(),
-            quality: ProjectQualityConfig::default(),
-            git: ProjectGitConfig::default(),
-            paths: ProjectPaths::default(),
-        }
-    }
-}
 
 impl ProjectConfig {
     /// Get the project configuration directory path
@@ -428,7 +405,7 @@ impl ProjectConfig {
         self.project
             .tech_stack
             .as_ref()
-            .and_then(|s| TechStack::from_str(s).ok())
+            .and_then(|s| TechStack::parse(s).ok())
     }
 }
 

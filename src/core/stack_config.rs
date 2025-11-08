@@ -55,7 +55,7 @@ impl TechStack {
     }
 
     /// Parse stack name from string
-    pub fn from_str(s: &str) -> Result<Self> {
+    pub fn parse(s: &str) -> Result<Self> {
         match s {
             "frontend-web" => Ok(TechStack::FrontendWeb),
             "backend-api" => Ok(TechStack::BackendApi),
@@ -82,7 +82,7 @@ impl TechStack {
 }
 
 /// Stack-specific configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[allow(dead_code)]
 pub struct StackConfig {
     /// Stack metadata
@@ -135,7 +135,7 @@ pub struct StackMetadata {
 }
 
 /// Development tools configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[allow(dead_code)]
 pub struct ToolsConfig {
     /// Package manager (npm, yarn, pnpm, cargo, pip, etc.)
@@ -185,7 +185,7 @@ pub struct StackQualityConfig {
 }
 
 /// Testing configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[allow(dead_code)]
 pub struct TestingConfig {
     /// Test file patterns (e.g., "**/*.test.ts", "tests/**/*.rs")
@@ -206,7 +206,7 @@ pub struct TestingConfig {
 }
 
 /// Environment configuration
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 #[allow(dead_code)]
 pub struct EnvironmentConfig {
     /// Required environment variables (names only, not values)
@@ -251,18 +251,6 @@ impl Default for StackMetadata {
     }
 }
 
-impl Default for ToolsConfig {
-    fn default() -> Self {
-        Self {
-            package_manager: None,
-            formatter: None,
-            linter: None,
-            type_checker: None,
-            build_tool: None,
-            test_runner: None,
-        }
-    }
-}
 
 impl Default for StackQualityConfig {
     fn default() -> Self {
@@ -275,41 +263,8 @@ impl Default for StackQualityConfig {
     }
 }
 
-impl Default for TestingConfig {
-    fn default() -> Self {
-        Self {
-            test_patterns: Vec::new(),
-            test_command: None,
-            coverage_command: None,
-            watch_command: None,
-        }
-    }
-}
 
-impl Default for EnvironmentConfig {
-    fn default() -> Self {
-        Self {
-            required_env_vars: Vec::new(),
-            dev_port: None,
-            node_version: None,
-            python_version: None,
-            rust_version: None,
-        }
-    }
-}
 
-impl Default for StackConfig {
-    fn default() -> Self {
-        Self {
-            stack: StackMetadata::default(),
-            commands: HashMap::new(),
-            tools: ToolsConfig::default(),
-            quality: StackQualityConfig::default(),
-            testing: TestingConfig::default(),
-            environment: EnvironmentConfig::default(),
-        }
-    }
-}
 
 impl StackConfig {
     /// Get the default stack configuration directory
@@ -686,14 +641,14 @@ mod tests {
     #[test]
     fn test_tech_stack_from_str() {
         assert!(matches!(
-            TechStack::from_str("frontend-web").unwrap(),
+            TechStack::parse("frontend-web").unwrap(),
             TechStack::FrontendWeb
         ));
         assert!(matches!(
-            TechStack::from_str("backend-api").unwrap(),
+            TechStack::parse("backend-api").unwrap(),
             TechStack::BackendApi
         ));
-        assert!(TechStack::from_str("invalid").is_err());
+        assert!(TechStack::parse("invalid").is_err());
     }
 
     #[test]

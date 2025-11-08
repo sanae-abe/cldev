@@ -255,16 +255,22 @@ pub fn run_tests_advanced(
         ))
     })?;
 
-    // Show stdout
+    // Show stdout (respects quiet mode)
     if !output_result.stdout.is_empty() {
         let stdout = String::from_utf8_lossy(&output_result.stdout);
-        println!("{}", stdout);
+        output.println_raw(&stdout);
     }
 
-    // Show stderr
+    // Show stderr (always shown for errors, respects quiet for non-errors)
     if !output_result.stderr.is_empty() {
         let stderr = String::from_utf8_lossy(&output_result.stderr);
-        eprintln!("{}", stderr);
+        if !output_result.status.success() {
+            // Errors always shown
+            eprintln!("{}", stderr);
+        } else {
+            // Non-error output respects quiet mode
+            output.eprintln_raw(&stderr);
+        }
     }
 
     if output_result.status.success() {

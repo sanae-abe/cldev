@@ -91,7 +91,7 @@ pub fn check_config(
         } else {
             print_results(&results, detailed, output);
             return Err(CldevError::config(
-                &output.i18n().get("config-check-error-not-found"),
+                output.i18n().get("config-check-error-not-found"),
             ));
         }
     }
@@ -169,7 +169,7 @@ pub fn check_config(
             &failed_count.to_string(),
         ));
         Err(CldevError::validation(
-            &output.i18n().get("config-check-validation-failed"),
+            output.i18n().get("config-check-validation-failed"),
         ))
     }
 }

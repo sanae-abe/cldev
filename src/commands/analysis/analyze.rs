@@ -998,7 +998,7 @@ fn calculate_overall_score(
 fn output_text(result: &AnalysisResult, output: &OutputHandler) {
     output.info(&format!("\n=== {} Analysis Report ===", result.target));
     output.info(&format!("Timestamp: {}", result.timestamp));
-    output.info(&format!("\n--- Summary ---"));
+    output.info("\n--- Summary ---");
     output.info(&format!("Total files: {}", result.summary.total_files));
     output.info(&format!("Total lines: {}", result.summary.total_lines));
     output.info(&format!("Languages: {:?}", result.summary.languages));
@@ -1018,7 +1018,7 @@ fn output_text(result: &AnalysisResult, output: &OutputHandler) {
 }
 
 fn output_structure_text(structure: &StructureAnalysis, output: &OutputHandler) {
-    output.info(&format!("\n--- Structure Details ---"));
+    output.info("\n--- Structure Details ---");
     output.info(&format!("Modules: {}", structure.modules.len()));
     output.info(&format!("Max depth: {}", structure.depth));
     output.info(&format!("Dependencies: {}", structure.dependencies.len()));
@@ -1035,7 +1035,7 @@ fn output_structure_text(structure: &StructureAnalysis, output: &OutputHandler) 
 }
 
 fn output_performance_text(performance: &PerformanceAnalysis, output: &OutputHandler) {
-    output.info(&format!("\n--- Performance Details ---"));
+    output.info("\n--- Performance Details ---");
     output.info(&format!("Hot spots found: {}", performance.hot_spots.len()));
 
     for hotspot in &performance.hot_spots {
@@ -1045,14 +1045,14 @@ fn output_performance_text(performance: &PerformanceAnalysis, output: &OutputHan
         ));
     }
 
-    output.info(&format!("\n--- Optimization Suggestions ---"));
+    output.info("\n--- Optimization Suggestions ---");
     for suggestion in &performance.optimization_suggestions {
         output.list_item(suggestion);
     }
 }
 
 fn output_quality_text(quality: &QualityAnalysis, output: &OutputHandler) {
-    output.info(&format!("\n--- Quality Details ---"));
+    output.info("\n--- Quality Details ---");
     output.info(&format!(
         "Average complexity: {:.1}",
         quality.complexity_metrics.cyclomatic_avg
@@ -1070,18 +1070,18 @@ fn output_quality_text(quality: &QualityAnalysis, output: &OutputHandler) {
 }
 
 fn output_debt_text(debt: &DebtAnalysis, output: &OutputHandler) {
-    output.info(&format!("\n--- Technical Debt Details ---"));
+    output.info("\n--- Technical Debt Details ---");
     output.info(&format!("Total debt: {:.1} hours", debt.total_debt_hours));
     output.info(&format!("Debt items: {}", debt.debt_items.len()));
 
-    output.info(&format!("\n--- Debt by Category ---"));
+    output.info("\n--- Debt by Category ---");
     for (category, hours) in &debt.debt_by_category {
         output.list_item(&format!("{}: {:.1} hours", category, hours));
     }
 }
 
 fn output_overview_text(overview: &OverviewAnalysis, output: &OutputHandler) {
-    output.info(&format!("\n--- Overview ---"));
+    output.info("\n--- Overview ---");
     output.info(&format!(
         "Structure: {} modules, depth {}, {} circular deps",
         overview.structure.modules_count,

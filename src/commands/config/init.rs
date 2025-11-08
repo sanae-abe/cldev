@@ -36,7 +36,7 @@ const LANGUAGES: &[LanguageOption] = &[
 ];
 
 /// Run interactive configuration initialization
-pub fn run_interactive_init(force: bool, output: &OutputHandler) -> Result<()> {
+pub fn run_interactive_init(force: bool, output: &mut OutputHandler) -> Result<()> {
     let config_path = Config::default_path()?;
 
     // Check if config already exists
@@ -57,6 +57,12 @@ pub fn run_interactive_init(force: bool, output: &OutputHandler) -> Result<()> {
 
     // Step 1: Language selection
     let language = select_language(&theme, output)?;
+
+    // Apply selected language to output handler
+    use crate::core::i18n::Language;
+    if let Some(lang) = Language::from_code(&language) {
+        output.set_language(lang);
+    }
 
     // Step 2: Claude Code directory detection
     let claude_dir = detect_claude_directory(&theme, output)?;
@@ -103,9 +109,10 @@ pub fn run_interactive_init(force: bool, output: &OutputHandler) -> Result<()> {
     }
 
     // Success message
-    output.success(&format!(
-        "\n✓ Configuration saved: {}",
-        config_path.display()
+    output.success(&output.i18n().format(
+        "config-init-success-saved",
+        "path",
+        &config_path.display().to_string(),
     ));
 
     // Next steps
@@ -116,52 +123,65 @@ pub fn run_interactive_init(force: bool, output: &OutputHandler) -> Result<()> {
 
 /// Print ASCII art header
 fn print_header(output: &OutputHandler) {
-    output.info("cldev - Initial Setup");
-    output.info("━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+    output.info(&output.i18n().get("config-init-header"));
+    output.info(&output.i18n().get("config-init-separator"));
+    output.info("");
 }
 
 /// Step 1: Language selection
 fn select_language(theme: &ColorfulTheme, output: &OutputHandler) -> Result<String> {
-    output.info("1. Language / 言語");
+    output.info(&output.i18n().get("config-init-step1-language"));
 
     let selection = Select::with_theme(theme)
-        .with_prompt("Select your preferred language")
+        .with_prompt(output.i18n().get("config-init-select-language"))
         .items(LANGUAGES)
         .default(1) // Default to Japanese
         .interact()
         .map_err(|e| CldevError::io(format!("Language selection failed: {}", e)))?;
 
     let selected = LANGUAGES[selection].code.to_string();
-    output.info(&format!("   Selected: {}\n", LANGUAGES[selection].display));
+    output.info(&output.i18n().format(
+        "config-init-selected",
+        "language",
+        LANGUAGES[selection].display,
+    ));
+    output.info("");
 
     Ok(selected)
 }
 
 /// Step 2: Detect Claude Code directory
 fn detect_claude_directory(theme: &ColorfulTheme, output: &OutputHandler) -> Result<PathBuf> {
-    output.info("2. Claude Code directory");
+    output.info(&output.i18n().get("config-init-step2-claude-dir"));
 
     let home_dir =
         dirs::home_dir().ok_or_else(|| CldevError::config("Cannot determine home directory"))?;
     let default_claude_dir = home_dir.join(".claude");
 
     if default_claude_dir.exists() {
-        output.info(&format!(
-            "   ✓ Detected: {}\n",
-            default_claude_dir.display()
+        output.info(&output.i18n().format(
+            "config-init-claude-detected",
+            "path",
+            &default_claude_dir.display().to_string(),
         ));
+        output.info("");
         Ok(default_claude_dir)
     } else {
-        output.warning("   ~/.claude/ directory not found");
+        output.warning(&output.i18n().get("config-init-claude-not-found"));
 
         let custom_path: String = Input::with_theme(theme)
-            .with_prompt("Enter Claude Code directory path (or press Enter to create default)")
+            .with_prompt(output.i18n().get("config-init-claude-prompt"))
             .default(default_claude_dir.display().to_string())
             .interact_text()
             .map_err(|e| CldevError::io(format!("Input failed: {}", e)))?;
 
         let path = PathBuf::from(custom_path);
-        output.info(&format!("   Using: {}\n", path.display()));
+        output.info(&output.i18n().format(
+            "config-init-claude-using",
+            "path",
+            &path.display().to_string(),
+        ));
+        output.info("");
 
         Ok(path)
     }
@@ -169,27 +189,32 @@ fn detect_claude_directory(theme: &ColorfulTheme, output: &OutputHandler) -> Res
 
 /// Step 3: Select projects directory
 fn select_projects_directory(theme: &ColorfulTheme, output: &OutputHandler) -> Result<PathBuf> {
-    output.info("3. Project root directory");
+    output.info(&output.i18n().get("config-init-step3-projects-dir"));
 
     let home_dir =
         dirs::home_dir().ok_or_else(|| CldevError::config("Cannot determine home directory"))?;
     let default_projects_dir = home_dir.join("projects");
 
     let custom_path: String = Input::with_theme(theme)
-        .with_prompt("Enter projects root directory")
+        .with_prompt(output.i18n().get("config-init-projects-prompt"))
         .default(default_projects_dir.display().to_string())
         .interact_text()
         .map_err(|e| CldevError::io(format!("Input failed: {}", e)))?;
 
     let path = PathBuf::from(custom_path);
-    output.info(&format!("   Using: {}\n", path.display()));
+    output.info(&output.i18n().format(
+        "config-init-claude-using",
+        "path",
+        &path.display().to_string(),
+    ));
+    output.info("");
 
     Ok(path)
 }
 
 /// Step 4: Detect Git CLI tools
 fn detect_git_cli(output: &OutputHandler) -> (bool, bool) {
-    output.info("4. Git CLI detection");
+    output.info(&output.i18n().get("config-init-step4-git-cli"));
 
     let github_cli = Command::new("gh")
         .arg("--version")
@@ -204,15 +229,15 @@ fn detect_git_cli(output: &OutputHandler) -> (bool, bool) {
         .unwrap_or(false);
 
     if github_cli {
-        output.info("   ✓ gh (GitHub CLI): detected");
+        output.info(&output.i18n().get("config-init-gh-detected"));
     } else {
-        output.warning("   - gh (GitHub CLI): not found");
+        output.warning(&output.i18n().get("config-init-gh-not-found"));
     }
 
     if gitlab_cli {
-        output.info("   ✓ glab (GitLab CLI): detected");
+        output.info(&output.i18n().get("config-init-glab-detected"));
     } else {
-        output.warning("   - glab (GitLab CLI): not found");
+        output.warning(&output.i18n().get("config-init-glab-not-found"));
     }
 
     output.info("");
@@ -225,13 +250,17 @@ fn detect_shell_and_offer_completion(
     theme: &ColorfulTheme,
     output: &OutputHandler,
 ) -> Result<Option<PathBuf>> {
-    output.info("5. Shell completion");
+    output.info(&output.i18n().get("config-init-step5-shell"));
 
     // Detect current shell
     let shell = std::env::var("SHELL").unwrap_or_else(|_| "unknown".to_string());
-    let shell_name = shell.split('/').last().unwrap_or("unknown");
+    let shell_name = shell.split('/').next_back().unwrap_or("unknown");
 
-    output.info(&format!("   Detected shell: {}", shell_name));
+    output.info(&output.i18n().format(
+        "config-init-shell-detected",
+        "shell",
+        shell_name,
+    ));
 
     // Determine shell config file
     let config_file = match shell_name {
@@ -242,10 +271,14 @@ fn detect_shell_and_offer_completion(
     };
 
     if let Some(ref config_path) = config_file {
-        output.info(&format!("   Config file: {}", config_path.display()));
+        output.info(&output.i18n().format(
+            "config-init-shell-config",
+            "path",
+            &config_path.display().to_string(),
+        ));
 
         let add_completion = Confirm::with_theme(theme)
-            .with_prompt("Add shell completion to config file?")
+            .with_prompt(output.i18n().get("config-init-shell-prompt"))
             .default(true)
             .interact()
             .map_err(|e| CldevError::io(format!("Confirmation failed: {}", e)))?;
@@ -256,9 +289,10 @@ fn detect_shell_and_offer_completion(
             return Ok(config_file);
         }
     } else {
-        output.warning(&format!(
-            "   Shell '{}' not supported for auto-completion",
-            shell_name
+        output.warning(&output.i18n().format(
+            "config-init-shell-unsupported",
+            "shell",
+            shell_name,
         ));
         output.info("");
     }
@@ -268,14 +302,14 @@ fn detect_shell_and_offer_completion(
 
 /// Step 6: Offer to add aliases
 fn offer_aliases(theme: &ColorfulTheme, output: &OutputHandler) -> Result<bool> {
-    output.info("6. Shell aliases");
-    output.info("   Suggested aliases:");
-    output.info("   - c='cldev'");
-    output.info("   - cconfig='cldev config'");
-    output.info("   - cdev='cldev dev'");
+    output.info(&output.i18n().get("config-init-step6-aliases"));
+    output.info(&output.i18n().get("config-init-aliases-suggested"));
+    output.info(&output.i18n().get("config-init-aliases-c"));
+    output.info(&output.i18n().get("config-init-aliases-cconfig"));
+    output.info(&output.i18n().get("config-init-aliases-cdev"));
 
     let add_aliases = Confirm::with_theme(theme)
-        .with_prompt("Add these aliases to your shell config?")
+        .with_prompt(output.i18n().get("config-init-aliases-prompt"))
         .default(true)
         .interact()
         .map_err(|e| CldevError::io(format!("Confirmation failed: {}", e)))?;
@@ -291,15 +325,13 @@ fn offer_claude_integration(
     claude_dir: &PathBuf,
     output: &OutputHandler,
 ) -> Result<bool> {
-    output.info("7. Claude Code integration (optional)");
+    output.info(&output.i18n().get("config-init-step7-claude-integration"));
 
     let claude_md = claude_dir.join("CLAUDE.md");
 
     if !claude_md.exists() {
-        output.warning("   Claude Code configuration file (CLAUDE.md) not found");
-        output.info(
-            "   Learning records will work, but manual setup is needed for Claude Code integration",
-        );
+        output.warning(&output.i18n().get("config-init-claude-md-not-found"));
+        output.info(&output.i18n().get("config-init-claude-manual-setup"));
         output.info("");
         return Ok(false);
     }
@@ -307,18 +339,18 @@ fn offer_claude_integration(
     // Check if already integrated
     if let Ok(content) = std::fs::read_to_string(&claude_md) {
         if content.contains("cldev lr find") {
-            output.success("   ✓ Claude Code integration already configured");
+            output.success(&output.i18n().get("config-init-claude-already-integrated"));
             output.info("");
             return Ok(false);
         }
     }
 
-    output.info("   Add learning record reference to Claude Code configuration?");
-    output.info("   This allows Claude Code to access past problem solutions.");
+    output.info(&output.i18n().get("config-init-claude-integration-info"));
+    output.info(&output.i18n().get("config-init-claude-integration-benefit"));
     output.info("");
 
     let integrate = Confirm::with_theme(theme)
-        .with_prompt("   Enable integration?")
+        .with_prompt(output.i18n().get("config-init-claude-integration-prompt"))
         .default(true)
         .interact()
         .map_err(|e| CldevError::io(format!("Confirmation failed: {}", e)))?;
@@ -336,14 +368,14 @@ fn setup_claude_integration(claude_dir: &PathBuf, output: &OutputHandler) -> Res
     let claude_md = claude_dir.join("CLAUDE.md");
 
     if !claude_md.exists() {
-        output.warning("Claude Code configuration file not found, skipping integration");
+        output.warning(&output.i18n().get("config-init-claude-md-not-found"));
         return Ok(());
     }
 
     // Check if already integrated
     if let Ok(content) = std::fs::read_to_string(&claude_md) {
         if content.contains("cldev lr find") {
-            output.info("✓ Claude Code integration already configured");
+            output.info(&output.i18n().get("config-init-claude-already-integrated"));
             return Ok(());
         }
     }
@@ -391,8 +423,12 @@ cldev lr problems                 # 未解決問題一覧
     file.write_all(integration_text.as_bytes())
         .map_err(|e| CldevError::io(format!("Failed to write to CLAUDE.md: {}", e)))?;
 
-    output.success("✓ Claude Code integration added to CLAUDE.md");
-    output.info(&format!("   Review: cat {}", claude_md.display()));
+    output.success(&output.i18n().get("config-init-claude-integration-added"));
+    output.info(&output.i18n().format(
+        "config-init-claude-integration-review",
+        "path",
+        &claude_md.display().to_string(),
+    ));
 
     Ok(())
 }
@@ -406,7 +442,7 @@ fn generate_config_with_progress(
     gitlab_cli: bool,
     output: &OutputHandler,
 ) -> Result<Config> {
-    output.info("Generating configuration...");
+    output.info(&output.i18n().get("config-init-generating"));
 
     let pb = ProgressBar::new(5);
     pb.set_style(
@@ -416,11 +452,13 @@ fn generate_config_with_progress(
             .progress_chars("#>-"),
     );
 
-    pb.set_message("Initializing");
+    let msg_init = output.i18n().get("config-init-progress-initializing");
+    pb.set_message(msg_init);
     std::thread::sleep(std::time::Duration::from_millis(200));
     pb.inc(1);
 
-    pb.set_message("Setting general configuration");
+    let msg_general = output.i18n().get("config-init-progress-general");
+    pb.set_message(msg_general);
     let general = GeneralConfig {
         language: language.clone(),
         claude_dir: claude_dir.clone(),
@@ -431,7 +469,8 @@ fn generate_config_with_progress(
     std::thread::sleep(std::time::Duration::from_millis(200));
     pb.inc(1);
 
-    pb.set_message("Configuring Git integration");
+    let msg_git = output.i18n().get("config-init-progress-git");
+    pb.set_message(msg_git);
     let git = GitConfig {
         github_cli,
         gitlab_cli,
@@ -441,7 +480,8 @@ fn generate_config_with_progress(
     std::thread::sleep(std::time::Duration::from_millis(200));
     pb.inc(1);
 
-    pb.set_message("Setting UI preferences");
+    let msg_ui = output.i18n().get("config-init-progress-ui");
+    pb.set_message(msg_ui);
     let ui = UiConfig {
         color: true,
         emoji: true,
@@ -450,7 +490,8 @@ fn generate_config_with_progress(
     std::thread::sleep(std::time::Duration::from_millis(200));
     pb.inc(1);
 
-    pb.set_message("Finalizing configuration");
+    let msg_finalizing = output.i18n().get("config-init-progress-finalizing");
+    pb.set_message(msg_finalizing);
     let mut config = Config::default();
     config.general = general;
     config.git = git;
@@ -458,7 +499,8 @@ fn generate_config_with_progress(
     std::thread::sleep(std::time::Duration::from_millis(200));
     pb.inc(1);
 
-    pb.finish_with_message("Configuration complete");
+    let msg_complete = output.i18n().get("config-init-progress-complete");
+    pb.finish_with_message(msg_complete);
     output.info("");
 
     Ok(config)
@@ -475,7 +517,7 @@ fn add_shell_completion(shell_config_path: &PathBuf, output: &OutputHandler) -> 
 
     // Check if already added
     if existing.contains("cldev completion") {
-        output.info("Shell completion already configured");
+        output.info(&output.i18n().get("config-init-shell-completion-exists"));
         return Ok(());
     }
 
@@ -499,9 +541,10 @@ fn add_shell_completion(shell_config_path: &PathBuf, output: &OutputHandler) -> 
         ))
     })?;
 
-    output.success(&format!(
-        "✓ Shell completion added to {}",
-        shell_config_path.display()
+    output.success(&output.i18n().format(
+        "config-init-shell-completion-added",
+        "path",
+        &shell_config_path.display().to_string(),
     ));
 
     Ok(())
@@ -509,7 +552,7 @@ fn add_shell_completion(shell_config_path: &PathBuf, output: &OutputHandler) -> 
 
 /// Suggest alias commands
 fn suggest_alias_commands(shell_config: &Option<PathBuf>, output: &OutputHandler) {
-    output.info("\n📝 To add aliases, run:");
+    output.info(&output.i18n().get("config-init-aliases-instructions"));
 
     if let Some(config_path) = shell_config {
         output.info(&format!(
@@ -533,11 +576,11 @@ fn suggest_alias_commands(shell_config: &Option<PathBuf>, output: &OutputHandler
 
 /// Print next steps after setup
 fn print_next_steps(output: &OutputHandler) {
-    output.info("\n💡 Next steps:");
-    output.list_item("Reload your shell or run: source ~/.zshrc (or ~/.bashrc)");
-    output.list_item("Edit configuration: cldev config edit");
-    output.list_item("Validate configuration: cldev config check");
-    output.list_item("View all commands: cldev config list");
+    output.info(&output.i18n().get("config-init-next-steps"));
+    output.list_item(&output.i18n().get("config-init-next-reload-shell"));
+    output.list_item(&output.i18n().get("config-init-next-edit"));
+    output.list_item(&output.i18n().get("config-init-next-check"));
+    output.list_item(&output.i18n().get("config-init-next-list"));
 }
 
 #[cfg(test)]
@@ -557,7 +600,6 @@ mod tests {
 
         // At least one should be available in development environment
         // This test just ensures the function runs without panicking
-        assert!(gh || !gh); // Always true, but tests execution
-        assert!(glab || !glab);
+        let _ = (gh, glab); // Use variables to avoid unused warning
     }
 }

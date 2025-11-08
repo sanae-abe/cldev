@@ -7,7 +7,6 @@ use cldev::core::error::Result;
 use cldev::core::git_utils::{GitUtils, RemoteType};
 use git2::Repository;
 use std::fs;
-use std::process::Command;
 use tempfile::TempDir;
 
 /// Helper function to initialize a Git repository

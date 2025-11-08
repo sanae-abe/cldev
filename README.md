@@ -498,7 +498,10 @@ cldev completions zsh --install
 
 ### Configuration File Structure
 
-**Location**: `~/.config/cldev/config.toml`
+**Location**:
+- macOS: `~/Library/Application Support/cldev/config.toml`
+- Linux: `~/.config/cldev/config.toml`
+- Windows: `%APPDATA%\cldev\config.toml`
 
 ```toml
 # cldev configuration file

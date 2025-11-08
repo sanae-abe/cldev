@@ -5,8 +5,11 @@
 //!
 //! # Configuration File Location
 //!
-//! - Primary: `~/.config/cldev/config.toml`
-//! - Fallback: `~/.cldev/config.toml` (for backwards compatibility)
+//! Platform-specific default locations:
+//! - **macOS**: `~/Library/Application Support/cldev/config.toml`
+//! - **Linux**: `~/.config/cldev/config.toml`
+//! - **Windows**: `%APPDATA%\cldev\config.toml`
+//! - **Fallback**: `~/.cldev/config.toml` (if config directory cannot be determined)
 //!
 //! # Security
 //!
@@ -361,8 +364,11 @@ impl Default for Config {
 impl Config {
     /// Get the default configuration file path
     ///
-    /// Primary location: `~/.config/cldev/config.toml`
-    /// Fallback location: `~/.cldev/config.toml`
+    /// Platform-specific locations:
+    /// - **macOS**: `~/Library/Application Support/cldev/config.toml`
+    /// - **Linux**: `~/.config/cldev/config.toml`
+    /// - **Windows**: `%APPDATA%\cldev\config.toml`
+    /// - **Fallback**: `~/.cldev/config.toml` (if config directory cannot be determined)
     pub fn default_path() -> Result<PathBuf> {
         if let Some(config_dir) = dirs::config_dir() {
             Ok(config_dir.join("cldev").join("config.toml"))
@@ -533,8 +539,8 @@ impl Config {
     ///
     /// # Configuration Hierarchy (Priority: Project > Stack > Global)
     ///
-    /// 1. **Global**: `~/.config/cldev/config.toml`
-    /// 2. **Stack**: `~/.config/cldev/stacks/{stack_name}.toml` (if tech_stack is set)
+    /// 1. **Global**: OS-specific config directory (e.g., `~/Library/Application Support/cldev/config.toml` on macOS)
+    /// 2. **Stack**: OS-specific config directory + `stacks/{stack_name}.toml`
     /// 3. **Project**: `./.cldev/config.toml` (if project_root is provided)
     ///
     /// # Arguments
@@ -550,7 +556,7 @@ impl Config {
 
         // 2. Load stack config if tech_stack is specified
         let stack = if let Some(ref stack_name) = global.general.tech_stack {
-            let tech_stack = TechStack::from_str(stack_name)?;
+            let tech_stack = TechStack::parse(stack_name)?;
             Some(StackConfig::load(&tech_stack)?)
         } else {
             None
@@ -579,7 +585,7 @@ impl Config {
         self.general
             .tech_stack
             .as_ref()
-            .and_then(|s| TechStack::from_str(s).ok())
+            .and_then(|s| TechStack::parse(s).ok())
     }
 
     /// Set tech stack in configuration
@@ -607,10 +613,10 @@ impl Config {
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub struct HierarchicalConfig {
-    /// Global configuration (~/.config/cldev/config.toml)
+    /// Global configuration (OS-specific config directory)
     pub global: Arc<Config>,
 
-    /// Stack configuration (~/.config/cldev/stacks/{stack}.toml)
+    /// Stack configuration (OS-specific config directory + stacks/{stack}.toml)
     pub stack: Option<StackConfig>,
 
     /// Project configuration (./.cldev/config.toml)

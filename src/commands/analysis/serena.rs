@@ -691,7 +691,7 @@ fn extract_name_after_keyword(line: &str, keyword: &str) -> Option<String> {
     if let Some(start) = line.find(keyword) {
         let after = &line[start + keyword.len()..];
         let name = after
-            .split(|c: char| c == '(' || c == '<' || c == ' ' || c == '{')
+            .split(['(', '<', ' ', '{'])
             .next()?
             .trim();
 

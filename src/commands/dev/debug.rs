@@ -21,7 +21,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
         s
     } else {
         Input::<String>::new()
-            .with_prompt(&output.t("debug-describe-symptom"))
+            .with_prompt(output.t("debug-describe-symptom"))
             .interact_text()?
     };
 
@@ -40,7 +40,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
     ];
 
     let issue_idx = Select::new()
-        .with_prompt(&output.t("debug-issue-type"))
+        .with_prompt(output.t("debug-issue-type"))
         .items(&issue_types)
         .interact()?;
 
@@ -60,7 +60,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
     ];
 
     let env_idx = Select::new()
-        .with_prompt(&output.t("debug-where-occur"))
+        .with_prompt(output.t("debug-where-occur"))
         .items(&environments)
         .interact()?;
 
@@ -76,7 +76,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
     ];
 
     let onset_idx = Select::new()
-        .with_prompt(&output.t("debug-when-start"))
+        .with_prompt(output.t("debug-when-start"))
         .items(&onset_options)
         .interact()?;
 
@@ -137,7 +137,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
     println!();
 
     let has_logs = Confirm::new()
-        .with_prompt(&output.t("debug-have-logs"))
+        .with_prompt(output.t("debug-have-logs"))
         .default(true)
         .interact()?;
 
@@ -152,7 +152,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
         println!();
 
         let log_findings = Input::<String>::new()
-            .with_prompt(&output.t("debug-log-findings"))
+            .with_prompt(output.t("debug-log-findings"))
             .allow_empty(true)
             .interact_text()?;
 
@@ -167,7 +167,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
 
     // Step 7: Reproduction Steps
     let can_reproduce = Confirm::new()
-        .with_prompt(&output.t("debug-can-reproduce"))
+        .with_prompt(output.t("debug-can-reproduce"))
         .default(false)
         .interact()?;
 
@@ -181,7 +181,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
 
         loop {
             let step = Input::<String>::new()
-                .with_prompt(&output.t_format("debug-step-num", "num", &step_num.to_string()))
+                .with_prompt(output.t_format("debug-step-num", "num", &step_num.to_string()))
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -223,7 +223,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
     ];
 
     let selected_techniques = MultiSelect::new()
-        .with_prompt(&output.t("debug-select-techniques"))
+        .with_prompt(output.t("debug-select-techniques"))
         .items(&techniques)
         .interact()?;
 
@@ -288,7 +288,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
 
     // Step 10: Hypothesis
     let hypothesis = Input::<String>::new()
-        .with_prompt(&output.t("debug-hypothesis-prompt"))
+        .with_prompt(output.t("debug-hypothesis-prompt"))
         .allow_empty(true)
         .interact_text()?;
 
@@ -296,7 +296,7 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
 
     // Step 11: Evidence
     let evidence = Input::<String>::new()
-        .with_prompt(&output.t("debug-evidence-prompt"))
+        .with_prompt(output.t("debug-evidence-prompt"))
         .allow_empty(true)
         .interact_text()?;
 
@@ -304,14 +304,14 @@ pub fn handle_debug(symptom: Option<String>, output: &OutputHandler) -> Result<(
 
     // Step 12: Root Cause (if found)
     let root_cause_found = Confirm::new()
-        .with_prompt(&output.t("debug-root-cause-found"))
+        .with_prompt(output.t("debug-root-cause-found"))
         .default(false)
         .interact()?;
 
     let root_cause = if root_cause_found {
         Some(
             Input::<String>::new()
-                .with_prompt(&output.t("debug-root-cause-prompt"))
+                .with_prompt(output.t("debug-root-cause-prompt"))
                 .interact_text()?,
         )
     } else {

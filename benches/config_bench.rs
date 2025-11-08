@@ -1,6 +1,5 @@
 use cldev::core::Config;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use std::path::PathBuf;
 use tempfile::TempDir;
 
 fn bench_config_new(c: &mut Criterion) {

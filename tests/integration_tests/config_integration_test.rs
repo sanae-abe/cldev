@@ -6,7 +6,7 @@
 use cldev::core::config::{Config, HierarchicalConfig};
 use cldev::core::error::Result;
 use cldev::core::project_config::ProjectConfig;
-use cldev::core::stack_config::{StackConfig, TechStack};
+use cldev::core::stack_config::{TechStack};
 use std::fs;
 use tempfile::TempDir;
 

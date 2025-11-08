@@ -25,7 +25,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
         t
     } else {
         Input::<String>::new()
-            .with_prompt(&output.t("optimize-target-prompt"))
+            .with_prompt(output.t("optimize-target-prompt"))
             .interact_text()?
     };
 
@@ -272,7 +272,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
     loop {
         let step = Input::<String>::new()
-            .with_prompt(&format!("Step {}", step_num))
+            .with_prompt(format!("Step {}", step_num))
             .allow_empty(true)
             .interact_text()?;
 
@@ -311,16 +311,14 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     println!("{}", "✅ VALIDATION CHECKLIST".cyan().bold());
     println!();
 
-    let validation_checks = vec![
-        "Run existing tests (ensure no breakage)",
+    let validation_checks = ["Run existing tests (ensure no breakage)",
         "Measure performance after optimization",
         "Compare before/after metrics",
         "Test with realistic data volumes",
         "Verify functionality remains correct",
         "Check for memory leaks",
         "Test on different devices/browsers (if frontend)",
-        "Load testing / stress testing",
-    ];
+        "Load testing / stress testing"];
 
     println!("Validation requirements:");
     for (i, check) in validation_checks.iter().enumerate() {

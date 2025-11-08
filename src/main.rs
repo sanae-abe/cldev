@@ -22,12 +22,12 @@ fn run() -> Result<()> {
     cli::help::init_help_i18n(cli.lang.to_i18n());
 
     // Initialize output handler with global flags and language
-    let output =
+    let mut output =
         OutputHandler::with_language(cli.verbose, cli.quiet, cli.no_color, cli.lang.to_i18n());
 
     // Route to appropriate command handler
     match &cli.command {
-        Commands::Config(cmd) => handle_config_command(cmd, &output),
+        Commands::Config(cmd) => handle_config_command(cmd, &mut output),
         Commands::Dev(cmd) => handle_dev_command(cmd, &output),
         Commands::Git(cmd) => handle_git_command(cmd, &output),
         Commands::Quality(cmd) => handle_quality_command(cmd, &output),
@@ -43,7 +43,7 @@ fn run() -> Result<()> {
 }
 
 // Config command handler - Phase 1-A implementation
-fn handle_config_command(cmd: &ConfigCommands, output: &OutputHandler) -> Result<()> {
+fn handle_config_command(cmd: &ConfigCommands, output: &mut OutputHandler) -> Result<()> {
     match cmd {
         ConfigCommands::Init { defaults, force } => handle_config_init(*defaults, *force, output),
         ConfigCommands::Check { detailed, fix } => {
@@ -67,7 +67,7 @@ fn handle_config_command(cmd: &ConfigCommands, output: &OutputHandler) -> Result
 }
 
 /// Initialize configuration
-fn handle_config_init(defaults: bool, force: bool, output: &OutputHandler) -> Result<()> {
+fn handle_config_init(defaults: bool, force: bool, output: &mut OutputHandler) -> Result<()> {
     use core::config::Config;
 
     // If --defaults flag is set, skip interactive mode and create default config
@@ -186,8 +186,7 @@ fn handle_config_maintain(backup: bool, cleanup: bool, output: &OutputHandler) -
                     fs::metadata(path)
                         .and_then(|m| m.modified())
                         .ok()
-                        .map(|t| std::time::SystemTime::now().duration_since(t).ok())
-                        .flatten()
+                        .and_then(|t| std::time::SystemTime::now().duration_since(t).ok())
                 });
 
                 let keep_count = 10;
@@ -556,7 +555,7 @@ fn handle_completions_command(
 
     // Print installation instructions if requested
     if install {
-        print_installation_instructions(shell);
+        print_installation_instructions(shell, output);
     }
 
     Ok(())

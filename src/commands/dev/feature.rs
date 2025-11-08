@@ -25,14 +25,14 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
         n
     } else {
         Input::<String>::new()
-            .with_prompt(&output.t("feature-name-prompt"))
+            .with_prompt(output.t("feature-name-prompt"))
             .interact_text()?
     };
 
     println!();
 
     let feature_desc = Input::<String>::new()
-        .with_prompt(&output.t("feature-description-prompt"))
+        .with_prompt(output.t("feature-description-prompt"))
         .interact_text()?;
 
     println!();
@@ -41,13 +41,11 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!("{}", output.t("feature-requirements-header").cyan().bold());
     println!();
 
-    let requirements_items = vec![
-        "What problem does this solve?",
+    let requirements_items = ["What problem does this solve?",
         "Who are the users/stakeholders?",
         "What are the acceptance criteria?",
         "Are there any constraints or dependencies?",
-        "What is the expected timeline?",
-    ];
+        "What is the expected timeline?"];
 
     println!("Key questions to answer:");
     for (i, item) in requirements_items.iter().enumerate() {
@@ -78,7 +76,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
 
     loop {
         let criterion = Input::<String>::new()
-            .with_prompt(&format!("Criterion {}", criterion_num))
+            .with_prompt(format!("Criterion {}", criterion_num))
             .allow_empty(true)
             .interact_text()?;
 

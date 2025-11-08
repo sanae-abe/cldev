@@ -71,7 +71,7 @@ pub fn create_merge_request(
         output.info(&output.t("git-mr-pushing"));
 
         let status = Command::new("git")
-            .args(&["push", "-u", "origin", &current_branch])
+            .args(["push", "-u", "origin", &current_branch])
             .status()
             .map_err(|e| {
                 crate::core::error::CldevError::command(format!("Failed to push: {}", e))
@@ -119,7 +119,7 @@ fn generate_mr_title(branch: &str, output: &OutputHandler) -> Result<String> {
     // Extract meaningful title from branch name
     let suggested_title = branch
         .split('/')
-        .last()
+        .next_back()
         .unwrap_or(branch)
         .split('-')
         .map(|word| {
@@ -172,14 +172,14 @@ fn generate_mr_body(
         body.push_str("<!-- Describe your changes here -->\n");
     }
 
-    body.push_str("\n");
+    body.push('\n');
 
     // Add test plan section
     body.push_str("## Test Plan\n\n");
     body.push_str("- [ ] Unit tests pass\n");
     body.push_str("- [ ] Integration tests pass\n");
     body.push_str("- [ ] Manual testing completed\n");
-    body.push_str("\n");
+    body.push('\n');
 
     // Add checklist section
     body.push_str("## Checklist\n\n");
@@ -187,7 +187,7 @@ fn generate_mr_body(
     body.push_str("- [ ] Self-review completed\n");
     body.push_str("- [ ] Documentation updated (if needed)\n");
     body.push_str("- [ ] No breaking changes (or documented)\n");
-    body.push_str("\n");
+    body.push('\n');
 
     // Add attribution
     body.push_str("---\n\n");
@@ -201,7 +201,7 @@ fn generate_mr_body(
 /// Get commit log between target and current branch
 fn get_commit_log(_git_utils: &GitUtils, branch: &str, target: &str) -> Result<String> {
     let output = Command::new("git")
-        .args(&["log", "--oneline", &format!("{}..{}", target, branch)])
+        .args(["log", "--oneline", &format!("{}..{}", target, branch)])
         .output()
         .map_err(|e| {
             crate::core::error::CldevError::command(format!("Failed to get commit log: {}", e))
@@ -215,7 +215,7 @@ fn create_github_pr(title: &str, body: &str, target: &str, output: &OutputHandle
     output.info(&output.t("git-mr-creating-github"));
 
     let status = Command::new("gh")
-        .args(&[
+        .args([
             "pr", "create", "--title", title, "--body", body, "--base", target,
         ])
         .status()
@@ -228,7 +228,7 @@ fn create_github_pr(title: &str, body: &str, target: &str, output: &OutputHandle
 
         // Get PR URL
         let pr_output = Command::new("gh")
-            .args(&["pr", "view", "--json", "url", "--jq", ".url"])
+            .args(["pr", "view", "--json", "url", "--jq", ".url"])
             .output()
             .ok();
 
@@ -254,7 +254,7 @@ fn create_gitlab_mr(title: &str, body: &str, target: &str, output: &OutputHandle
     output.info(&output.t("git-mr-creating-gitlab"));
 
     let status = Command::new("glab")
-        .args(&[
+        .args([
             "mr",
             "create",
             "--title",

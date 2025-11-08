@@ -83,6 +83,11 @@ impl OutputHandler {
         self.i18n.format(key, var_name, var_value)
     }
 
+    /// Set the language for i18n
+    pub fn set_language(&mut self, language: crate::core::i18n::Language) {
+        self.i18n.set_language(language);
+    }
+
     /// Print a success message
     pub fn success(&self, msg: &str) {
         if self.level >= OutputLevel::Normal {
@@ -150,6 +155,34 @@ impl OutputHandler {
     pub fn raw(&self, msg: &str) {
         if self.level >= OutputLevel::Normal {
             self.println(msg);
+        }
+    }
+
+    /// Print to stdout (respects quiet mode)
+    pub fn print(&self, msg: &str) {
+        if self.level >= OutputLevel::Normal {
+            print!("{}", msg);
+        }
+    }
+
+    /// Print to stdout with newline (respects quiet mode)
+    pub fn println_raw(&self, msg: &str) {
+        if self.level >= OutputLevel::Normal {
+            println!("{}", msg);
+        }
+    }
+
+    /// Print to stderr with newline (respects quiet mode for non-errors)
+    pub fn eprintln_raw(&self, msg: &str) {
+        if self.level >= OutputLevel::Normal {
+            eprintln!("{}", msg);
+        }
+    }
+
+    /// Print empty line (respects quiet mode)
+    pub fn print_newline(&self) {
+        if self.level >= OutputLevel::Normal {
+            println!();
         }
     }
 

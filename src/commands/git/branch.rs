@@ -102,7 +102,7 @@ pub fn create_branch(
     output.info(&output.t_format("git-branch-creating-name", "name", &branch_name));
 
     let status = Command::new("git")
-        .args(&["checkout", "-b", &branch_name])
+        .args(["checkout", "-b", &branch_name])
         .status()
         .map_err(|e| {
             crate::core::error::CldevError::command(format!("Failed to create branch: {}", e))

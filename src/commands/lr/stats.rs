@@ -1,6 +1,6 @@
 use crate::cli::args::TimePeriod;
 use crate::core::{LearningSession, Result};
-use chrono::{DateTime, Duration, Local};
+use chrono::{DateTime, Duration, Local, TimeZone};
 use colored::Colorize;
 use std::collections::HashMap;
 
@@ -71,12 +71,30 @@ fn calculate_cutoff_date(period: TimePeriod) -> DateTime<Local> {
 
 /// Check if session is within period
 fn is_within_period(timestamp: &str, cutoff: DateTime<Local>) -> bool {
-    if let Ok(session_time) = DateTime::parse_from_str(timestamp, "%Y-%m-%d %H:%M:%S") {
+    // Try parsing with timezone first (new format)
+    if let Ok(session_time) = DateTime::parse_from_str(timestamp, "%Y-%m-%d %H:%M:%S %z") {
         let session_local: DateTime<Local> = session_time.into();
-        session_local > cutoff
-    } else {
-        false
+        return session_local > cutoff;
     }
+
+    // Fallback: parse without timezone (legacy format) - assume local timezone
+    if let Ok(naive_time) = chrono::NaiveDateTime::parse_from_str(timestamp, "%Y-%m-%d %H:%M:%S") {
+        let session_local = Local.from_local_datetime(&naive_time).single();
+        if let Some(session_local) = session_local {
+            return session_local > cutoff;
+        }
+    }
+
+    // Last resort: try parsing date only
+    if let Ok(naive_date) = chrono::NaiveDate::parse_from_str(timestamp, "%Y-%m-%d") {
+        let naive_time = naive_date.and_hms_opt(0, 0, 0).unwrap();
+        let session_local = Local.from_local_datetime(&naive_time).single();
+        if let Some(session_local) = session_local {
+            return session_local > cutoff;
+        }
+    }
+
+    false
 }
 
 /// Statistics structure

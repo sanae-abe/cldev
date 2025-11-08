@@ -21,7 +21,7 @@ pub fn handle_urgent(problem: Option<String>, output: &OutputHandler) -> Result<
         p
     } else {
         Input::<String>::new()
-            .with_prompt(&output.t("urgent-describe-incident"))
+            .with_prompt(output.t("urgent-describe-incident"))
             .interact_text()?
     };
 
@@ -42,7 +42,7 @@ pub fn handle_urgent(problem: Option<String>, output: &OutputHandler) -> Result<
     ];
 
     let selected_impacts = MultiSelect::new()
-        .with_prompt(&output.t("urgent-select-affected-areas"))
+        .with_prompt(output.t("urgent-select-affected-areas"))
         .items(&impact_areas)
         .interact()?;
 
@@ -62,7 +62,7 @@ pub fn handle_urgent(problem: Option<String>, output: &OutputHandler) -> Result<
     ];
 
     let severity_idx = Select::new()
-        .with_prompt(&output.t("urgent-severity-level"))
+        .with_prompt(output.t("urgent-severity-level"))
         .items(&severity_options)
         .default(0)
         .interact()?;
@@ -137,7 +137,7 @@ pub fn handle_urgent(problem: Option<String>, output: &OutputHandler) -> Result<
     ];
 
     let mitigation_idx = Select::new()
-        .with_prompt(&output.t("urgent-choose-mitigation"))
+        .with_prompt(output.t("urgent-choose-mitigation"))
         .items(&mitigation_options)
         .interact_opt()?;
 
@@ -168,12 +168,12 @@ pub fn handle_urgent(problem: Option<String>, output: &OutputHandler) -> Result<
     println!();
 
     let root_cause = Input::<String>::new()
-        .with_prompt(&output.t("urgent-root-cause-prompt"))
+        .with_prompt(output.t("urgent-root-cause-prompt"))
         .default("investigating".to_string())
         .interact_text()?;
 
     let immediate_action = Input::<String>::new()
-        .with_prompt(&output.t("urgent-immediate-action-prompt"))
+        .with_prompt(output.t("urgent-immediate-action-prompt"))
         .allow_empty(true)
         .interact_text()?;
 
@@ -193,7 +193,7 @@ pub fn handle_urgent(problem: Option<String>, output: &OutputHandler) -> Result<
 
     let resolved = if !immediate_action.is_empty() {
         Confirm::new()
-            .with_prompt(&output.t("urgent-is-resolved"))
+            .with_prompt(output.t("urgent-is-resolved"))
             .default(false)
             .interact()?
     } else {

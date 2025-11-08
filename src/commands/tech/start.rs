@@ -122,8 +122,8 @@ fn check_node_installation() -> Result<()> {
 
 /// Check if dependencies are installed
 fn check_dependencies() -> Result<()> {
-    if std::path::Path::new("package.json").exists() {
-        if !std::path::Path::new("node_modules").exists() {
+    if std::path::Path::new("package.json").exists()
+        && !std::path::Path::new("node_modules").exists() {
             println!("  {} Installing dependencies...", "→".cyan());
             let status = Command::new("npm").arg("install").status()?;
 
@@ -131,7 +131,6 @@ fn check_dependencies() -> Result<()> {
                 return Err(CldevError::command("Failed to install dependencies"));
             }
         }
-    }
 
     Ok(())
 }

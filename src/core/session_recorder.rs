@@ -231,8 +231,88 @@ impl LearningSession {
         Ok(filepath)
     }
 
+    /// Parse legacy markdown format (without YAML frontmatter)
+    fn from_legacy_markdown(content: &str) -> Result<Self> {
+        // Extract basic metadata from the content
+        let lines: Vec<&str> = content.lines().collect();
+
+        // Try to extract title from first heading
+        let description = lines
+            .iter()
+            .find(|line| line.starts_with("# "))
+            .map(|line| line.trim_start_matches("# ").trim().to_string())
+            .unwrap_or_else(|| "Learning session".to_string());
+
+        // Try to extract date from **日付**: pattern or filename
+        let date_str = lines
+            .iter()
+            .find(|line| line.contains("**日付**:") || line.contains("**Date**:"))
+            .and_then(|line| {
+                line.split(':')
+                    .nth(1)
+                    .map(|s| s.trim().to_string())
+            })
+            .unwrap_or_else(|| chrono::Local::now().format("%Y-%m-%d").to_string());
+
+        // Add default time to make it compatible with stats.rs timestamp parsing
+        let timestamp = if date_str.contains(" ") {
+            date_str // Already has time
+        } else {
+            format!("{} 00:00:00", date_str) // Add default time
+        };
+
+        // Generate a unique ID based on description
+        let id = format!(
+            "legacy_{}_{}",
+            timestamp.replace("-", ""),
+            description
+                .chars()
+                .take(30)
+                .filter(|c| c.is_alphanumeric())
+                .collect::<String>()
+                .to_lowercase()
+        );
+
+        // Try to extract session type from filename or content
+        let session_type = if description.contains("セキュリティ") || description.contains("security") {
+            "security"
+        } else if description.contains("監査") || description.contains("audit") {
+            "audit"
+        } else if description.contains("実装") || description.contains("implementation") {
+            "feature"
+        } else if description.contains("修正") || description.contains("fix") {
+            "fix"
+        } else {
+            "learning"
+        }.to_string();
+
+        Ok(Self {
+            id,
+            session_type,
+            timestamp,
+            description,
+            root_cause: None,
+            solution: None,
+            duration_minutes: None,
+            tags: Vec::new(),
+            learnings: Vec::new(),
+            files_affected: Vec::new(),
+            steps_taken: Vec::new(),
+            resolved: true, // Assume legacy sessions are completed
+            metadata: HashMap::new(),
+        })
+    }
+
     /// Parse Markdown content and extract YAML frontmatter
     fn from_markdown(content: &str) -> Result<Self> {
+        // Check if content starts with YAML frontmatter (---\n at the beginning)
+        let has_frontmatter = content.trim_start().starts_with("---\n") || content.trim_start().starts_with("---\r\n");
+
+        if !has_frontmatter {
+            // Legacy/custom format without frontmatter - extract from markdown content
+            return Self::from_legacy_markdown(content);
+        }
+
         // Split frontmatter and body
         let parts: Vec<&str> = content.splitn(3, "---").collect();
         if parts.len() < 3 {
@@ -633,7 +713,7 @@ mod tests {
         // Verify key fields match
         assert_eq!(parsed.session_type, "urgent");
         assert_eq!(parsed.description, "JWT authentication failure");
-        assert_eq!(parsed.resolved, true);
+        assert!(parsed.resolved);
         assert_eq!(parsed.duration_minutes, Some(45));
         assert_eq!(parsed.tags.len(), 2);
         assert!(parsed.tags.contains(&"production".to_string()));

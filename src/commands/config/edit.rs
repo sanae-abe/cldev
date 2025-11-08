@@ -122,7 +122,7 @@ fn determine_editor(
 
     // No editor found
     Err(CldevError::editor(
-        &output.i18n().get("config-edit-no-editor"),
+        output.i18n().get("config-edit-no-editor"),
     ))
 }
 
@@ -205,16 +205,16 @@ mod tests {
     #[test]
     fn test_editor_availability() {
         // Test with a command that should exist on most systems
-        let result = is_editor_available("ls");
+        let _result = is_editor_available("ls");
         // Note: This might fail on some systems, but demonstrates the function
-        assert!(result || !result); // Just ensure it doesn't panic
+        // Just ensure it doesn't panic - no assertion needed
     }
 
     #[test]
     fn test_suggest_editors() {
-        let suggestions = suggest_editors();
+        let _suggestions = suggest_editors();
         // Should return a list (might be empty on some systems)
-        assert!(suggestions.len() >= 0);
+        // Just ensure it doesn't panic - no assertion needed
     }
 
     #[test]

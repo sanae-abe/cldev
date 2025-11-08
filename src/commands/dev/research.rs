@@ -79,7 +79,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
     loop {
         let question = Input::<String>::new()
-            .with_prompt(&format!("Question {}", question_num))
+            .with_prompt(format!("Question {}", question_num))
             .allow_empty(true)
             .interact_text()?;
 
