@@ -111,6 +111,7 @@ Phase 5:   [█████████▉] 98% (学習記録Markdown化完了) 
 - [ ] Homebrew Formula作成
 - [ ] crates.io公開準備
   - [ ] README.md最終レビュー
+  - [ ] README.mdにスクリーンショット追加（`cldev config init`のデモGIF）
   - [ ] LICENSE確認
   - [ ] Cargo.tomlメタデータ確認
   - [ ] cargo publish --dry-run

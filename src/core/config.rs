@@ -25,7 +25,7 @@ use crate::core::stack_config::{StackConfig, TechStack};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, OnceLock};
 
 /// Semantic version for configuration file format
 ///
@@ -235,16 +235,26 @@ fn default_language() -> String {
     "ja".to_string()
 }
 
+// Cache for default claude directory
+static DEFAULT_CLAUDE_DIR: OnceLock<PathBuf> = OnceLock::new();
+
 fn default_claude_dir() -> PathBuf {
-    dirs::home_dir()
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join(".claude")
+    DEFAULT_CLAUDE_DIR.get_or_init(|| {
+        dirs::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join(".claude")
+    }).clone()
 }
 
+// Cache for default projects directory
+static DEFAULT_PROJECTS_DIR: OnceLock<PathBuf> = OnceLock::new();
+
 fn default_projects_dir() -> PathBuf {
-    dirs::home_dir()
-        .unwrap_or_else(|| PathBuf::from("."))
-        .join("projects")
+    DEFAULT_PROJECTS_DIR.get_or_init(|| {
+        dirs::home_dir()
+            .unwrap_or_else(|| PathBuf::from("."))
+            .join("projects")
+    }).clone()
 }
 
 fn default_true() -> bool {
@@ -259,8 +269,13 @@ fn default_branch_prefix() -> String {
     "feature".to_string()
 }
 
+// Cache for default sessions directory
+static DEFAULT_SESSIONS_DIR: OnceLock<PathBuf> = OnceLock::new();
+
 fn default_sessions_dir() -> PathBuf {
-    default_claude_dir().join("learning-sessions")
+    DEFAULT_SESSIONS_DIR.get_or_init(|| {
+        default_claude_dir().join("learning-sessions")
+    }).clone()
 }
 
 fn default_tags() -> Vec<String> {

@@ -29,7 +29,7 @@ path = "src/lib.rs"
 
 [dependencies]
 # CLI framework with derive macros and rich features
-clap = { version = "4.5", features = ["derive", "cargo", "wrap_help", "string"] }
+clap = { version = "4.5", features = ["derive", "cargo"], default-features = false }
 
 # Shell completion generation
 clap_complete = "4.5"
@@ -71,7 +71,7 @@ git2 = "0.20"
 which = "8.0"
 
 # Date and time handling
-chrono = "0.4"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
 
 [dev-dependencies]
 assert_cmd = "2.0"
@@ -81,10 +81,10 @@ criterion = "0.7"
 serial_test = "3.0"
 
 [profile.release]
-opt-level = 3
-lto = true
+opt-level = "z"  # Optimize for size
+lto = "fat"      # Full LTO for maximum size reduction
 codegen-units = 1
-strip = true
+strip = "symbols"  # Strip symbols and debug info
 panic = "abort"
 
 [profile.dev]
