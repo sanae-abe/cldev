@@ -8,6 +8,7 @@ use std::path::PathBuf;
 #[derive(Debug, Clone)]
 pub struct ArchiveConfig {
     pub retention_days: i64,
+    #[allow(dead_code)]
     pub auto_archive: bool,
 }
 
