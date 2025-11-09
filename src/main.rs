@@ -25,8 +25,12 @@ fn run() -> Result<()> {
     let mut output =
         OutputHandler::with_language(cli.verbose, cli.quiet, cli.no_color, cli.lang.to_i18n());
 
+    // Track command execution in active session (if any)
+    let command_name = format!("{:?}", cli.command);
+    let start_time = std::time::Instant::now();
+
     // Route to appropriate command handler
-    match &cli.command {
+    let result = match &cli.command {
         Commands::Config(cmd) => handle_config_command(cmd, &mut output),
         Commands::Dev(cmd) => handle_dev_command(cmd, &output),
         Commands::Git(cmd) => handle_git_command(cmd, &output),
@@ -40,7 +44,13 @@ fn run() -> Result<()> {
         Commands::Completions { shell, install } => {
             handle_completions_command(*shell, *install, &output)
         }
-    }
+    };
+
+    // Update session context if active
+    let execution_time = start_time.elapsed();
+    update_session_context(&command_name, &result, execution_time);
+
+    result
 }
 
 // Config command handler - Phase 1-A implementation
@@ -345,4 +355,64 @@ fn handle_completions_command(
     }
 
     Ok(())
+}
+
+/// Update session context if an active session exists
+fn update_session_context(
+    command_name: &str,
+    result: &Result<()>,
+    execution_time: std::time::Duration,
+) {
+    use core::{CommandRecord, ErrorCapture, SessionContext};
+    use std::path::PathBuf;
+
+    // Get session path
+    let session_path = dirs::home_dir()
+        .unwrap_or_else(|| PathBuf::from("."))
+        .join(".cldev")
+        .join("current-session.json");
+
+    // Skip if no active session
+    if !session_path.exists() {
+        return;
+    }
+
+    // Load session context
+    let Ok(json) = std::fs::read_to_string(&session_path) else {
+        return;
+    };
+    let Ok(mut ctx) = serde_json::from_str::<SessionContext>(&json) else {
+        return;
+    };
+
+    // Add command record
+    let exit_code = if result.is_ok() { 0 } else { 1 };
+    let working_dir = std::env::current_dir()
+        .unwrap_or_else(|_| PathBuf::from("."))
+        .display()
+        .to_string();
+
+    ctx.add_command(CommandRecord {
+        command: command_name.to_string(),
+        exit_code,
+        execution_time_ms: execution_time.as_millis() as u64,
+        timestamp: chrono::Local::now(),
+        working_dir,
+    });
+
+    // Add error if command failed
+    if let Err(e) = result {
+        ctx.add_error(ErrorCapture {
+            timestamp: chrono::Local::now(),
+            error_type: "CommandError".to_string(),
+            message: format!("{}", e),
+            context: Some(command_name.to_string()),
+            resolved: false,
+        });
+    }
+
+    // Save updated context
+    if let Ok(json) = serde_json::to_string_pretty(&ctx) {
+        let _ = std::fs::write(&session_path, json);
+    }
 }

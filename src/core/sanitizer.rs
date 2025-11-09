@@ -50,6 +50,7 @@ lazy_static! {
 #[derive(Debug, Clone)]
 pub struct SanitizationResult {
     pub sanitized: String,
+    #[allow(dead_code)]
     pub patterns_found: Vec<String>,
 }
 

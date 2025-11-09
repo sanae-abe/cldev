@@ -1,13 +1,13 @@
 # cldev - Claude Development CLI
 
 [![Build Status](https://github.com/sanae-abe/cldev/workflows/CI/badge.svg)](https://github.com/sanae-abe/cldev/actions)
-[![Crates.io](https://img.shields.io/crates/v/cldev.svg)](https://crates.io/crates/cldev)
-[![Documentation](https://docs.rs/cldev/badge.svg)](https://docs.rs/cldev)
+<!-- [![Crates.io](https://img.shields.io/crates/v/cldev.svg)](https://crates.io/crates/cldev) -->
+<!-- [![Documentation](https://docs.rs/cldev/badge.svg)](https://docs.rs/cldev) -->
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
-[![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev)
+<!-- [![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev) -->
 
-**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 36 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
+**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 35 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
 
 English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
 
@@ -35,9 +35,9 @@ English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中�
 
 **cldev** replaces fragmented shell scripts with a cohesive development toolkit that:
 
-- **Unifies** 36 commands across 9 categories (config, dev, git, quality, tech, ops, analysis, learning, todo)
-- **Accelerates** workflows with faster startup (~21ms, 1.5x faster than gh CLI's 32ms)
-- **Simplifies** installation (`cargo install cldev` or `brew install cldev`)
+- **Unifies** 35 commands across 9 categories (config, dev, git, quality, tech, ops, analysis, learning, todo)
+- **Accelerates** workflows with faster startup (~21ms hyperfine benchmark, 1.5x faster than gh CLI's 32ms)
+- **Simplifies** installation (`cargo install cldev`)
 - **Internationalizes** all outputs (English/Japanese/Chinese with extensible i18n)
 - **Secures** operations (path traversal prevention, command injection protection)
 - **Autodetects** project types (Node.js, Rust, Go, Python, etc.)
@@ -61,7 +61,7 @@ cldev lr find "encryption"
 ```
 
 **Improvements:**
-- 12% reduction in command count (41 → 36)
+- 15% reduction in command count (41 → 35)
 - 77% shorter command syntax
 - 80% faster installation
 - 1.5x faster execution (vs gh CLI)
@@ -73,8 +73,8 @@ cldev lr find "encryption"
 ## Key Features
 
 ### 🚀 Performance
-- **Fast startup**: ~21ms (1.5x faster than gh CLI's 32ms)
-- **Compact binary**: 1.5MB (97% smaller than gh CLI's 51MB)
+- **Fast startup**: ~21ms (hyperfine benchmark, cold start ~346ms)
+- **Compact binary**: 3.3MB (93% smaller than gh CLI's 51MB)
 - **Optimized release builds**: LTO, strip, codegen-units=1
 - **Efficient resource usage**: Minimal memory footprint
 
@@ -163,15 +163,16 @@ cd cldev
 cargo install --path .
 ```
 
-### Option 2: Homebrew (macOS/Linux)
+<!-- ### Option 2: Homebrew (macOS/Linux)
 
 ```bash
 # Add tap (coming soon)
 brew tap sanae-abe/cldev
 brew install cldev
 ```
+-->
 
-### Option 3: Pre-built Binaries
+<!-- ### Option 3: Pre-built Binaries
 
 Download the latest release for your platform:
 
@@ -186,6 +187,7 @@ Download the latest release for your platform:
 tar xzf cldev-*-x86_64-unknown-linux-gnu.tar.gz
 sudo mv cldev /usr/local/bin/
 ```
+-->
 
 ### Verify Installation
 
@@ -194,7 +196,7 @@ cldev --version
 # Output: cldev 1.0.0
 ```
 
-**📋 Detailed Verification**: Use the [Verification Checklist](docs/guides/VERIFICATION_CHECKLIST.md) to verify all features are working correctly.
+**📋 Detailed Verification**: Use the [Runtime Test Plan](docs/development/RUNTIME_TEST_PLAN.md) to verify all features are working correctly.
 
 ---
 
@@ -467,15 +469,44 @@ cldev lr problems --priority high --recent 20
 
 ### Todo Management
 
+**Personal TODO management** with Markdown format (`.cldev/TODO.md`)
+
 ```bash
-# Add todo item
+# Add todo item (interactive: priority + tags)
 cldev todo manage add "Implement rate limiting"
 
-# List all todos
+# List all todos (grouped by priority)
 cldev todo manage list
 
-# Complete todo
-cldev todo manage complete 3
+# Complete todo (interactive selection)
+cldev todo manage complete
+
+# Sync with git commits (auto-complete matching todos)
+cldev todo manage sync
+
+# Interactive mode (menu-driven)
+cldev todo manage interactive
+```
+
+**Features:**
+- ✅ Markdown format (`.cldev/TODO.md`) - editable in any editor
+- ✅ Priority levels (🔥 Critical, ⚠️ High, 📌 Medium, 📝 Low)
+- ✅ Tags support (`#rust #performance`)
+- ✅ Git commit integration (auto-complete todos)
+- ✅ Project-local or global storage
+
+**Example TODO.md:**
+```markdown
+# Personal TODOs
+
+## ⚠️ High
+- [ ] Learning Record性能改善 #rust #performance (created: 2025-01-09)
+
+## 📌 Medium
+- [ ] TF-IDF検索精度向上 #search (created: 2025-01-09)
+
+## ✅ Completed
+- [x] READMEのコマンド数修正 (created: 2025-01-09, completed: 2025-01-09)
 ```
 
 ### Shell Completions
@@ -615,7 +646,7 @@ cldev automatically validates and migrates configurations when needed.
 
 ### Command Categories
 
-cldev organizes 36 commands into 9 logical categories:
+cldev organizes 35 commands into 9 logical categories:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -630,6 +661,7 @@ cldev organizes 36 commands into 9 logical categories:
 │ analysis (4)   │ Code analysis & review             │
 │ lr (7)         │ Learning records                   │
 │ todo (1)       │ Task management                    │
+│ session (3)    │ Session tracking (Phase 7)         │
 │ completions    │ Shell completions                  │
 └─────────────────────────────────────────────────────┘
 ```
@@ -705,6 +737,13 @@ cldev lr similar           # Find similar sessions
 #### Todo Commands (1)
 ```bash
 cldev todo manage          # Manage todo items
+```
+
+#### Session Commands (3) ⭐ Phase 7
+```bash
+cldev session start        # Start tracking session
+cldev session end          # End and save session
+cldev session status       # View session status
 ```
 
 #### Shell Completions
@@ -849,7 +888,7 @@ cldev/
 │   │   ├── error.rs        # Error types
 │   │   └── security.rs     # Security utilities
 │   └── i18n/               # i18n resources
-│       └── messages.json   # Translation catalog (584 keys, 4 languages)
+│       └── messages.json   # Translation catalog (621 keys, 4 languages)
 ├── tests/                  # Integration tests
 │   └── integration_test.rs # Integration tests
 ├── examples/               # Usage examples

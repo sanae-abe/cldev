@@ -5,7 +5,7 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)](Cargo.toml)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 
-**cldev**は、Claude Codeでの開発ワークフローを管理する統合CLIツールです。33の重要な開発コマンドを、型安全で超高速なRustバイナリに統合し、完全な多言語対応（英語・日本語・中国語）を提供します。
+**cldev**は、Claude Codeでの開発ワークフローを管理する統合CLIツールです。36の重要な開発コマンドを、型安全で超高速なRustバイナリに統合し、完全な多言語対応（英語・日本語・中国語）を提供します。
 
 [English](README.md) | 日本語 | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
 
@@ -33,7 +33,7 @@
 
 **cldev**は、断片化したシェルスクリプトを統合された開発ツールキットに置き換えます：
 
-- **統合**: 9カテゴリ33コマンドを単一ツールに（config、dev、git、quality、tech、ops、analysis、learning、todo）
+- **統合**: 9カテゴリ36コマンドを単一ツールに（config、dev、git、quality、tech、ops、analysis、learning、todo）
 - **高速化**: 起動時間1.5倍高速化（~21ms vs gh CLIの32ms）
 - **簡単**: インストール簡単（`cargo install cldev` または `brew install cldev`）
 - **多言語**: 全出力を多言語化（英語・日本語・簡体字中国語・繁体字中国語、拡張可能なi18nシステム）
@@ -59,7 +59,7 @@ cldev lr find "encryption"
 ```
 
 **改善点:**
-- コマンド数20%削減（41 → 33）
+- コマンド数12%削減（41 → 36）
 - コマンド構文77%短縮
 - インストール時間80%高速化
 - 実行速度1.5倍向上（gh CLIと比較）
@@ -577,7 +577,7 @@ cldevは必要に応じて設定を自動検証・移行します。
 
 ### コマンドカテゴリ
 
-cldevは32のコマンドを9つの論理カテゴリに整理：
+cldevは36のコマンドを9つの論理カテゴリに整理：
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -590,8 +590,9 @@ cldevは32のコマンドを9つの論理カテゴリに整理：
 │ tech (1)       │ 技術スタック操作                   │
 │ ops (2)        │ ビルド・デプロイ                   │
 │ analysis (4)   │ コード分析・レビュー               │
-│ lr (4)         │ 学習記録                           │
+│ lr (7)         │ 学習記録                           │
 │ todo (1)       │ タスク管理                         │
+│ completions    │ シェル補完                         │
 └─────────────────────────────────────────────────────┘
 ```
 

@@ -107,26 +107,31 @@ impl SessionContext {
     }
 
     /// Add a command record
+    #[allow(dead_code)]
     pub fn add_command(&mut self, record: CommandRecord) {
         self.command_history.push(record);
     }
 
     /// Add a todo snapshot
+    #[allow(dead_code)]
     pub fn add_todo(&mut self, snapshot: TodoSnapshot) {
         self.todo_history.push(snapshot);
     }
 
     /// Add an error capture
+    #[allow(dead_code)]
     pub fn add_error(&mut self, error: ErrorCapture) {
         self.errors_encountered.push(error);
     }
 
     /// Add a file modification
+    #[allow(dead_code)]
     pub fn add_file_modification(&mut self, modification: FileModification) {
         self.files_modified.push(modification);
     }
 
     /// Add tool usage
+    #[allow(dead_code)]
     pub fn add_tool_usage(&mut self, usage: ToolUsage) {
         self.tool_usage.push(usage);
     }
