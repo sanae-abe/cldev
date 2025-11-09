@@ -117,6 +117,14 @@ pub fn config_maintain_cleanup_help() -> &'static str {
     help("opt-config-maintain-cleanup")
 }
 
+pub fn config_maintain_archive_help() -> &'static str {
+    help("opt-config-maintain-archive")
+}
+
+pub fn config_maintain_retention_days_help() -> &'static str {
+    help("opt-config-maintain-retention-days")
+}
+
 pub fn config_update_docs_about() -> &'static str {
     help("cmd-config-update-docs-desc")
 }

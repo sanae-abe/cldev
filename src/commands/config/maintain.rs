@@ -1,9 +1,32 @@
 use crate::cli::output::OutputHandler;
-use crate::core::{config::Config, error::CldevError, Result};
+use crate::core::{config::Config, error::CldevError, learning_record_v3::LearningRecordV3, Result};
+use chrono::{DateTime, Duration, Local};
 use std::fs;
 use std::path::PathBuf;
 
-pub fn handle_config_maintain(backup: bool, cleanup: bool, output: &OutputHandler) -> Result<()> {
+/// Archive configuration
+#[derive(Debug, Clone)]
+pub struct ArchiveConfig {
+    pub retention_days: i64,
+    pub auto_archive: bool,
+}
+
+impl Default for ArchiveConfig {
+    fn default() -> Self {
+        Self {
+            retention_days: 365, // 1 year retention by default
+            auto_archive: false,
+        }
+    }
+}
+
+pub fn handle_config_maintain(
+    backup: bool,
+    cleanup: bool,
+    archive: bool,
+    retention_days: Option<i64>,
+    output: &OutputHandler,
+) -> Result<()> {
     let config_path = Config::default_path()?;
 
     // Validate configuration
@@ -126,9 +149,142 @@ pub fn handle_config_maintain(backup: bool, cleanup: bool, output: &OutputHandle
         }
     }
 
-    if !backup && !cleanup {
-        output.info("\n💡 Tip: Use --backup to create a backup or --cleanup to remove old backups");
+    // Perform learning records archive if requested
+    if archive {
+        output.info("\n📚 Archiving learning records...");
+        let archive_config = ArchiveConfig {
+            retention_days: retention_days.unwrap_or(365),
+            auto_archive: true,
+        };
+
+        match archive_learning_records(&archive_config, output) {
+            Ok(count) => {
+                if count > 0 {
+                    output.success(&format!("✅ Archived {} learning records", count));
+                } else {
+                    output.info("No learning records to archive");
+                }
+            }
+            Err(e) => {
+                output.error(&format!("❌ Archive failed: {}", e));
+                return Err(e);
+            }
+        }
+    }
+
+    if !backup && !cleanup && !archive {
+        output.info("\n💡 Tip: Use --backup to create a backup, --cleanup to remove old backups, or --archive to archive old learning records");
     }
 
     Ok(())
+}
+
+/// Detect expired learning records based on retention policy
+fn detect_expired_records(retention_days: i64) -> Result<Vec<(String, DateTime<Local>)>> {
+    let home = dirs::home_dir()
+        .ok_or_else(|| CldevError::config("Could not determine home directory"))?;
+
+    let lr_dir = home.join(".cldev").join("learning-records");
+    if !lr_dir.exists() {
+        return Ok(Vec::new());
+    }
+
+    let cutoff_date = Local::now() - Duration::days(retention_days);
+    let mut expired = Vec::new();
+
+    for entry in fs::read_dir(&lr_dir)? {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.extension().and_then(|s| s.to_str()) == Some("md") {
+            if let Some(file_name) = path.file_stem().and_then(|s| s.to_str()) {
+                // Try to load the record to get its creation date
+                if let Ok(record) = LearningRecordV3::load(file_name) {
+                    if record.created < cutoff_date {
+                        expired.push((file_name.to_string(), record.created));
+                    }
+                }
+            }
+        }
+    }
+
+    // Sort by date (oldest first)
+    expired.sort_by(|a, b| a.1.cmp(&b.1));
+
+    Ok(expired)
+}
+
+/// Archive learning records
+fn archive_learning_records(config: &ArchiveConfig, output: &OutputHandler) -> Result<usize> {
+    let home = dirs::home_dir()
+        .ok_or_else(|| CldevError::config("Could not determine home directory"))?;
+
+    let lr_dir = home.join(".cldev").join("learning-records");
+    let archive_dir = home.join(".cldev").join("learning-records-archive");
+
+    // Create archive directory if it doesn't exist
+    if !archive_dir.exists() {
+        fs::create_dir_all(&archive_dir)?;
+    }
+
+    // Detect expired records
+    let expired_records = detect_expired_records(config.retention_days)?;
+
+    if expired_records.is_empty() {
+        return Ok(0);
+    }
+
+    output.info(&format!(
+        "Found {} learning records older than {} days",
+        expired_records.len(),
+        config.retention_days
+    ));
+
+    // Create year-based subdirectory
+    let current_year = Local::now().format("%Y").to_string();
+    let year_dir = archive_dir.join(&current_year);
+    if !year_dir.exists() {
+        fs::create_dir_all(&year_dir)?;
+    }
+
+    // Create archive file
+    let timestamp = Local::now().format("%Y%m%d_%H%M%S");
+    let archive_path = year_dir.join(format!("archive_{}.tar.gz", timestamp));
+
+    // Use tar and gzip to create compressed archive
+    let tar_gz = fs::File::create(&archive_path)?;
+    let enc = flate2::write::GzEncoder::new(tar_gz, flate2::Compression::default());
+    let mut tar = tar::Builder::new(enc);
+
+    let mut archived_count = 0;
+
+    for (record_id, created_date) in &expired_records {
+        let source_path = lr_dir.join(format!("{}.md", record_id));
+
+        if source_path.exists() {
+            // Add to tar archive
+            let mut file = fs::File::open(&source_path)?;
+            tar.append_file(format!("{}.md", record_id), &mut file)?;
+
+            // Remove original file
+            fs::remove_file(&source_path)?;
+
+            output.list_item(&format!(
+                "Archived: {} (created: {})",
+                record_id,
+                created_date.format("%Y-%m-%d")
+            ));
+
+            archived_count += 1;
+        }
+    }
+
+    tar.finish()?;
+
+    output.success(&format!(
+        "Created archive: {}",
+        archive_path.display()
+    ));
+
+    Ok(archived_count)
 }

@@ -620,7 +620,9 @@
     "cmd-todo-complete-desc": "Mark a todo item as completed",
     "cmd-todo-sync-desc": "Sync todos with git commits",
     "cmd-todo-interactive-desc": "Interactive todo management mode",
-    "arg-todo-add-description": "Todo description (optional, will prompt if not provided)"
+    "arg-todo-add-description": "Todo description (optional, will prompt if not provided)",
+    "opt-config-maintain-archive": "Archive old learning records",
+    "opt-config-maintain-retention-days": "Retention period in days (default: 365)"
   },
   "ja": {
     "command-success": "コマンド実行成功",
@@ -1211,7 +1213,9 @@
     "cmd-todo-complete-desc": "todoアイテムを完了済みとしてマーク",
     "cmd-todo-sync-desc": "gitコミットとtodoを同期",
     "cmd-todo-interactive-desc": "対話的todo管理モード",
-    "arg-todo-add-description": "todoの説明（省略可、未指定の場合はプロンプト表示）"
+    "arg-todo-add-description": "todoの説明（省略可、未指定の場合はプロンプト表示）",
+    "opt-config-maintain-archive": "古い学習記録をアーカイブ",
+    "opt-config-maintain-retention-days": "保持期間（日数、デフォルト: 365）"
   },
   "zh": {
     "command-success": "命令执行成功",
@@ -1802,7 +1806,9 @@
     "cmd-todo-complete-desc": "将待办事项标记为已完成",
     "cmd-todo-sync-desc": "与git提交同步待办事项",
     "cmd-todo-interactive-desc": "交互式待办事项管理模式",
-    "arg-todo-add-description": "待办事项描述（可选，未提供时会提示输入）"
+    "arg-todo-add-description": "待办事项描述（可选，未提供时会提示输入）",
+    "opt-config-maintain-archive": "归档旧学习记录",
+    "opt-config-maintain-retention-days": "保留期限（天数，默认：365）"
   },
   "zh-TW": {
     "abort": "中止",
@@ -2425,6 +2431,8 @@
     "verbose-output": "詳細輸出已啟用",
     "version": "版本",
     "warning": "警告",
-    "yes": "是"
+    "yes": "是",
+    "opt-config-maintain-archive": "封存舊學習記錄",
+    "opt-config-maintain-retention-days": "保留期限（天數，預設：365）"
   }
 }

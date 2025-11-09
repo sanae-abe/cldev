@@ -68,9 +68,18 @@ fn handle_config_command(cmd: &ConfigCommands, output: &mut OutputHandler) -> Re
             let filter_str = filter.as_ref().map(|f| format!("{:?}", f));
             commands::config::list_commands(filter_str, *detailed, output)
         }
-        ConfigCommands::Maintain { backup, cleanup } => {
-            commands::config::handle_config_maintain(*backup, *cleanup, output)
-        }
+        ConfigCommands::Maintain {
+            backup,
+            cleanup,
+            archive,
+            retention_days,
+        } => commands::config::handle_config_maintain(
+            *backup,
+            *cleanup,
+            *archive,
+            *retention_days,
+            output,
+        ),
         ConfigCommands::UpdateDocs { doc_type, validate } => {
             commands::config::handle_update_docs(doc_type.as_ref(), *validate, output)
         }

@@ -170,6 +170,12 @@ pub enum ConfigCommands {
 
         #[arg(short, long, help = super::help::config_maintain_cleanup_help())]
         cleanup: bool,
+
+        #[arg(long, help = super::help::config_maintain_archive_help())]
+        archive: bool,
+
+        #[arg(long, help = super::help::config_maintain_retention_days_help())]
+        retention_days: Option<i64>,
     },
 
     #[command(about = super::help::config_update_docs_about())]
