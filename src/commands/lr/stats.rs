@@ -1,5 +1,5 @@
 use crate::cli::args::TimePeriod;
-use crate::core::{LearningSession, Result};
+use crate::core::{LearningRecordV3, LearningSession, RecordStatus, Result};
 use chrono::{DateTime, Duration, Local, TimeZone};
 use colored::Colorize;
 use std::collections::HashMap;
@@ -16,39 +16,44 @@ pub fn handle_stats(period: TimePeriod, detailed: bool) -> Result<()> {
     };
     println!("{} Period: {}\n", "ℹ️".cyan(), period_name.yellow());
 
-    // Load all sessions
+    // Load V1 sessions
     let session_ids = LearningSession::list_all()?;
-
-    if session_ids.is_empty() {
-        println!("{}", "⚠️  No learning records found".yellow());
-        return Ok(());
-    }
-
-    // Filter sessions by time period
     let cutoff_date = calculate_cutoff_date(period);
-    let mut sessions = Vec::new();
+    let mut v1_sessions = Vec::new();
 
     for id in session_ids {
         if let Ok(session) = LearningSession::load(&id) {
             if is_within_period(&session.timestamp, cutoff_date) {
-                sessions.push(session);
+                v1_sessions.push(session);
             }
         }
     }
 
-    if sessions.is_empty() {
-        println!("{}", "⚠️  No records found for this period".yellow());
+    // Load V3 records
+    let v3_ids = LearningRecordV3::list_all()?;
+    let mut v3_records = Vec::new();
+
+    for id in v3_ids {
+        if let Ok(record) = LearningRecordV3::load(&id) {
+            if record.created > cutoff_date {
+                v3_records.push(record);
+            }
+        }
+    }
+
+    if v1_sessions.is_empty() && v3_records.is_empty() {
+        println!("{}", "⚠️  No learning records found".yellow());
         return Ok(());
     }
 
-    // Calculate statistics
-    let stats = calculate_statistics(&sessions);
+    // Calculate combined statistics
+    let stats = calculate_combined_statistics(&v1_sessions, &v3_records);
 
     // Display statistics
     display_overview_stats(&stats);
 
     if detailed {
-        display_detailed_stats(&stats, &sessions);
+        display_detailed_stats(&stats, &v1_sessions, &v3_records);
     }
 
     // Display insights
@@ -100,6 +105,8 @@ fn is_within_period(timestamp: &str, cutoff: DateTime<Local>) -> bool {
 /// Statistics structure
 struct Statistics {
     total_sessions: usize,
+    v1_count: usize,
+    v3_count: usize,
     resolved_count: usize,
     unresolved_count: usize,
     total_duration_minutes: u32,
@@ -109,8 +116,11 @@ struct Statistics {
     files_affected_count: usize,
 }
 
-/// Calculate statistics from sessions
-fn calculate_statistics(sessions: &[LearningSession]) -> Statistics {
+/// Calculate combined statistics from V1 sessions and V3 records
+fn calculate_combined_statistics(
+    v1_sessions: &[LearningSession],
+    v3_records: &[LearningRecordV3],
+) -> Statistics {
     let mut session_types: HashMap<String, usize> = HashMap::new();
     let mut tag_frequency: HashMap<String, usize> = HashMap::new();
     let mut total_duration = 0u32;
@@ -118,7 +128,8 @@ fn calculate_statistics(sessions: &[LearningSession]) -> Statistics {
     let mut files_count = 0;
     let mut resolved = 0;
 
-    for session in sessions {
+    // Process V1 sessions
+    for session in v1_sessions {
         // Session types
         *session_types
             .entry(session.session_type.clone())
@@ -144,6 +155,34 @@ fn calculate_statistics(sessions: &[LearningSession]) -> Statistics {
         }
     }
 
+    // Process V3 records
+    for record in v3_records {
+        // Extract session type from ID or tags (V3 format)
+        let session_type = if let Some(tag) = record.tags.first() {
+            tag.clone()
+        } else {
+            "general".to_string()
+        };
+        *session_types.entry(session_type).or_insert(0) += 1;
+
+        // Tags
+        for tag in &record.tags {
+            *tag_frequency.entry(tag.clone()).or_insert(0) += 1;
+        }
+
+        // Duration
+        if let Some(duration) = record.duration_min {
+            total_duration += duration as u32;
+            duration_count += 1;
+        }
+
+        // Resolved status
+        if record.status == RecordStatus::Resolved {
+            resolved += 1;
+        }
+    }
+
+    let total_sessions = v1_sessions.len() + v3_records.len();
     let avg_duration = if duration_count > 0 {
         total_duration as f64 / duration_count as f64
     } else {
@@ -151,9 +190,11 @@ fn calculate_statistics(sessions: &[LearningSession]) -> Statistics {
     };
 
     Statistics {
-        total_sessions: sessions.len(),
+        total_sessions,
+        v1_count: v1_sessions.len(),
+        v3_count: v3_records.len(),
         resolved_count: resolved,
-        unresolved_count: sessions.len() - resolved,
+        unresolved_count: total_sessions - resolved,
         total_duration_minutes: total_duration,
         avg_duration_minutes: avg_duration,
         session_types,
@@ -173,6 +214,14 @@ fn display_overview_stats(stats: &Statistics) {
         .set_header(vec!["Metric", "Value"]);
 
     table.add_row(vec!["Total Sessions", &stats.total_sessions.to_string()]);
+    table.add_row(vec![
+        "  V1 Sessions",
+        &format!("{} (legacy format)", stats.v1_count),
+    ]);
+    table.add_row(vec![
+        "  V3 Records",
+        &format!("{} (new format)", stats.v3_count),
+    ]);
     table.add_row(vec!["Resolved", &stats.resolved_count.to_string()]);
     table.add_row(vec!["Unresolved", &stats.unresolved_count.to_string()]);
 
@@ -198,17 +247,23 @@ fn display_overview_stats(stats: &Statistics) {
         ]);
     }
 
-    table.add_row(vec![
-        "Files Affected",
-        &stats.files_affected_count.to_string(),
-    ]);
+    if stats.files_affected_count > 0 {
+        table.add_row(vec![
+            "Files Affected",
+            &stats.files_affected_count.to_string(),
+        ]);
+    }
 
     println!("{}", "📈 Overview".green().bold());
     println!("{}\n", table);
 }
 
 /// Display detailed statistics
-fn display_detailed_stats(stats: &Statistics, sessions: &[LearningSession]) {
+fn display_detailed_stats(
+    stats: &Statistics,
+    v1_sessions: &[LearningSession],
+    v3_records: &[LearningRecordV3],
+) {
     use comfy_table::{modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL, Table};
 
     // Session types breakdown
@@ -248,10 +303,34 @@ fn display_detailed_stats(stats: &Statistics, sessions: &[LearningSession]) {
     }
     println!("{}\n", tag_table);
 
-    // Learning insights count
-    let total_learnings: usize = sessions.iter().map(|s| s.learnings.len()).sum();
-    println!("{}", "💡 Learning Insights".green().bold());
-    println!("  Total insights captured: {}\n", total_learnings);
+    // Learning insights count (V1 sessions only)
+    let total_learnings: usize = v1_sessions.iter().map(|s| s.learnings.len()).sum();
+    if total_learnings > 0 {
+        println!("{}", "💡 Learning Insights".green().bold());
+        println!("  Total insights captured (V1): {}\n", total_learnings);
+    }
+
+    // V3 records summary
+    if !v3_records.is_empty() {
+        println!("{}", "📝 V3 Records Summary".green().bold());
+        let auto_generated = v3_records.iter().filter(|r| r.auto_generated).count();
+        let manual = v3_records.len() - auto_generated;
+        println!("  Auto-generated: {}", auto_generated);
+        println!("  Manual: {}", manual);
+
+        let avg_confidence: f64 = v3_records.iter().filter_map(|r| r.confidence).sum::<f64>()
+            / v3_records
+                .iter()
+                .filter(|r| r.confidence.is_some())
+                .count()
+                .max(1) as f64;
+
+        if avg_confidence > 0.0 {
+            println!("  Avg. AI Confidence: {:.1}%\n", avg_confidence * 100.0);
+        } else {
+            println!();
+        }
+    }
 }
 
 /// Display insights and recommendations
@@ -324,8 +403,11 @@ mod tests {
 
     #[test]
     fn test_statistics_calculation() {
-        let sessions = vec![];
-        let stats = calculate_statistics(&sessions);
+        let v1_sessions = vec![];
+        let v3_records = vec![];
+        let stats = calculate_combined_statistics(&v1_sessions, &v3_records);
         assert_eq!(stats.total_sessions, 0);
+        assert_eq!(stats.v1_count, 0);
+        assert_eq!(stats.v3_count, 0);
     }
 }

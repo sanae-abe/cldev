@@ -36,6 +36,7 @@ fn run() -> Result<()> {
         Commands::Analysis(cmd) => handle_analysis_command(cmd, &output),
         Commands::Lr(cmd) => handle_lr_command(cmd, &output),
         Commands::Todo(cmd) => handle_todo_command(cmd, &output),
+        Commands::Session(cmd) => handle_session_command(cmd, &output),
         Commands::Completions { shell, install } => {
             handle_completions_command(*shell, *install, &output)
         }
@@ -272,21 +273,58 @@ fn handle_lr_command(cmd: &cli::args::LrCommands, output: &OutputHandler) -> Res
             output.debug("Analyzing problem patterns");
             commands::lr::handle_problems(*priority, *recent)
         }
+        LrCommands::CheckFile { file_path } => {
+            output.debug(&format!("Checking file hotspot: {}", file_path));
+            commands::lr::handle_check_file(file_path)
+        }
+        LrCommands::Suggest {
+            error_msg,
+            threshold,
+            limit,
+        } => {
+            output.debug(&format!("Suggesting similar errors for: {}", error_msg));
+            commands::lr::handle_suggest(error_msg, *threshold, *limit)
+        }
+        LrCommands::Similar { session_id, limit } => {
+            output.debug(&format!("Finding similar sessions to: {}", session_id));
+            commands::lr::handle_similar(session_id, *limit)
+        }
     }
 }
 
 fn handle_todo_command(cmd: &cli::args::TodoCommands, output: &OutputHandler) -> Result<()> {
     use cli::args::TodoCommands;
+    use commands::todo::manage::{
+        add_todo as add_todo_impl, complete_todo, interactive_mode, list_todos, sync_todos,
+    };
 
     match cmd {
-        TodoCommands::Manage {
-            action,
-            description,
-        } => {
-            output.debug(&format!("Managing todos: {:?}", action));
-            commands::todo::handle_manage(*action, description.clone())
+        TodoCommands::Add { description } => {
+            output.debug("Adding todo");
+            add_todo_impl(description.clone())
+        }
+        TodoCommands::List => {
+            output.debug("Listing todos");
+            list_todos()
+        }
+        TodoCommands::Complete => {
+            output.debug("Completing todo");
+            complete_todo()
+        }
+        TodoCommands::Sync => {
+            output.debug("Syncing todos with git");
+            sync_todos()
+        }
+        TodoCommands::Interactive => {
+            output.debug("Starting interactive mode");
+            interactive_mode()
         }
     }
+}
+
+fn handle_session_command(cmd: &cli::SessionCommand, output: &OutputHandler) -> Result<()> {
+    output.debug("Session command");
+    cli::handle_session(cmd.clone())
 }
 
 fn handle_completions_command(

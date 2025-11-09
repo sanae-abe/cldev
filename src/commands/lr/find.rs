@@ -1,5 +1,5 @@
 use crate::cli::args::SearchField;
-use crate::core::{LearningSession, Result};
+use crate::core::{LearningRecordV3, Result};
 use colored::Colorize;
 
 /// Handle find learning records command
@@ -15,65 +15,49 @@ pub fn handle_find(query: String, field: Option<SearchField>, limit: usize) -> R
         );
     }
 
-    // Load all sessions
-    let session_ids = LearningSession::list_all()?;
+    // Load V3 records (new format)
+    let v3_ids = LearningRecordV3::list_all().unwrap_or_default();
 
-    if session_ids.is_empty() {
+    if v3_ids.is_empty() {
         println!("{}", "\n⚠️  No learning records found".yellow());
-        println!("Create your first record with: cldev lr new <topic>");
+        println!("Create your first record with: cldev session start");
         return Ok(());
     }
 
-    // Search sessions
-    let mut matching_sessions = Vec::new();
+    // Search V3 records
+    let mut matching_records = Vec::new();
     let query_lower = query.to_lowercase();
 
-    for id in session_ids {
-        if let Ok(session) = LearningSession::load(&id) {
+    for id in v3_ids {
+        if let Ok(record) = LearningRecordV3::load(&id) {
             let matches = match field {
-                Some(SearchField::Topic) => {
-                    session.description.to_lowercase().contains(&query_lower)
-                }
-                Some(SearchField::Tag) => session
+                Some(SearchField::Topic) => record.id.to_lowercase().contains(&query_lower),
+                Some(SearchField::Tag) => record
                     .tags
                     .iter()
                     .any(|tag| tag.to_lowercase().contains(&query_lower)),
                 Some(SearchField::Content) => {
-                    session.description.to_lowercase().contains(&query_lower)
-                        || session
-                            .solution
-                            .as_ref()
-                            .map(|s| s.to_lowercase().contains(&query_lower))
-                            .unwrap_or(false)
-                        || session
-                            .root_cause
-                            .as_ref()
-                            .map(|s| s.to_lowercase().contains(&query_lower))
-                            .unwrap_or(false)
+                    record.markdown_body.to_lowercase().contains(&query_lower)
                 }
                 None => {
                     // Search all fields
-                    session.description.to_lowercase().contains(&query_lower)
-                        || session
+                    record.id.to_lowercase().contains(&query_lower)
+                        || record
                             .tags
                             .iter()
                             .any(|tag| tag.to_lowercase().contains(&query_lower))
-                        || session
-                            .solution
-                            .as_ref()
-                            .map(|s| s.to_lowercase().contains(&query_lower))
-                            .unwrap_or(false)
+                        || record.markdown_body.to_lowercase().contains(&query_lower)
                 }
             };
 
             if matches {
-                matching_sessions.push(session);
+                matching_records.push(record);
             }
         }
     }
 
     // Display results
-    if matching_sessions.is_empty() {
+    if matching_records.is_empty() {
         println!("{}", "\n⚠️  No matching records found".yellow());
         return Ok(());
     }
@@ -81,37 +65,37 @@ pub fn handle_find(query: String, field: Option<SearchField>, limit: usize) -> R
     println!(
         "\n{} Found {} matching record(s)",
         "✅".green(),
-        matching_sessions.len()
+        matching_records.len()
     );
 
     // Limit results
-    let display_count = limit.min(matching_sessions.len());
+    let display_count = limit.min(matching_records.len());
     println!("{} Displaying top {}", "ℹ️".cyan(), display_count);
 
-    // Display sessions
-    for (i, session) in matching_sessions.iter().take(limit).enumerate() {
-        display_session_brief(session, i + 1);
+    // Display records
+    for (i, record) in matching_records.iter().take(limit).enumerate() {
+        display_record_brief(record, i + 1);
     }
 
-    if matching_sessions.len() > limit {
+    if matching_records.len() > limit {
         println!(
             "\n{} {} more record(s) not shown. Increase --limit to see more.",
             "ℹ️".cyan(),
-            matching_sessions.len() - limit
+            matching_records.len() - limit
         );
     }
 
     // Provide next steps
     println!("\n{}", "💡 Next Steps:".yellow().bold());
-    println!("  • View details: Check session files in ~/.claude/learning-sessions/");
+    println!("  • View details: Check files in ~/.cldev/learning-records/");
     println!("  • Filter by tag: cldev lr find <query> --field tag");
     println!("  • See stats: cldev lr stats");
 
     Ok(())
 }
 
-/// Display brief session information
-fn display_session_brief(session: &LearningSession, index: usize) {
+/// Display brief V3 record information
+fn display_record_brief(record: &LearningRecordV3, index: usize) {
     use comfy_table::{modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL, Cell, Color, Table};
 
     println!("\n{} Record #{}", "📄".cyan(), index);
@@ -123,51 +107,59 @@ fn display_session_brief(session: &LearningSession, index: usize) {
         .set_header(vec!["Field", "Value"]);
 
     // ID
-    table.add_row(vec!["ID", &session.id]);
+    table.add_row(vec!["ID", &record.id]);
 
-    // Type
-    table.add_row(vec!["Type", &session.session_type]);
+    // Created
+    table.add_row(vec![
+        "Created",
+        &record.created.format("%Y-%m-%d %H:%M").to_string(),
+    ]);
 
-    // Timestamp
-    table.add_row(vec!["Timestamp", &session.timestamp]);
-
-    // Description (safe UTF-8 truncation)
-    let truncated_desc = if session.description.chars().count() > 60 {
-        let truncated: String = session.description.chars().take(57).collect();
-        format!("{}...", truncated)
+    // Auto-generated
+    let auto_cell = if record.auto_generated {
+        Cell::new("Yes").fg(Color::Cyan)
     } else {
-        session.description.clone()
+        Cell::new("No").fg(Color::White)
     };
-    table.add_row(vec!["Description", &truncated_desc]);
+    table.add_row(vec![Cell::new("Auto-generated"), auto_cell]);
+
+    // Confidence
+    if let Some(conf) = record.confidence {
+        table.add_row(vec!["Confidence", &format!("{:.1}%", conf * 100.0)]);
+    }
 
     // Tags
-    if !session.tags.is_empty() {
-        table.add_row(vec!["Tags", &session.tags.join(", ")]);
+    if !record.tags.is_empty() {
+        table.add_row(vec!["Tags", &record.tags.join(", ")]);
     }
 
     // Status
-    let status_cell = if session.resolved {
-        Cell::new("Resolved").fg(Color::Green)
-    } else {
-        Cell::new("Unresolved").fg(Color::Yellow)
+    let status_cell = match record.status {
+        crate::core::RecordStatus::Resolved => Cell::new("Resolved").fg(Color::Green),
+        crate::core::RecordStatus::InProgress => Cell::new("In Progress").fg(Color::Yellow),
+        crate::core::RecordStatus::Pending => Cell::new("Pending").fg(Color::Cyan),
     };
     table.add_row(vec![Cell::new("Status"), status_cell]);
 
     // Duration
-    if let Some(duration) = session.duration_minutes {
+    if let Some(duration) = record.duration_min {
         table.add_row(vec!["Duration", &format!("{} min", duration)]);
     }
 
     println!("{}", table);
 
-    // Display key learnings if available
-    if !session.learnings.is_empty() {
-        println!("\n  {} Key Learnings:", "💡".yellow());
-        for (i, learning) in session.learnings.iter().take(3).enumerate() {
-            println!("    {}. {}", i + 1, learning);
-        }
-        if session.learnings.len() > 3 {
-            println!("    ... and {} more", session.learnings.len() - 3);
+    // Display first few lines of markdown body
+    let lines: Vec<&str> = record.markdown_body.lines().take(3).collect();
+    if !lines.is_empty() {
+        println!("\n  {} Preview:", "👁️".yellow());
+        for line in lines {
+            let truncated = if line.chars().count() > 70 {
+                let t: String = line.chars().take(67).collect();
+                format!("{}...", t)
+            } else {
+                line.to_string()
+            };
+            println!("    {}", truncated);
         }
     }
 }

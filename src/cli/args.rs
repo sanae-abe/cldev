@@ -99,6 +99,10 @@ pub enum Commands {
     #[command(subcommand, about = super::help::todo_about())]
     Todo(TodoCommands),
 
+    /// Development session management
+    #[command(subcommand, about = super::help::session_about())]
+    Session(super::SessionCommand),
+
     /// Generate shell completions
     #[command(about = super::help::completions_about())]
     Completions {
@@ -564,6 +568,33 @@ pub enum LrCommands {
         #[arg(short, long, help = super::help::lr_new_edit_help())]
         edit: bool,
     },
+
+    #[command(about = super::help::lr_check_file_about())]
+    CheckFile {
+        #[arg(help = super::help::lr_check_file_path_help())]
+        file_path: String,
+    },
+
+    #[command(about = super::help::lr_suggest_about())]
+    Suggest {
+        #[arg(help = super::help::lr_suggest_error_help())]
+        error_msg: String,
+
+        #[arg(short, long, default_value = "0.7", help = super::help::lr_suggest_threshold_help())]
+        threshold: Option<f64>,
+
+        #[arg(short, long, default_value = "10", help = super::help::lr_suggest_limit_help())]
+        limit: Option<usize>,
+    },
+
+    #[command(about = super::help::lr_similar_about())]
+    Similar {
+        #[arg(help = super::help::lr_similar_session_id_help())]
+        session_id: String,
+
+        #[arg(short, long, default_value = "10", help = super::help::lr_similar_limit_help())]
+        limit: Option<usize>,
+    },
 }
 
 #[derive(Debug, Clone, Copy, ValueEnum)]
@@ -595,22 +626,27 @@ pub enum Priority {
 
 #[derive(Subcommand, Debug)]
 pub enum TodoCommands {
-    #[command(about = super::help::todo_manage_about())]
-    Manage {
-        #[arg(value_enum, help = super::help::todo_manage_action_help())]
-        action: TodoAction,
-
-        #[arg(help = super::help::todo_manage_description_help())]
+    /// Add a new todo item
+    #[command(about = super::help::todo_add_about())]
+    Add {
+        #[arg(help = super::help::todo_add_description_help())]
         description: Option<String>,
     },
-}
 
-#[derive(Debug, Clone, Copy, ValueEnum)]
-pub enum TodoAction {
-    Add,
+    /// List all todo items
+    #[command(about = super::help::todo_list_about())]
     List,
+
+    /// Mark a todo item as completed
+    #[command(about = super::help::todo_complete_about())]
     Complete,
+
+    /// Sync todos with git commits
+    #[command(about = super::help::todo_sync_about())]
     Sync,
+
+    /// Interactive todo management mode
+    #[command(about = super::help::todo_interactive_about())]
     Interactive,
 }
 

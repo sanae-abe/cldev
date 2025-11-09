@@ -525,6 +525,42 @@ pub fn lr_new_edit_help() -> &'static str {
     help("opt-lr-new-edit")
 }
 
+pub fn lr_check_file_about() -> &'static str {
+    help("cmd-lr-check-file-desc")
+}
+
+pub fn lr_check_file_path_help() -> &'static str {
+    help("arg-lr-check-file-path")
+}
+
+pub fn lr_suggest_about() -> &'static str {
+    help("cmd-lr-suggest-desc")
+}
+
+pub fn lr_suggest_error_help() -> &'static str {
+    help("arg-lr-suggest-error")
+}
+
+pub fn lr_suggest_threshold_help() -> &'static str {
+    help("opt-lr-suggest-threshold")
+}
+
+pub fn lr_suggest_limit_help() -> &'static str {
+    help("opt-lr-suggest-limit")
+}
+
+pub fn lr_similar_about() -> &'static str {
+    help("cmd-lr-similar-desc")
+}
+
+pub fn lr_similar_session_id_help() -> &'static str {
+    help("arg-lr-similar-session-id")
+}
+
+pub fn lr_similar_limit_help() -> &'static str {
+    help("opt-lr-similar-limit")
+}
+
 // ============================================================================
 // Todo Commands
 // ============================================================================
@@ -533,16 +569,36 @@ pub fn todo_about() -> &'static str {
     help("cmd-cat-todo-desc")
 }
 
-pub fn todo_manage_about() -> &'static str {
-    help("cmd-todo-manage-desc")
+// ============================================================================
+// Session Commands
+// ============================================================================
+
+pub fn session_about() -> &'static str {
+    help("cmd-cat-session-desc")
 }
 
-pub fn todo_manage_action_help() -> &'static str {
-    help("arg-todo-manage-action")
+pub fn todo_add_about() -> &'static str {
+    help("cmd-todo-add-desc")
 }
 
-pub fn todo_manage_description_help() -> &'static str {
-    help("arg-todo-manage-description")
+pub fn todo_add_description_help() -> &'static str {
+    help("arg-todo-add-description")
+}
+
+pub fn todo_list_about() -> &'static str {
+    help("cmd-todo-list-desc")
+}
+
+pub fn todo_complete_about() -> &'static str {
+    help("cmd-todo-complete-desc")
+}
+
+pub fn todo_sync_about() -> &'static str {
+    help("cmd-todo-sync-desc")
+}
+
+pub fn todo_interactive_about() -> &'static str {
+    help("cmd-todo-interactive-desc")
 }
 
 // ============================================================================

@@ -1,6 +1,8 @@
-use crate::core::{LearningSession, LearningSessionBuilder, Result};
+use crate::core::{LearningRecordV3, RecordStatus, Result};
 use colored::Colorize;
-use dialoguer::{Input, MultiSelect};
+use dialoguer::MultiSelect;
+use std::fs;
+use std::path::PathBuf;
 use std::process::Command;
 
 /// Handle new learning record command
@@ -8,13 +10,13 @@ pub fn handle_new(topic: String, edit: bool) -> Result<()> {
     println!("{}", "📝 Creating new learning record...".cyan().bold());
     println!("{} Topic: {}", "ℹ️".cyan(), topic.green());
 
-    // Create session with basic info
-    let mut builder = LearningSessionBuilder::new("learning", &topic);
+    // Generate unique ID
+    let timestamp = chrono::Local::now().format("%Y%m%d_%H%M%S");
+    let id = format!("{}-{}", sanitize_topic(&topic), timestamp);
 
-    // Collect additional information interactively
+    // Collect tags interactively
     println!("\n{}", "📋 Additional Information (optional)".yellow());
 
-    // Tags
     let tag_options = vec![
         "bug-fix",
         "feature",
@@ -33,58 +35,120 @@ pub fn handle_new(topic: String, edit: bool) -> Result<()> {
         .items(&tag_options)
         .interact_opt()?;
 
-    if let Some(selections) = tag_selections {
-        let selected_tags: Vec<String> = selections
+    let tags: Vec<String> = if let Some(selections) = tag_selections {
+        selections
             .iter()
             .map(|&i| tag_options[i].to_string())
-            .collect();
-        builder = builder.tags(selected_tags);
-    }
+            .collect()
+    } else {
+        Vec::new()
+    };
 
-    // Description/Context
-    let context: String = Input::new()
-        .with_prompt("Brief context or problem description (optional)")
-        .allow_empty(true)
-        .interact_text()?;
+    // Create minimal markdown template
+    let markdown_body = create_template(&topic);
 
-    if !context.is_empty() {
-        builder = builder.metadata("context", context);
-    }
+    // Create V3 record
+    let mut record = LearningRecordV3::new(id.clone(), markdown_body);
+    record.tags = tags;
+    record.status = RecordStatus::Pending;
 
-    // Build and save the session
-    let (session, path) = builder.save()?;
+    // Save to file
+    let path = save_record(&record)?;
 
     println!(
         "\n{} Learning record created successfully!",
         "✅".green().bold()
     );
-    println!("{} Session ID: {}", "ℹ️".cyan(), session.id.yellow());
+    println!("{} Record ID: {}", "ℹ️".cyan(), record.id.yellow());
     println!(
         "{} Saved to: {}",
         "ℹ️".cyan(),
         path.display().to_string().cyan()
     );
 
-    // Display session summary
-    display_session_summary(&session);
+    // Display summary
+    display_record_summary(&record);
 
     // Open editor if requested
     if edit {
-        open_session_in_editor(&path.to_string_lossy())?;
+        open_record_in_editor(&path.to_string_lossy())?;
     }
 
     // Provide next steps
     println!("\n{}", "💡 Next Steps:".yellow().bold());
-    println!("  • Add learnings: Edit the session file directly");
-    println!("  • Mark resolved: Update 'resolved' field to true");
-    println!("  • Add files: List affected files in 'files_affected'");
-    println!("  • View all: cldev lr find {}", topic);
+    println!("  • Edit the markdown: Fill in Problem, Solution, and Key Takeaways");
+    println!("  • Mark in progress: Change status to 'in_progress' in frontmatter");
+    println!("  • Mark resolved: Change status to 'resolved' when completed");
+    println!("  • Find similar: cldev lr find {}", topic);
 
     Ok(())
 }
 
-/// Display session summary
-fn display_session_summary(session: &LearningSession) {
+/// Create markdown template for the record
+fn create_template(topic: &str) -> String {
+    format!(
+        r#"# {}
+
+## Problem
+
+[Describe the issue or learning opportunity]
+
+## Solution
+
+[Document what you learned]
+
+## Key Takeaways
+
+-
+"#,
+        topic
+    )
+}
+
+/// Sanitize topic for use in filename
+fn sanitize_topic(topic: &str) -> String {
+    topic
+        .chars()
+        .map(|c| {
+            if c.is_alphanumeric() || c == '-' || c == '_' {
+                c.to_ascii_lowercase()
+            } else if c.is_whitespace() {
+                '-'
+            } else {
+                '_'
+            }
+        })
+        .collect::<String>()
+        .trim_matches('-')
+        .trim_matches('_')
+        .chars()
+        .take(50) // Limit length
+        .collect()
+}
+
+/// Save V3 record to file
+fn save_record(record: &LearningRecordV3) -> Result<PathBuf> {
+    use crate::core::CldevError;
+
+    // Get learning records directory
+    let home =
+        dirs::home_dir().ok_or_else(|| CldevError::config("Failed to get home directory"))?;
+
+    let records_dir = home.join(".cldev").join("learning-records");
+    if !records_dir.exists() {
+        fs::create_dir_all(&records_dir)?;
+    }
+
+    // Save as markdown file with V3 frontmatter
+    let path = records_dir.join(format!("{}.md", record.id));
+    let content = record.to_markdown_file();
+    fs::write(&path, content)?;
+
+    Ok(path)
+}
+
+/// Display record summary
+fn display_record_summary(record: &LearningRecordV3) {
     use comfy_table::{modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL, Table};
 
     let mut table = Table::new();
@@ -93,20 +157,25 @@ fn display_session_summary(session: &LearningSession) {
         .apply_modifier(UTF8_ROUND_CORNERS)
         .set_header(vec!["Field", "Value"]);
 
-    table.add_row(vec!["ID", &session.id]);
-    table.add_row(vec!["Type", &session.session_type]);
-    table.add_row(vec!["Timestamp", &session.timestamp]);
-    table.add_row(vec!["Description", &session.description]);
+    table.add_row(vec!["ID", &record.id]);
+    table.add_row(vec![
+        "Created",
+        &record.created.format("%Y-%m-%d %H:%M").to_string(),
+    ]);
+    table.add_row(vec![
+        "Status",
+        &format!("{:?}", record.status).to_lowercase(),
+    ]);
 
-    if !session.tags.is_empty() {
-        table.add_row(vec!["Tags", &session.tags.join(", ")]);
+    if !record.tags.is_empty() {
+        table.add_row(vec!["Tags", &record.tags.join(", ")]);
     }
 
     println!("\n{}", table);
 }
 
-/// Open session file in editor
-fn open_session_in_editor(path: &str) -> Result<()> {
+/// Open record file in editor
+fn open_record_in_editor(path: &str) -> Result<()> {
     println!("\n{} Opening in editor...", "📝".cyan());
 
     // Try different editors in order of preference
@@ -141,12 +210,39 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_session_creation() {
-        let session = LearningSessionBuilder::new("learning", "Test topic")
-            .tag("test")
-            .build();
+    fn test_sanitize_topic() {
+        assert_eq!(
+            sanitize_topic("Fix TypeScript Error"),
+            "fix-typescript-error"
+        );
+        assert_eq!(sanitize_topic("API/Client Bug"), "api_client-bug");
+        assert_eq!(sanitize_topic("   spaces   "), "spaces");
+        assert_eq!(
+            sanitize_topic(
+                "Very Long Topic Name That Should Be Truncated Because It Exceeds Maximum Length"
+            ),
+            "very-long-topic-name-that-should-be-truncated-bec"
+        );
+    }
 
-        assert_eq!(session.description, "Test topic");
-        assert_eq!(session.tags.len(), 1);
+    #[test]
+    fn test_create_template() {
+        let template = create_template("Test Topic");
+        assert!(template.contains("# Test Topic"));
+        assert!(template.contains("## Problem"));
+        assert!(template.contains("## Solution"));
+        assert!(template.contains("## Key Takeaways"));
+    }
+
+    #[test]
+    fn test_record_creation() {
+        let id = "test-record-123".to_string();
+        let body = create_template("Test");
+        let record = LearningRecordV3::new(id.clone(), body);
+
+        assert_eq!(record.id, id);
+        assert_eq!(record.status, RecordStatus::Pending);
+        assert!(!record.auto_generated);
+        assert!(record.markdown_body.contains("# Test"));
     }
 }
