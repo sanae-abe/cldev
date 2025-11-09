@@ -7,7 +7,7 @@
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 [![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev)
 
-**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 33 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
+**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 36 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
 
 English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
 
@@ -35,7 +35,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中�
 
 **cldev** replaces fragmented shell scripts with a cohesive development toolkit that:
 
-- **Unifies** 33 commands across 9 categories (config, dev, git, quality, tech, ops, analysis, learning, todo)
+- **Unifies** 36 commands across 9 categories (config, dev, git, quality, tech, ops, analysis, learning, todo)
 - **Accelerates** workflows with faster startup (~21ms, 1.5x faster than gh CLI's 32ms)
 - **Simplifies** installation (`cargo install cldev` or `brew install cldev`)
 - **Internationalizes** all outputs (English/Japanese/Chinese with extensible i18n)
@@ -61,7 +61,7 @@ cldev lr find "encryption"
 ```
 
 **Improvements:**
-- 20% reduction in command count (41 → 33)
+- 12% reduction in command count (41 → 36)
 - 77% shorter command syntax
 - 80% faster installation
 - 1.5x faster execution (vs gh CLI)
@@ -103,14 +103,39 @@ cldev lr find "encryption"
 - **Type-safe**: Rust's compile-time guarantees
 - **Extensible**: Plugin-ready command system
 
-### 📚 Learning Record System
-- **Built-in knowledge base**: Search past solutions with `cldev lr find "topic"`
-- **Problem tracking**: Keep track of unresolved issues with `cldev lr problems`
-- **Learning analytics**: View statistics and patterns with `cldev lr stats`
-- **UTF-8 support**: Full Japanese/Chinese text search capabilities
+### 📚 Learning Record System (AI-Powered)
+- **AI-assisted error matching**: Find similar errors using Levenshtein distance and pattern normalization
+- **Hotspot detection**: Proactive warnings for files with recurring problems
+- **Context-aware search**: Composite scoring (files 40%, errors 30%, tags 20%, recency 10%)
+- **Built-in knowledge base**: TF-IDF powered search with full UTF-8 support
+- **Problem tracking**: Keep track of unresolved issues with intelligent prioritization
+- **Learning analytics**: View statistics and patterns with detailed breakdowns
 
-Unlike typical development CLIs, cldev includes a searchable learning record system. While many developers manually maintain TIL (Today I Learned) repositories or engineering logs in separate tools, cldev integrates this directly into your workflow—making past solutions instantly retrievable from the command line.
+Unlike typical development CLIs, cldev includes an **AI-powered** searchable learning record system designed specifically for Claude Code integration. While many developers manually maintain TIL (Today I Learned) repositories or engineering logs in separate tools, cldev provides:
 
+**🔍 Intelligent Error Matching**
+```bash
+# AI automatically finds similar errors by normalizing patterns
+cldev lr suggest "thread panicked at overflow in main.rs:42"
+# Matches: "thread panicked at overflow in lib.rs:123" (85% similarity)
+```
+
+**⚠️ Proactive Problem Prevention**
+```bash
+# Check file hotspot status before editing
+cldev lr check-file src/auth/login.rs
+# ⚠️  WARNING: This file is a known hotspot!
+# Past Issues: JWT validation error (Resolved), Auth timeout (Unresolved)
+```
+
+**🎯 Context-Based Discovery**
+```bash
+# Find sessions similar to your current context
+cldev lr similar session-abc123
+# Returns sessions with similar files, errors, tags, and recent activity
+```
+
+**Basic Usage**
 ```bash
 # Record a learning session
 cldev lr new "JWT authentication implementation"
@@ -418,6 +443,15 @@ cldev lr find --recent 10
 # Search by specific field
 cldev lr find "JWT" --field topic
 
+# Check file hotspot status before editing
+cldev lr check-file src/auth/login.rs
+
+# Find similar errors (AI-powered error matching)
+cldev lr suggest "thread panicked at overflow" --threshold 0.7
+
+# Find sessions similar to a specific session
+cldev lr similar session-abc123 --limit 5
+
 # Generate statistics
 cldev lr stats
 
@@ -581,7 +615,7 @@ cldev automatically validates and migrates configurations when needed.
 
 ### Command Categories
 
-cldev organizes 32 commands into 9 logical categories:
+cldev organizes 36 commands into 9 logical categories:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -594,8 +628,9 @@ cldev organizes 32 commands into 9 logical categories:
 │ tech (1)       │ Tech stack operations              │
 │ ops (2)        │ Build & deployment                 │
 │ analysis (4)   │ Code analysis & review             │
-│ lr (4)         │ Learning records                   │
+│ lr (7)         │ Learning records                   │
 │ todo (1)       │ Task management                    │
+│ completions    │ Shell completions                  │
 └─────────────────────────────────────────────────────┘
 ```
 
@@ -656,12 +691,15 @@ cldev analysis review-mr   # MR/PR review
 cldev analysis serena      # Semantic analysis (MCP)
 ```
 
-#### Learning Record Commands (4)
+#### Learning Record Commands (7)
 ```bash
 cldev lr new               # Create learning record
 cldev lr find              # Search records
 cldev lr stats             # Generate statistics
 cldev lr problems          # Problem pattern analysis
+cldev lr check-file        # Check file hotspot status
+cldev lr suggest           # Find similar errors
+cldev lr similar           # Find similar sessions
 ```
 
 #### Todo Commands (1)
