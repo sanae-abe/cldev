@@ -7,7 +7,7 @@
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 [![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev)
 
-**cldev** 是一個用於管理 Claude Code 開發工作流程的統一 CLI 工具。它將 36 個重要的開發命令整合到單個類型安全、超快速的 Rust 二進位檔案中，並完全支援國際化（英語/日語/中文）。
+**cldev** 是一個用於管理 Claude Code 開發工作流程的統一 CLI 工具。它將 38 個重要的開發命令整合到單個類型安全、超快速的 Rust 二進位檔案中，並完全支援國際化（英語/日語/中文）。
 
 [English](README.md) | [日本語](README.ja.md) | [简体中文](README.zh.md) | 繁體中文
 
@@ -33,7 +33,7 @@
 
 **cldev** 將分散的 shell 腳本替換為統一的開發工具包：
 
-- **統一**：9 個類別 36 個命令整合到單一工具（config、dev、git、quality、tech、ops、analysis、learning、todo）
+- **統一**：10 個類別 38 個命令整合到單一工具（config、dev、git、quality、tech、ops、analysis、lr、todo、session）
 - **加速**：啟動速度提升 1.5 倍（約 21ms，比 gh CLI 的 32ms 快 1.5 倍）
 - **簡化**：安裝簡單（`cargo install cldev` 或 `brew install cldev`）
 - **國際化**：所有輸出支援多語言（英語/日語/簡體中文/繁體中文，可擴展的 i18n 系統）
@@ -59,7 +59,7 @@ cldev lr find "encryption"
 ```
 
 **改進：**
-- 命令數量減少 12%（41 → 36）
+- 命令數量減少 7%（41 → 38）
 - 命令語法縮短 77%
 - 安裝速度提升 80%
 - 執行速度提升 1.5 倍（與 gh CLI 相比）
@@ -72,7 +72,7 @@ cldev lr find "encryption"
 
 ### 🚀 效能
 - **快速啟動**：約 21ms（比 gh CLI 的 32ms 快 1.5 倍）
-- **緊湊二進位檔**：1.5MB（比 gh CLI 的 51MB 小 97%）
+- **緊湊二進位檔**：3.3MB（比 gh CLI 的 51MB 小 93%）
 - **最佳化的發布建置**：LTO、strip、codegen-units=1
 - **高效資源使用**：最小記憶體占用
 

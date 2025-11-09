@@ -7,7 +7,7 @@
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 <!-- [![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev) -->
 
-**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 35 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
+**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 38 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
 
 English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
 
@@ -35,7 +35,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中�
 
 **cldev** replaces fragmented shell scripts with a cohesive development toolkit that:
 
-- **Unifies** 35 commands across 9 categories (config, dev, git, quality, tech, ops, analysis, learning, todo)
+- **Unifies** 38 commands across 10 categories (config, dev, git, quality, tech, ops, analysis, lr, todo, session)
 - **Accelerates** workflows with faster startup (~21ms hyperfine benchmark, 1.5x faster than gh CLI's 32ms)
 - **Simplifies** installation (`cargo install cldev`)
 - **Internationalizes** all outputs (English/Japanese/Chinese with extensible i18n)
@@ -61,7 +61,7 @@ cldev lr find "encryption"
 ```
 
 **Improvements:**
-- 15% reduction in command count (41 → 35)
+- 15% reduction in command count (41 → 38)
 - 77% shorter command syntax
 - 80% faster installation
 - 1.5x faster execution (vs gh CLI)
@@ -646,7 +646,7 @@ cldev automatically validates and migrates configurations when needed.
 
 ### Command Categories
 
-cldev organizes 35 commands into 9 logical categories:
+cldev organizes 38 commands into 10 logical categories:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -854,7 +854,7 @@ Measured on macOS 14.6, Apple M2 Pro using [hyperfine](https://github.com/sharkd
 *Note: starship is a shell prompt tool (different category), included for Rust CLI performance reference.
 
 **Binary Size:**
-- cldev: 1.5MB (stripped, LTO optimized)
+- cldev: 3.3MB (stripped, LTO optimized)
 - gh CLI: 51MB
 - starship: 8.4MB
 
