@@ -11,7 +11,7 @@
 - [x] README.md最終レビュー（内容確認・スクリーンショット・使用例） | Priority: high | Context: docs | Due: 11-12-2025
 - [x] LICENSEファイル確認（MIT/Apache-2.0確認） | Priority: high | Context: docs | Due: 11-12-2025
 - [x] Cargo.tomlメタデータ確認（version/description/authors/license等） | Priority: high | Context: build | Due: 11-12-2025
-- [ ] cargo publish --dry-run実行（公開前検証） | Priority: high | Context: build | Due: 11-12-2025
+- [x] cargo publish --dry-run実行（公開前検証） | Priority: high | Context: build | Due: 11-12-2025
 - [ ] crates.io公開実行（v1.0.0-beta） | Priority: high | Context: build | Due: 11-15-2025
 - [ ] GitHub Release作成（v1.0.0-beta、リリースノート・バイナリ添付） | Priority: high | Context: build | Due: 11-15-2025
 
@@ -66,16 +66,18 @@
 ## 📝 タスク統計
 
 - **総タスク数**: 23
+- **完了**: 4 (17.4%)
+- **残り**: 19 (82.6%)
 - **優先度内訳**:
   - Critical: 0
-  - High: 6（crates.io公開準備）
-  - Medium: 5（Phase 7-2機能、マイグレーション）
-  - Low: 12（Phase 7-3、配布環境、品質改善）
+  - High: 6（完了4/残り2、crates.io公開準備）
+  - Medium: 5（完了0/残り5、Phase 7-2機能、マイグレーション）
+  - Low: 12（完了0/残り12、Phase 7-3、配布環境、品質改善）
 - **コンテキスト内訳**:
-  - docs: 4（ドキュメント）
-  - build: 6（ビルド・配布）
-  - api: 8（機能実装）
-  - test: 5（テスト）
+  - docs: 4（完了2/残り2、ドキュメント）
+  - build: 6（完了2/残り4、ビルド・配布）
+  - api: 8（完了0/残り8、機能実装）
+  - test: 5（完了0/残り5、テスト）
 
 ---
 
