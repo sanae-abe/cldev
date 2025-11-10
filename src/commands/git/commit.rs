@@ -254,6 +254,13 @@ fn build_commit_message_interactive(
 
     let commit_type = &types[selection];
 
+    // Display selected commit type
+    output.success(&format!(
+        "Selected: {} {}",
+        commit_type.emoji(),
+        commit_type.prefix()
+    ));
+
     // Ask for scope (optional)
     output.info(&format!("\n{}", output.t("git-commit-scope-prompt")));
     let scope: String = Input::new()
