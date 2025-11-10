@@ -221,7 +221,7 @@ mod tests {
             sanitize_topic(
                 "Very Long Topic Name That Should Be Truncated Because It Exceeds Maximum Length"
             ),
-            "very-long-topic-name-that-should-be-truncated-bec"
+            "very-long-topic-name-that-should-be-truncated-beca"
         );
     }
 

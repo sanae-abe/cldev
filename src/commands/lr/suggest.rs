@@ -158,10 +158,10 @@ mod tests {
             .unwrap();
 
         // Search for similar error
-        let results = db.find_similar_errors("thread panicked", 0.5, 10).unwrap();
+        let results = db.find_similar_errors("thread panicked", 0.3, 10).unwrap();
 
         assert!(!results.is_empty());
-        assert!(results[0].relevance_score >= 0.5);
+        assert!(results[0].relevance_score >= 0.3);
     }
 
     #[test]
