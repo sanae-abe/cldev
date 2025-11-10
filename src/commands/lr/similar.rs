@@ -222,7 +222,11 @@ mod tests {
 
         // At least one session should match (the similar session)
         // Note: In practice, only one session may be returned due to scoring/ranking
-        assert!(results.len() >= 1, "Expected at least 1 result, got {}", results.len());
+        assert!(
+            results.len() >= 1,
+            "Expected at least 1 result, got {}",
+            results.len()
+        );
     }
 
     #[test]

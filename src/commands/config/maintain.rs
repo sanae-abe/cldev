@@ -1,5 +1,7 @@
 use crate::cli::output::OutputHandler;
-use crate::core::{config::Config, error::CldevError, learning_record_v3::LearningRecordV3, Result};
+use crate::core::{
+    config::Config, error::CldevError, learning_record_v3::LearningRecordV3, Result,
+};
 use chrono::{DateTime, Duration, Local};
 use std::fs;
 use std::path::PathBuf;
@@ -182,8 +184,8 @@ pub fn handle_config_maintain(
 
 /// Detect expired learning records based on retention policy
 fn detect_expired_records(retention_days: i64) -> Result<Vec<(String, DateTime<Local>)>> {
-    let home = dirs::home_dir()
-        .ok_or_else(|| CldevError::config("Could not determine home directory"))?;
+    let home =
+        dirs::home_dir().ok_or_else(|| CldevError::config("Could not determine home directory"))?;
 
     let lr_dir = home.join(".cldev").join("learning-records");
     if !lr_dir.exists() {
@@ -217,8 +219,8 @@ fn detect_expired_records(retention_days: i64) -> Result<Vec<(String, DateTime<L
 
 /// Archive learning records
 fn archive_learning_records(config: &ArchiveConfig, output: &OutputHandler) -> Result<usize> {
-    let home = dirs::home_dir()
-        .ok_or_else(|| CldevError::config("Could not determine home directory"))?;
+    let home =
+        dirs::home_dir().ok_or_else(|| CldevError::config("Could not determine home directory"))?;
 
     let lr_dir = home.join(".cldev").join("learning-records");
     let archive_dir = home.join(".cldev").join("learning-records-archive");
@@ -282,10 +284,7 @@ fn archive_learning_records(config: &ArchiveConfig, output: &OutputHandler) -> R
 
     tar.finish()?;
 
-    output.success(&format!(
-        "Created archive: {}",
-        archive_path.display()
-    ));
+    output.success(&format!("Created archive: {}", archive_path.display()));
 
     Ok(archived_count)
 }
