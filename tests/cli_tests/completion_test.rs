@@ -2,12 +2,12 @@
 //!
 //! Tests completion generation for various shells.
 
-use assert_cmd::cargo::cargo_bin_cmd;
+use assert_cmd::Command;
 use predicates::prelude::*;
 
 #[test]
 fn test_completion_bash() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     cmd.args(["completions", "bash"])
@@ -18,7 +18,7 @@ fn test_completion_bash() {
 
 #[test]
 fn test_completion_zsh() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     cmd.args(["completions", "zsh"])
@@ -29,7 +29,7 @@ fn test_completion_zsh() {
 
 #[test]
 fn test_completion_fish() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     cmd.args(["completions", "fish"])
@@ -40,7 +40,7 @@ fn test_completion_fish() {
 
 #[test]
 fn test_completion_powershell() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     cmd.args(["completions", "powershell"])
@@ -54,7 +54,7 @@ fn test_completion_powershell() {
 
 #[test]
 fn test_completion_elvish() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     cmd.args(["completions", "elvish"])
@@ -65,7 +65,7 @@ fn test_completion_elvish() {
 
 #[test]
 fn test_completion_invalid_shell() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     cmd.args(["completions", "invalid-shell"])
@@ -76,7 +76,7 @@ fn test_completion_invalid_shell() {
 
 #[test]
 fn test_completion_help() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     cmd.args(["completions", "--help"])
@@ -92,7 +92,7 @@ fn test_completion_output_not_empty() {
     let shells = vec!["bash", "zsh", "fish", "powershell", "elvish"];
 
     for shell in shells {
-        let mut cmd = cargo_bin_cmd!();
+        let mut cmd = Command::cargo_bin("cldev").unwrap();
         cmd.env("LANG", "en");
 
         let output = cmd.args(["completions", shell]).output().unwrap();
@@ -107,7 +107,7 @@ fn test_completion_output_not_empty() {
 
 #[test]
 fn test_completion_bash_contains_commands() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     cmd.args(["completions", "bash"]).assert().success().stdout(
@@ -119,7 +119,7 @@ fn test_completion_bash_contains_commands() {
 
 #[test]
 fn test_completion_installation_instructions() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     cmd.args(["completions", "--help"])
@@ -130,7 +130,7 @@ fn test_completion_installation_instructions() {
 
 #[test]
 fn test_completion_bash_syntax_valid() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     let output = cmd.args(["completions", "bash"]).output().unwrap();
@@ -146,7 +146,7 @@ fn test_completion_bash_syntax_valid() {
 
 #[test]
 fn test_completion_zsh_syntax_valid() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     let output = cmd.args(["completions", "zsh"]).output().unwrap();
@@ -162,7 +162,7 @@ fn test_completion_zsh_syntax_valid() {
 
 #[test]
 fn test_completion_fish_syntax_valid() {
-    let mut cmd = cargo_bin_cmd!();
+    let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
     let output = cmd.args(["completions", "fish"]).output().unwrap();
@@ -181,7 +181,7 @@ fn test_completion_stdout_only() {
     let shells = vec!["bash", "zsh", "fish"];
 
     for shell in shells {
-        let mut cmd = cargo_bin_cmd!();
+        let mut cmd = Command::cargo_bin("cldev").unwrap();
         cmd.env("LANG", "en");
 
         let output = cmd.args(["completions", shell]).output().unwrap();
