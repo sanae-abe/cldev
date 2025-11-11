@@ -22,8 +22,16 @@ fn write_config_with_permissions(path: &Path, content: &str) {
 
 /// Helper function to create required directories for config validation
 fn create_required_dirs(base_path: &Path) {
+    // Create all directories that config validation expects
+    fs::create_dir_all(base_path.join(".claude")).unwrap();
     fs::create_dir_all(base_path.join(".claude/learning-sessions")).unwrap();
     fs::create_dir_all(base_path.join("projects")).unwrap();
+
+    // Also create platform-specific config directory
+    #[cfg(target_os = "macos")]
+    fs::create_dir_all(base_path.join("Library/Application Support/cldev")).unwrap();
+    #[cfg(not(target_os = "macos"))]
+    fs::create_dir_all(base_path.join(".config/cldev")).unwrap();
 }
 
 #[test]
@@ -90,18 +98,32 @@ fn test_config_check_valid() {
 
     fs::create_dir_all(&config_dir).unwrap();
 
-    // Create valid config
-    let config_content = r#"
+    // Create valid config with explicit paths pointing to temp directory
+    let claude_dir = temp_dir.path().join(".claude");
+    let projects_dir = temp_dir.path().join("projects");
+    let sessions_dir = temp_dir.path().join(".claude/learning-sessions");
+
+    let config_content = format!(
+        r#"
 version = "1.0.0"
 
 [general]
 language = "ja"
+claude_dir = "{}"
+projects_dir = "{}"
 
 [git]
 default_base_branch = "main"
-"#;
 
-    write_config_with_permissions(&config_dir.join("config.toml"), config_content);
+[lr]
+sessions_dir = "{}"
+"#,
+        claude_dir.display(),
+        projects_dir.display(),
+        sessions_dir.display()
+    );
+
+    write_config_with_permissions(&config_dir.join("config.toml"), &config_content);
 
     let mut cmd = cargo_bin_cmd!();
 
@@ -311,15 +333,29 @@ fn test_config_path_display() {
     let config_dir = temp_dir.path().join(".config/cldev");
     fs::create_dir_all(&config_dir).unwrap();
 
-    // Create config
-    let config_content = r#"
+    // Create config with explicit paths
+    let claude_dir = temp_dir.path().join(".claude");
+    let projects_dir = temp_dir.path().join("projects");
+    let sessions_dir = temp_dir.path().join(".claude/learning-sessions");
+
+    let config_content = format!(
+        r#"
 version = "1.0.0"
 
 [general]
 language = "en"
-"#;
+claude_dir = "{}"
+projects_dir = "{}"
 
-    write_config_with_permissions(&config_dir.join("config.toml"), config_content);
+[lr]
+sessions_dir = "{}"
+"#,
+        claude_dir.display(),
+        projects_dir.display(),
+        sessions_dir.display()
+    );
+
+    write_config_with_permissions(&config_dir.join("config.toml"), &config_content);
 
     let mut cmd = cargo_bin_cmd!();
 
@@ -342,9 +378,28 @@ fn test_config_validate_permissions() {
     let config_dir = temp_dir.path().join(".config/cldev");
     fs::create_dir_all(&config_dir).unwrap();
 
-    let config_content = "version = \"1.0.0\"";
+    // Create config with explicit paths
+    let claude_dir = temp_dir.path().join(".claude");
+    let projects_dir = temp_dir.path().join("projects");
+    let sessions_dir = temp_dir.path().join(".claude/learning-sessions");
+
+    let config_content = format!(
+        r#"version = "1.0.0"
+
+[general]
+claude_dir = "{}"
+projects_dir = "{}"
+
+[lr]
+sessions_dir = "{}"
+"#,
+        claude_dir.display(),
+        projects_dir.display(),
+        sessions_dir.display()
+    );
+
     let config_path = config_dir.join("config.toml");
-    write_config_with_permissions(&config_path, config_content);
+    write_config_with_permissions(&config_path, &config_content);
 
     // On Unix, set permissions to 600
     #[cfg(unix)]
