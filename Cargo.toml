@@ -102,8 +102,10 @@ tar = "0.4"
 flate2 = "1.0"
 
 [dev-dependencies]
-assert_cmd = "2.0"
-predicates = "3.1"
+# Pin to 2.0.12 for MSRV 1.70 compatibility (2.0.13+ requires Rust 1.74+)
+assert_cmd = "=2.0.12"
+# Pin to 3.0 for MSRV 1.70 compatibility (3.1+ requires Rust 1.74+)
+predicates = "~3.0"
 tempfile = "3.10"
 # Downgrade to 0.5 for MSRV 1.70 compatibility (0.7+ requires clap 4.5+)
 criterion = "0.5"
