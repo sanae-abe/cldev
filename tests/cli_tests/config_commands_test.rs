@@ -166,6 +166,11 @@ fn test_config_check_valid() {
     let projects_dir = temp_dir.path().join("projects");
     let sessions_dir = temp_dir.path().join(".claude/learning-sessions");
 
+    // Escape backslashes for Windows paths in TOML
+    let claude_dir_str = claude_dir.display().to_string().replace('\\', "\\\\");
+    let projects_dir_str = projects_dir.display().to_string().replace('\\', "\\\\");
+    let sessions_dir_str = sessions_dir.display().to_string().replace('\\', "\\\\");
+
     let config_content = format!(
         r#"
 version = "1.0.0"
@@ -181,9 +186,7 @@ default_base_branch = "main"
 [lr]
 sessions_dir = "{}"
 "#,
-        claude_dir.display(),
-        projects_dir.display(),
-        sessions_dir.display()
+        claude_dir_str, projects_dir_str, sessions_dir_str
     );
 
     write_config_with_permissions(&config_dir.join("config.toml"), &config_content);
@@ -406,6 +409,11 @@ fn test_config_path_display() {
     let projects_dir = temp_dir.path().join("projects");
     let sessions_dir = temp_dir.path().join(".claude/learning-sessions");
 
+    // Escape backslashes for Windows paths in TOML
+    let claude_dir_str = claude_dir.display().to_string().replace('\\', "\\\\");
+    let projects_dir_str = projects_dir.display().to_string().replace('\\', "\\\\");
+    let sessions_dir_str = sessions_dir.display().to_string().replace('\\', "\\\\");
+
     let config_content = format!(
         r#"
 version = "1.0.0"
@@ -418,9 +426,7 @@ projects_dir = "{}"
 [lr]
 sessions_dir = "{}"
 "#,
-        claude_dir.display(),
-        projects_dir.display(),
-        sessions_dir.display()
+        claude_dir_str, projects_dir_str, sessions_dir_str
     );
 
     write_config_with_permissions(&config_dir.join("config.toml"), &config_content);
@@ -456,6 +462,11 @@ fn test_config_validate_permissions() {
     let projects_dir = temp_dir.path().join("projects");
     let sessions_dir = temp_dir.path().join(".claude/learning-sessions");
 
+    // Escape backslashes for Windows paths in TOML
+    let claude_dir_str = claude_dir.display().to_string().replace('\\', "\\\\");
+    let projects_dir_str = projects_dir.display().to_string().replace('\\', "\\\\");
+    let sessions_dir_str = sessions_dir.display().to_string().replace('\\', "\\\\");
+
     let config_content = format!(
         r#"version = "1.0.0"
 
@@ -466,9 +477,7 @@ projects_dir = "{}"
 [lr]
 sessions_dir = "{}"
 "#,
-        claude_dir.display(),
-        projects_dir.display(),
-        sessions_dir.display()
+        claude_dir_str, projects_dir_str, sessions_dir_str
     );
 
     let config_path = config_dir.join("config.toml");
