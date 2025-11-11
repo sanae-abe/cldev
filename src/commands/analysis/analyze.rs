@@ -175,7 +175,7 @@ pub fn analyze_project(
     detailed: bool,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info(&format!("Starting {:?} analysis...", target));
+    output.info(&output.t_format("analyze-starting", "target", &format!("{:?}", target)));
 
     let current_dir = std::env::current_dir()?;
 
@@ -194,9 +194,10 @@ pub fn analyze_project(
         AnalysisFormat::Html => output_html(&result, output)?,
     }
 
-    output.success(&format!(
-        "Analysis complete. Overall score: {:.1}/10",
-        result.summary.overall_score
+    output.success(&output.t_format(
+        "analyze-complete",
+        "score",
+        &format!("{:.1}", result.summary.overall_score),
     ));
 
     Ok(())
@@ -207,7 +208,7 @@ fn analyze_structure(
     _detailed: bool,
     output: &OutputHandler,
 ) -> Result<AnalysisResult> {
-    output.debug("Analyzing project structure...");
+    output.debug(&output.t("analyze-structure"));
 
     let modules = scan_modules(path)?;
     let dependencies = analyze_dependencies(&modules)?;
@@ -241,7 +242,7 @@ fn analyze_performance(
     _detailed: bool,
     output: &OutputHandler,
 ) -> Result<AnalysisResult> {
-    output.debug("Analyzing performance characteristics...");
+    output.debug(&output.t("analyze-performance"));
 
     let hot_spots = detect_performance_hotspots(path)?;
     let memory_metrics = analyze_memory_usage(path)?;
@@ -270,7 +271,7 @@ fn analyze_performance(
 }
 
 fn analyze_quality(path: &Path, _detailed: bool, output: &OutputHandler) -> Result<AnalysisResult> {
-    output.debug("Analyzing code quality...");
+    output.debug(&output.t("analyze-quality"));
 
     let complexity = calculate_complexity_metrics(path)?;
     let smells = detect_code_smells(path)?;
@@ -301,7 +302,7 @@ fn analyze_quality(path: &Path, _detailed: bool, output: &OutputHandler) -> Resu
 }
 
 fn analyze_debt(path: &Path, _detailed: bool, output: &OutputHandler) -> Result<AnalysisResult> {
-    output.debug("Analyzing technical debt...");
+    output.debug(&output.t("analyze-debt"));
 
     let debt_items = scan_technical_debt(path)?;
     let debt_by_category = categorize_debt(&debt_items);
@@ -334,7 +335,7 @@ fn analyze_overview(
     _detailed: bool,
     output: &OutputHandler,
 ) -> Result<AnalysisResult> {
-    output.debug("Generating project overview...");
+    output.debug(&output.t("analyze-overview"));
 
     // Collect high-level metrics from each analysis type
     let structure_summary = get_structure_summary(path)?;
@@ -994,16 +995,36 @@ fn calculate_overall_score(
 
 // Output formatters
 fn output_text(result: &AnalysisResult, output: &OutputHandler) {
-    output.info(&format!("\n=== {} Analysis Report ===", result.target));
-    output.info(&format!("Timestamp: {}", result.timestamp));
-    output.info("\n--- Summary ---");
-    output.info(&format!("Total files: {}", result.summary.total_files));
-    output.info(&format!("Total lines: {}", result.summary.total_lines));
-    output.info(&format!("Languages: {:?}", result.summary.languages));
-    output.info(&format!("Issues found: {}", result.summary.issues_found));
     output.info(&format!(
-        "Overall score: {:.1}/10",
-        result.summary.overall_score
+        "\n{}",
+        output.t_format("analyze-report-header", "target", &result.target)
+    ));
+    output.info(&output.t_format("analyze-report-timestamp", "timestamp", &result.timestamp));
+    output.info(&format!("\n{}", output.t("analyze-report-summary")));
+    output.info(&output.t_format(
+        "analyze-total-files",
+        "count",
+        &result.summary.total_files.to_string(),
+    ));
+    output.info(&output.t_format(
+        "analyze-total-lines",
+        "count",
+        &result.summary.total_lines.to_string(),
+    ));
+    output.info(&output.t_format(
+        "analyze-languages",
+        "langs",
+        &format!("{:?}", result.summary.languages),
+    ));
+    output.info(&output.t_format(
+        "analyze-issues-found",
+        "count",
+        &result.summary.issues_found.to_string(),
+    ));
+    output.info(&output.t_format(
+        "analyze-overall-score",
+        "score",
+        &format!("{:.1}", result.summary.overall_score),
     ));
 
     match &result.details {
@@ -1016,15 +1037,28 @@ fn output_text(result: &AnalysisResult, output: &OutputHandler) {
 }
 
 fn output_structure_text(structure: &StructureAnalysis, output: &OutputHandler) {
-    output.info("\n--- Structure Details ---");
-    output.info(&format!("Modules: {}", structure.modules.len()));
-    output.info(&format!("Max depth: {}", structure.depth));
-    output.info(&format!("Dependencies: {}", structure.dependencies.len()));
+    output.info(&format!("\n{}", output.t("analyze-structure-details")));
+    output.info(&output.t_format(
+        "analyze-structure-modules",
+        "count",
+        &structure.modules.len().to_string(),
+    ));
+    output.info(&output.t_format(
+        "analyze-structure-max-depth",
+        "depth",
+        &structure.depth.to_string(),
+    ));
+    output.info(&output.t_format(
+        "analyze-structure-dependencies",
+        "count",
+        &structure.dependencies.len().to_string(),
+    ));
 
     if !structure.circular_dependencies.is_empty() {
-        output.warning(&format!(
-            "Circular dependencies detected: {}",
-            structure.circular_dependencies.len()
+        output.warning(&output.t_format(
+            "analyze-circular-deps-detected",
+            "count",
+            &structure.circular_dependencies.len().to_string(),
         ));
         for dep in &structure.circular_dependencies {
             output.list_item(&format!("  {}", dep));
@@ -1033,73 +1067,127 @@ fn output_structure_text(structure: &StructureAnalysis, output: &OutputHandler) 
 }
 
 fn output_performance_text(performance: &PerformanceAnalysis, output: &OutputHandler) {
-    output.info("\n--- Performance Details ---");
-    output.info(&format!("Hot spots found: {}", performance.hot_spots.len()));
+    output.info(&format!("\n{}", output.t("analyze-performance-details")));
+    output.info(&output.t_format(
+        "analyze-hotspots-found",
+        "count",
+        &performance.hot_spots.len().to_string(),
+    ));
 
     for hotspot in &performance.hot_spots {
-        output.warning(&format!(
-            "[{}] {}:{} - {}",
-            hotspot.severity, hotspot.file, hotspot.line, hotspot.issue
-        ));
+        output.warning(
+            &output
+                .t("analyze-hotspot-severity")
+                .replace("{severity}", &hotspot.severity)
+                .replace("{file}", &hotspot.file)
+                .replace("{line}", &hotspot.line.to_string())
+                .replace("{issue}", &hotspot.issue)
+                .to_string(),
+        );
     }
 
-    output.info("\n--- Optimization Suggestions ---");
+    output.info(&format!(
+        "\n{}",
+        output.t("analyze-optimization-suggestions")
+    ));
     for suggestion in &performance.optimization_suggestions {
         output.list_item(suggestion);
     }
 }
 
 fn output_quality_text(quality: &QualityAnalysis, output: &OutputHandler) {
-    output.info("\n--- Quality Details ---");
-    output.info(&format!(
-        "Average complexity: {:.1}",
-        quality.complexity_metrics.cyclomatic_avg
+    output.info(&format!("\n{}", output.t("analyze-quality-details")));
+    output.info(&output.t_format(
+        "analyze-avg-complexity",
+        "value",
+        &format!("{:.1}", quality.complexity_metrics.cyclomatic_avg),
     ));
-    output.info(&format!(
-        "Max complexity: {}",
-        quality.complexity_metrics.cyclomatic_max
+    output.info(&output.t_format(
+        "analyze-max-complexity",
+        "value",
+        &quality.complexity_metrics.cyclomatic_max.to_string(),
     ));
-    output.info(&format!(
-        "Maintainability index: {:.1}",
-        quality.complexity_metrics.maintainability_index
+    output.info(&output.t_format(
+        "analyze-maintainability-index",
+        "value",
+        &format!("{:.1}", quality.complexity_metrics.maintainability_index),
     ));
-    output.info(&format!("Test coverage: {:.1}%", quality.test_coverage));
-    output.info(&format!("Code smells: {}", quality.code_smells.len()));
+    output.info(&output.t_format(
+        "analyze-test-coverage",
+        "percent",
+        &format!("{:.1}", quality.test_coverage),
+    ));
+    output.info(&output.t_format(
+        "analyze-code-smells",
+        "count",
+        &quality.code_smells.len().to_string(),
+    ));
 }
 
 fn output_debt_text(debt: &DebtAnalysis, output: &OutputHandler) {
-    output.info("\n--- Technical Debt Details ---");
-    output.info(&format!("Total debt: {:.1} hours", debt.total_debt_hours));
-    output.info(&format!("Debt items: {}", debt.debt_items.len()));
+    output.info(&format!("\n{}", output.t("analyze-debt-details")));
+    output.info(&output.t_format(
+        "analyze-total-debt",
+        "hours",
+        &format!("{:.1}", debt.total_debt_hours),
+    ));
+    output.info(&output.t_format(
+        "analyze-debt-items",
+        "count",
+        &debt.debt_items.len().to_string(),
+    ));
 
-    output.info("\n--- Debt by Category ---");
+    output.info(&format!("\n{}", output.t("analyze-debt-by-category")));
     for (category, hours) in &debt.debt_by_category {
-        output.list_item(&format!("{}: {:.1} hours", category, hours));
+        output.list_item(
+            &output
+                .t("analyze-debt-category-hours")
+                .replace("{category}", category)
+                .replace("{hours}", &format!("{:.1}", hours)),
+        );
     }
 }
 
 fn output_overview_text(overview: &OverviewAnalysis, output: &OutputHandler) {
-    output.info("\n--- Overview ---");
-    output.info(&format!(
-        "Structure: {} modules, depth {}, {} circular deps",
-        overview.structure.modules_count,
-        overview.structure.max_depth,
-        overview.structure.circular_deps
-    ));
-    output.info(&format!(
-        "Performance: {} hot spots, {} critical",
-        overview.performance.hot_spots_count, overview.performance.critical_issues
-    ));
-    output.info(&format!(
-        "Quality: {:.1} avg complexity, {} smells, {:.1}% coverage",
-        overview.quality.avg_complexity,
-        overview.quality.code_smells_count,
-        overview.quality.test_coverage
-    ));
-    output.info(&format!(
-        "Debt: {:.1} hours, {} high priority items",
-        overview.debt.total_hours, overview.debt.high_priority_items
-    ));
+    output.info(&format!("\n{}", output.t("analyze-overview-header")));
+    output.info(
+        &output
+            .t("analyze-overview-structure")
+            .replace("{modules}", &overview.structure.modules_count.to_string())
+            .replace("{depth}", &overview.structure.max_depth.to_string())
+            .replace("{circular}", &overview.structure.circular_deps.to_string()),
+    );
+    output.info(
+        &output
+            .t("analyze-overview-performance")
+            .replace(
+                "{hotspots}",
+                &overview.performance.hot_spots_count.to_string(),
+            )
+            .replace(
+                "{critical}",
+                &overview.performance.critical_issues.to_string(),
+            ),
+    );
+    output.info(
+        &output
+            .t("analyze-overview-quality")
+            .replace(
+                "{complexity}",
+                &format!("{:.1}", overview.quality.avg_complexity),
+            )
+            .replace("{smells}", &overview.quality.code_smells_count.to_string())
+            .replace(
+                "{coverage}",
+                &format!("{:.1}", overview.quality.test_coverage),
+            ),
+    );
+    output.info(
+        &output
+            .t("analyze-overview-debt")
+            .replace("{hours}", &format!("{:.1}", overview.debt.total_hours))
+            .replace("{priority}", &overview.debt.high_priority_items.to_string()),
+    );
 }
 
 fn output_json(result: &AnalysisResult, output: &OutputHandler) -> Result<()> {
