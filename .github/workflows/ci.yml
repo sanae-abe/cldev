@@ -141,7 +141,7 @@ jobs:
         run: cargo install cargo-audit
 
       - name: Run security audit
-        run: cargo audit --locked
+        run: cargo audit
 
   # MSRV verification
   msrv:

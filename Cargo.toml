@@ -70,7 +70,8 @@ colored = "3.0"
 comfy-table = "=7.1.4"
 
 # Interactive prompts and dialogs
-dialoguer = "0.12"
+# Pin to 0.11 for MSRV 1.70 compatibility (0.12+ uses console 0.16 requiring 1.71+)
+dialoguer = "0.11"
 
 # Progress bars and spinners
 # Pin to 0.18.0 for MSRV 1.70 compatibility (0.18.2+ requires 1.71+)
