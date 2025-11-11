@@ -57,9 +57,16 @@ jobs:
 
       # ========== cli-testing-specialist installation ==========
 
+      - name: Cache cli-testing-specialist
+        id: cache-cli-testing-specialist
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/bin/cli-testing-specialist
+          key: ${{ runner.os }}-cli-testing-specialist-v1.0.2
+
       - name: Install cli-testing-specialist
+        if: steps.cache-cli-testing-specialist.outputs.cache-hit != 'true'
         run: |
-          # Install from GitHub
           cargo install --git https://github.com/sanae-abe/cli-testing-specialist --tag v1.0.2 cli-testing-specialist
 
       - name: Verify cli-testing-specialist installation
@@ -139,7 +146,7 @@ jobs:
             jq -r '"Total: " + (.total_tests | tostring)' cli-reports/cli-tests-report.json
             jq -r '"Passed: " + (.total_passed | tostring)' cli-reports/cli-tests-report.json
             jq -r '"Failed: " + (.total_failed | tostring)' cli-reports/cli-tests-report.json
-            jq -r '"Success Rate: " + ((.success_rate * 100) | tostring) + "%"' cli-reports/cli-reports-report.json
+            jq -r '"Success Rate: " + ((.success_rate * 100) | tostring) + "%"' cli-reports/cli-tests-report.json
           fi
 
       # ========== Report Upload ==========
@@ -194,7 +201,15 @@ jobs:
       - name: Build cldev
         run: cargo build --release
 
+      - name: Cache cli-testing-specialist
+        id: cache-cli-testing-specialist-security
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/bin/cli-testing-specialist
+          key: ${{ runner.os }}-cli-testing-specialist-v1.0.2
+
       - name: Install cli-testing-specialist
+        if: steps.cache-cli-testing-specialist-security.outputs.cache-hit != 'true'
         run: |
           cargo install --git https://github.com/sanae-abe/cli-testing-specialist --tag v1.0.2 cli-testing-specialist
 
