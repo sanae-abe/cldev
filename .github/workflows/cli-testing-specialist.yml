@@ -67,7 +67,7 @@ jobs:
       - name: Install cli-testing-specialist
         if: steps.cache-cli-testing-specialist.outputs.cache-hit != 'true'
         run: |
-          cargo install --git https://github.com/sanae-abe/cli-testing-specialist --tag v1.0.2 cli-testing-specialist
+          cargo install --git https://github.com/sanae-abe/cli-testing-specialist --rev 3411fd4f8b2cb4937cb1c62082e4f62cbf783274 cli-testing-specialist
 
       - name: Verify cli-testing-specialist installation
         run: cli-testing-specialist --version
@@ -129,6 +129,17 @@ jobs:
 
       - name: Verify BATS installation
         run: bats --version
+
+      - name: Add cldev to PATH
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          ln -sf "$PWD/${{ matrix.binary }}" "$HOME/.local/bin/cldev"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Verify cldev in PATH
+        run: |
+          which cldev
+          cldev --version
 
       - name: Run CLI tests
         run: |
@@ -211,7 +222,7 @@ jobs:
       - name: Install cli-testing-specialist
         if: steps.cache-cli-testing-specialist-security.outputs.cache-hit != 'true'
         run: |
-          cargo install --git https://github.com/sanae-abe/cli-testing-specialist --tag v1.0.2 cli-testing-specialist
+          cargo install --git https://github.com/sanae-abe/cli-testing-specialist --rev 3411fd4f8b2cb4937cb1c62082e4f62cbf783274 cli-testing-specialist
 
       - name: Analyze CLI
         run: |
@@ -233,7 +244,7 @@ jobs:
         run: |
           cli-testing-specialist run \
             security-tests \
-            --format markdown,json \
+            --format all \
             --output security-reports
 
       - name: Upload security reports
