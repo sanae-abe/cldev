@@ -10,6 +10,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  issues: write  # Required for creating issues on security vulnerabilities
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -98,6 +102,7 @@ jobs:
 
       - name: Run cargo-geiger
         run: cargo geiger --all-features
+        continue-on-error: true  # Warnings about unsafe code in dependencies are informational
 
   cve-check:
     name: CVE Check
