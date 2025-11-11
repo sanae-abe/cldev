@@ -188,6 +188,11 @@ sessions_dir = "{}"
 
     write_config_with_permissions(&config_dir.join("config.toml"), &config_content);
 
+    // Also write to fallback location for CI environments where dirs::config_dir() returns None
+    let fallback_config_dir = temp_dir.path().join(".cldev");
+    fs::create_dir_all(&fallback_config_dir).unwrap();
+    write_config_with_permissions(&fallback_config_dir.join("config.toml"), &config_content);
+
     let mut cmd = cargo_bin_cmd!();
 
     cmd.args(["config", "check"])
@@ -420,6 +425,11 @@ sessions_dir = "{}"
 
     write_config_with_permissions(&config_dir.join("config.toml"), &config_content);
 
+    // Also write to fallback location for CI environments where dirs::config_dir() returns None
+    let fallback_config_dir = temp_dir.path().join(".cldev");
+    fs::create_dir_all(&fallback_config_dir).unwrap();
+    write_config_with_permissions(&fallback_config_dir.join("config.toml"), &config_content);
+
     let mut cmd = cargo_bin_cmd!();
 
     // config check shows config path information
@@ -464,13 +474,23 @@ sessions_dir = "{}"
     let config_path = config_dir.join("config.toml");
     write_config_with_permissions(&config_path, &config_content);
 
-    // On Unix, set permissions to 600
+    // Also write to fallback location for CI environments where dirs::config_dir() returns None
+    let fallback_config_dir = temp_dir.path().join(".cldev");
+    fs::create_dir_all(&fallback_config_dir).unwrap();
+    let fallback_config_path = fallback_config_dir.join("config.toml");
+    write_config_with_permissions(&fallback_config_path, &config_content);
+
+    // On Unix, set permissions to 600 for both locations
     #[cfg(unix)]
     {
         use std::os::unix::fs::PermissionsExt;
         let mut permissions = fs::metadata(&config_path).unwrap().permissions();
         permissions.set_mode(0o600);
         fs::set_permissions(&config_path, permissions).unwrap();
+
+        let mut fallback_permissions = fs::metadata(&fallback_config_path).unwrap().permissions();
+        fallback_permissions.set_mode(0o600);
+        fs::set_permissions(&fallback_config_path, fallback_permissions).unwrap();
     }
 
     let mut cmd = cargo_bin_cmd!();
