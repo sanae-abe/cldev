@@ -72,7 +72,8 @@ comfy-table = "=7.1.4"
 dialoguer = "0.12"
 
 # Progress bars and spinners
-indicatif = "0.18"
+# Pin to 0.18.0 for MSRV 1.70 compatibility (0.18.2+ requires 1.71+)
+indicatif = "=0.18.0"
 
 # Git repository operations
 git2 = "0.20"
