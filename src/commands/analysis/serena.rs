@@ -107,10 +107,7 @@ pub struct Suggestion {
 
 /// Run Serena semantic code analysis
 pub fn run_serena(mode: SerenaMode, targets: &[String], output: &OutputHandler) -> Result<()> {
-    output.info(&format!(
-        "Starting Serena semantic analysis in {:?} mode...",
-        mode
-    ));
+    output.info(&output.t_format("serena-starting", "mode", &format!("{:?}", mode)));
 
     match mode {
         SerenaMode::Interactive => run_interactive_mode(targets, output),
@@ -120,8 +117,8 @@ pub fn run_serena(mode: SerenaMode, targets: &[String], output: &OutputHandler) 
 }
 
 fn run_interactive_mode(targets: &[String], output: &OutputHandler) -> Result<()> {
-    output.info("🎯 Interactive Mode - Semantic Code Analysis");
-    output.info("This mode provides interactive exploration of code semantics\n");
+    output.info(&output.t("serena-interactive-mode"));
+    output.info(&format!("{}\n", output.t("serena-interactive-desc")));
 
     let current_dir = std::env::current_dir()?;
     let target_paths = if targets.is_empty() {
@@ -137,12 +134,12 @@ fn run_interactive_mode(targets: &[String], output: &OutputHandler) -> Result<()
         display_interactive_results(&result, output)?;
     }
 
-    output.success("\n✅ Interactive analysis complete");
+    output.success(&format!("\n{}", output.t("serena-interactive-complete")));
     Ok(())
 }
 
 fn run_batch_mode(targets: &[String], output: &OutputHandler) -> Result<()> {
-    output.info("📦 Batch Mode - Processing multiple targets");
+    output.info(&output.t("serena-batch-mode"));
 
     let current_dir = std::env::current_dir()?;
     let target_paths = if targets.is_empty() {
@@ -154,7 +151,7 @@ fn run_batch_mode(targets: &[String], output: &OutputHandler) -> Result<()> {
     let mut all_results = Vec::new();
 
     for target in &target_paths {
-        output.debug(&format!("Analyzing: {}", target));
+        output.debug(&output.t_format("serena-analyzing", "target", target));
         let path = Path::new(target);
         let result = analyze_semantics(path, false)?;
         all_results.push(result);
@@ -164,16 +161,20 @@ fn run_batch_mode(targets: &[String], output: &OutputHandler) -> Result<()> {
     display_batch_results(&all_results, output)?;
 
     output.success(&format!(
-        "\n✅ Batch analysis complete - processed {} targets",
-        all_results.len()
+        "\n{}",
+        output.t_format(
+            "serena-batch-complete",
+            "count",
+            &all_results.len().to_string()
+        )
     ));
     Ok(())
 }
 
 fn run_watch_mode(targets: &[String], output: &OutputHandler) -> Result<()> {
-    output.info("👀 Watch Mode - Continuous semantic analysis");
-    output.warning("Watch mode would monitor file changes and re-analyze");
-    output.info("This is a simplified implementation for demonstration\n");
+    output.info(&output.t("serena-watch-mode"));
+    output.warning(&output.t("serena-watch-simple-impl"));
+    output.info(&format!("{}\n", output.t("serena-watch-simple-note")));
 
     let current_dir = std::env::current_dir()?;
     let target_paths = if targets.is_empty() {
@@ -184,14 +185,14 @@ fn run_watch_mode(targets: &[String], output: &OutputHandler) -> Result<()> {
 
     // Initial analysis
     for target in &target_paths {
-        output.info(&format!("Initial analysis of: {}", target));
+        output.info(&output.t_format("serena-watch-initial", "target", target));
         let path = Path::new(target);
         let result = analyze_semantics(path, false)?;
         display_summary(&result, output);
     }
 
-    output.info("\n💡 In production, this would continuously watch for file changes");
-    output.info("Press Ctrl+C to stop watching (simulated)");
+    output.info(&format!("\n{}", output.t("serena-production-note")));
+    output.info(&output.t("serena-production-stop"));
 
     Ok(())
 }
@@ -568,72 +569,92 @@ fn generate_suggestions(insights: &[Insight], metrics: &AnalysisMetrics) -> Vec<
 }
 
 fn display_interactive_results(result: &SerenaResult, output: &OutputHandler) -> Result<()> {
-    output.info("\n=== Semantic Analysis Results ===\n");
+    output.info(&format!("\n{}\n", output.t("serena-results-header")));
 
     // Display metrics
-    output.info("--- Metrics ---");
-    output.info(&format!(
-        "Total symbols: {}",
-        result.analysis.metrics.total_symbols
+    output.info(&output.t("serena-metrics-header"));
+    output.info(&output.t_format(
+        "serena-metrics-symbols",
+        "count",
+        &result.analysis.metrics.total_symbols.to_string(),
     ));
-    output.info(&format!(
-        "Relationships: {}",
-        result.analysis.metrics.total_relationships
+    output.info(&output.t_format(
+        "serena-metrics-relationships",
+        "count",
+        &result.analysis.metrics.total_relationships.to_string(),
     ));
-    output.info(&format!(
-        "Modularity score: {:.2}/1.0",
-        result.analysis.metrics.modularity_score
+    output.info(&output.t_format(
+        "serena-metrics-modularity",
+        "score",
+        &format!("{:.2}", result.analysis.metrics.modularity_score),
     ));
-    output.info(&format!(
-        "Coupling score: {:.2}/10.0",
-        result.analysis.metrics.coupling_score
+    output.info(&output.t_format(
+        "serena-metrics-coupling",
+        "score",
+        &format!("{:.2}", result.analysis.metrics.coupling_score),
     ));
-    output.info(&format!(
-        "Cohesion score: {:.2}/10.0",
-        result.analysis.metrics.cohesion_score
+    output.info(&output.t_format(
+        "serena-metrics-cohesion",
+        "score",
+        &format!("{:.2}", result.analysis.metrics.cohesion_score),
     ));
 
     // Display patterns
     if !result.analysis.patterns.is_empty() {
-        output.info("\n--- Detected Patterns ---");
+        output.info(&format!("\n{}", output.t("serena-patterns-header")));
         for pattern in &result.analysis.patterns {
-            output.list_item(&format!(
-                "{} ({:?}) - confidence: {:.0}%",
-                pattern.name,
-                pattern.pattern_type,
-                pattern.confidence * 100.0
-            ));
+            output.list_item(
+                &output
+                    .t("serena-patterns-item")
+                    .replace("{name}", &pattern.name)
+                    .replace("{type:?}", &format!("{:?}", pattern.pattern_type))
+                    .replace(
+                        "{confidence}",
+                        &format!("{:.0}", pattern.confidence * 100.0),
+                    ),
+            );
         }
     }
 
     // Display insights
     if !result.insights.is_empty() {
-        output.info("\n--- Insights ---");
+        output.info(&format!("\n{}", output.t("serena-insights-header")));
         for insight in &result.insights {
-            output.warning(&format!(
-                "[{}] {} (confidence: {:.0}%)",
-                insight.category,
-                insight.description,
-                insight.confidence * 100.0
-            ));
-            output.info(&format!("    Impact: {}", insight.impact));
+            output.warning(
+                &output
+                    .t("serena-insights-item")
+                    .replace("{category}", &insight.category)
+                    .replace("{description}", &insight.description)
+                    .replace(
+                        "{confidence}",
+                        &format!("{:.0}", insight.confidence * 100.0),
+                    ),
+            );
+            output.info(&output.t_format("serena-insights-impact", "impact", &insight.impact));
         }
     }
 
     // Display suggestions
     if !result.suggestions.is_empty() {
-        output.info("\n--- Suggestions ---");
+        output.info(&format!("\n{}", output.t("serena-suggestions-header")));
         for suggestion in &result.suggestions {
-            output.list_item(&format!(
-                "[{}] {}",
-                suggestion.priority.to_uppercase(),
-                suggestion.title
+            output.list_item(
+                &output
+                    .t("serena-suggestions-item")
+                    .replace("{priority}", &suggestion.priority.to_uppercase())
+                    .replace("{title}", &suggestion.title),
+            );
+            output.info(&output.t_format(
+                "serena-suggestions-desc",
+                "description",
+                &suggestion.description,
             ));
-            output.info(&format!("    {}", suggestion.description));
-            output.info(&format!(
-                "    Effort: {} | Benefit: {}",
-                suggestion.effort, suggestion.benefit
-            ));
+            output.info(
+                &output
+                    .t("serena-suggestions-benefit")
+                    .replace("{effort}", &suggestion.effort)
+                    .replace("{benefit}", &suggestion.benefit),
+            );
         }
     }
 
@@ -641,7 +662,7 @@ fn display_interactive_results(result: &SerenaResult, output: &OutputHandler) ->
 }
 
 fn display_batch_results(results: &[SerenaResult], output: &OutputHandler) -> Result<()> {
-    output.info("\n=== Batch Analysis Report ===\n");
+    output.info(&format!("\n{}\n", output.t("serena-report-header")));
 
     let total_symbols: usize = results
         .iter()
@@ -657,11 +678,23 @@ fn display_batch_results(results: &[SerenaResult], output: &OutputHandler) -> Re
         .sum::<f32>()
         / results.len() as f32;
 
-    output.info("--- Overall Statistics ---");
-    output.info(&format!("Targets analyzed: {}", results.len()));
-    output.info(&format!("Total symbols: {}", total_symbols));
-    output.info(&format!("Total relationships: {}", total_relationships));
-    output.info(&format!("Average modularity: {:.2}", avg_modularity));
+    output.info(&output.t("serena-report-overall-stats"));
+    output.info(&output.t_format("serena-report-targets", "count", &results.len().to_string()));
+    output.info(&output.t_format(
+        "serena-report-total-symbols",
+        "count",
+        &total_symbols.to_string(),
+    ));
+    output.info(&output.t_format(
+        "serena-report-total-relationships",
+        "count",
+        &total_relationships.to_string(),
+    ));
+    output.info(&output.t_format(
+        "serena-report-avg-modularity",
+        "score",
+        &format!("{:.2}", avg_modularity),
+    ));
 
     // Aggregate insights
     let mut all_insights = Vec::new();
@@ -671,11 +704,20 @@ fn display_batch_results(results: &[SerenaResult], output: &OutputHandler) -> Re
 
     if !all_insights.is_empty() {
         output.info(&format!(
-            "\n--- Aggregated Insights ({}) ---",
-            all_insights.len()
+            "\n{}",
+            output.t_format(
+                "serena-report-aggregated-insights",
+                "count",
+                &all_insights.len().to_string()
+            )
         ));
         for insight in all_insights.iter().take(10) {
-            output.list_item(&format!("[{}] {}", insight.category, insight.description));
+            output.list_item(
+                &output
+                    .t("serena-report-insight-item")
+                    .replace("{category}", &insight.category)
+                    .replace("{description}", &insight.description),
+            );
         }
     }
 
@@ -683,12 +725,19 @@ fn display_batch_results(results: &[SerenaResult], output: &OutputHandler) -> Re
 }
 
 fn display_summary(result: &SerenaResult, output: &OutputHandler) {
-    output.info(&format!(
-        "  Symbols: {} | Relationships: {} | Patterns: {}",
-        result.analysis.metrics.total_symbols,
-        result.analysis.metrics.total_relationships,
-        result.analysis.patterns.len()
-    ));
+    output.info(
+        &output
+            .t("serena-report-symbols")
+            .replace(
+                "{symbols}",
+                &result.analysis.metrics.total_symbols.to_string(),
+            )
+            .replace(
+                "{relationships}",
+                &result.analysis.metrics.total_relationships.to_string(),
+            )
+            .replace("{patterns}", &result.analysis.patterns.len().to_string()),
+    );
 }
 
 fn extract_name_after_keyword(line: &str, keyword: &str) -> Option<String> {
