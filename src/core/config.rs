@@ -389,6 +389,32 @@ impl Config {
     /// - **Windows**: `%APPDATA%\cldev\config.toml`
     /// - **Fallback**: `~/.cldev/config.toml` (if config directory cannot be determined)
     pub fn default_path() -> Result<PathBuf> {
+        // Check HOME environment variable first (for testing and custom setups)
+        if let Ok(home) = std::env::var("HOME") {
+            let home_path = PathBuf::from(home);
+
+            // Try platform-specific config directory under HOME
+            #[cfg(target_os = "macos")]
+            let config_path = home_path.join("Library/Application Support/cldev/config.toml");
+            #[cfg(not(target_os = "macos"))]
+            let config_path = home_path.join(".config/cldev/config.toml");
+
+            // If platform-specific config exists, use it
+            if config_path.exists() {
+                return Ok(config_path);
+            }
+
+            // Otherwise, check fallback location
+            let fallback_path = home_path.join(".cldev/config.toml");
+            if fallback_path.exists() {
+                return Ok(fallback_path);
+            }
+
+            // If neither exists, return platform-specific path (will be created there)
+            return Ok(config_path);
+        }
+
+        // Fall back to dirs crate if HOME is not set
         if let Some(config_dir) = dirs::config_dir() {
             Ok(config_dir.join("cldev").join("config.toml"))
         } else {
