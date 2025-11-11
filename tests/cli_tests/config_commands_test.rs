@@ -44,28 +44,47 @@ fn test_config_init_basic() {
 
     let mut cmd = cargo_bin_cmd!();
 
-    cmd.args(["config", "init", "--defaults"])
+    // Capture output to see where config was actually created
+    let output = cmd
+        .args(["config", "init", "--defaults"])
         .env("HOME", temp_dir.path())
-        .assert()
-        .success();
+        .output()
+        .unwrap();
 
-    // Verify config file was created - check platform-specific location
-    // Note: dirs::config_dir() may return None in CI, falling back to ~/.cldev
-    #[cfg(target_os = "macos")]
-    let primary_path = temp_dir
-        .path()
-        .join("Library/Application Support/cldev/config.toml");
-    #[cfg(not(target_os = "macos"))]
-    let primary_path = temp_dir.path().join(".config/cldev/config.toml");
-
-    let fallback_path = temp_dir.path().join(".cldev/config.toml");
-
-    let config_exists = primary_path.exists() || fallback_path.exists();
+    // Command should succeed
     assert!(
-        config_exists,
-        "Config file should be created at {:?} or {:?}",
-        primary_path, fallback_path
+        output.status.success(),
+        "Command failed with: {}",
+        String::from_utf8_lossy(&output.stderr)
     );
+
+    // Parse stdout to find where config was created
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    // Check multiple possible locations where config might be created
+    let possible_paths = vec![
+        // Platform-specific primary location
+        #[cfg(target_os = "macos")]
+        temp_dir.path().join("Library/Application Support/cldev/config.toml"),
+        #[cfg(not(target_os = "macos"))]
+        temp_dir.path().join(".config/cldev/config.toml"),
+        // Fallback location
+        temp_dir.path().join(".cldev/config.toml"),
+    ];
+
+    let config_found = possible_paths.iter().any(|p| p.exists());
+
+    if !config_found {
+        // If not found in expected locations, print debug info
+        panic!(
+            "Config file not found in any expected location.\nChecked paths: {:?}\nCommand output: {}\nTemp dir contents: {:?}",
+            possible_paths,
+            stdout,
+            fs::read_dir(temp_dir.path()).ok().map(|entries| {
+                entries.filter_map(|e| e.ok().map(|e| e.path())).collect::<Vec<_>>()
+            })
+        );
+    }
 }
 
 #[test]
