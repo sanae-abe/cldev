@@ -247,7 +247,11 @@ fn scan_symbols(path: &Path, symbols: &mut Vec<Symbol>) -> Result<()> {
 }
 
 fn extract_symbols_from_file(file_path: &Path, symbols: &mut Vec<Symbol>) -> Result<()> {
-    let content = std::fs::read_to_string(file_path)?;
+    // Skip files that are not valid UTF-8 (binaries, legacy encodings, etc.)
+    let content = match std::fs::read_to_string(file_path) {
+        Ok(c) => c,
+        Err(_) => return Ok(()), // Silently skip non-UTF-8 files
+    };
     let file_str = file_path.to_string_lossy().to_string();
 
     for (i, line) in content.lines().enumerate() {
