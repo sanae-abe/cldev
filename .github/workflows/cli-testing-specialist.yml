@@ -240,6 +240,17 @@ jobs:
       - name: Install BATS
         run: sudo apt-get update && sudo apt-get install -y bats
 
+      - name: Add cldev to PATH
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          ln -sf "$PWD/target/release/cldev" "$HOME/.local/bin/cldev"
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Verify cldev in PATH
+        run: |
+          which cldev
+          cldev --version
+
       - name: Run security tests
         run: |
           cli-testing-specialist run \
