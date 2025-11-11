@@ -110,6 +110,9 @@ tempfile = "3.10"
 # Downgrade to 0.5 for MSRV 1.70 compatibility (0.7+ requires clap 4.5+)
 criterion = "0.5"
 serial_test = "3.0"
+# Pin bstr to 1.10.0 for MSRV 1.70 compatibility (1.11+ requires Rust 1.73+)
+# This is a transitive dependency of assert_cmd but we pin it explicitly
+bstr = "=1.10.0"
 
 [profile.release]
 opt-level = "z"  # Optimize for size
