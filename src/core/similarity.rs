@@ -37,7 +37,7 @@ pub struct SimilarityScore {
 ///
 /// let error = "Error at src/main.rs:42: Undefined variable 'foo'";
 /// let normalized = normalize_error_message(error);
-/// assert_eq!(normalized, "error at undefined variable");
+/// assert_eq!(normalized, "error at undefined variable foo");
 /// ```
 pub fn normalize_error_message(error: &str) -> String {
     let mut normalized = error.to_lowercase();

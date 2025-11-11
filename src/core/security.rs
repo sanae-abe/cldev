@@ -348,8 +348,13 @@ pub fn set_secure_permissions(path: &Path) -> SecurityResult<()> {
 
     #[cfg(not(unix))]
     {
-        // On Windows, do nothing for now
-        let _ = path; // Silence unused variable warning
+        // On Windows, verify file exists but don't modify permissions
+        if !path.exists() {
+            return Err(SecurityError::IoError(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("File not found: {}", path.display()),
+            )));
+        }
     }
 
     Ok(())
