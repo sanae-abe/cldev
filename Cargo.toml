@@ -65,7 +65,8 @@ dirs = "6.0"
 colored = "3.0"
 
 # Table formatting for CLI output
-comfy-table = "7.1"
+# Pin to 7.1.4 for MSRV 1.70 compatibility (7.2+ uses edition 2024)
+comfy-table = "=7.1.4"
 
 # Interactive prompts and dialogs
 dialoguer = "0.12"
