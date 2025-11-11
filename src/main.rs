@@ -2,10 +2,10 @@ mod cli;
 mod commands;
 mod core;
 
+use crate::core::error::Result;
 use clap::Parser;
 use cli::args::{Cli, Commands, ConfigCommands};
 use cli::output::OutputHandler;
-use core::error::Result;
 
 fn main() {
     if let Err(e) = run() {
@@ -88,7 +88,7 @@ fn handle_config_command(cmd: &ConfigCommands, output: &mut OutputHandler) -> Re
 
 /// Initialize configuration
 fn handle_config_init(defaults: bool, force: bool, output: &mut OutputHandler) -> Result<()> {
-    use core::config::Config;
+    use crate::core::config::Config;
 
     // If --defaults flag is set, skip interactive mode and create default config
     if defaults {
@@ -372,7 +372,7 @@ fn update_session_context(
     result: &Result<()>,
     execution_time: std::time::Duration,
 ) {
-    use core::{CommandRecord, ErrorCapture, SessionContext};
+    use crate::core::{CommandRecord, ErrorCapture, SessionContext};
     use std::path::PathBuf;
 
     // Get session path
