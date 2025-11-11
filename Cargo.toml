@@ -38,7 +38,8 @@ clap_complete = "4.5"
 serde = { version = "1.0", features = ["derive"] }
 
 # TOML parser for configuration files
-toml = "0.9"
+# Use 0.8.x for MSRV 1.70 compatibility (0.9.x requires Rust 1.76+ via toml_datetime)
+toml = "0.8"
 
 # JSON support
 serde_json = "1.0"
