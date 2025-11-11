@@ -51,8 +51,8 @@ fn test_version_no_extra_output() {
 
 #[test]
 fn test_version_consistency() {
-    let mut cmd1 = cargo_bin_cmd!();
-    let mut cmd2 = cargo_bin_cmd!();
+    let mut cmd1 = Command::cargo_bin("cldev").unwrap();
+    let mut cmd2 = Command::cargo_bin("cldev").unwrap();
 
     let output1 = cmd1.arg("--version").output().unwrap();
     let output2 = cmd2.arg("-V").output().unwrap();
