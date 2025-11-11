@@ -7,7 +7,8 @@ pub mod cli;
 pub mod core;
 
 // Re-export commonly used types for convenience
-pub use core::{
+// Use `crate::core` instead of `core` to avoid ambiguity with Rust's built-in `core` crate (MSRV 1.70)
+pub use crate::core::{
     config::{Config, ConfigVersion},
     error::{CldevError, Result},
     i18n::{I18n, Language, MessageCatalog},
