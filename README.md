@@ -6,7 +6,7 @@
 
 **cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
 
-**Current Status**: 35 commands implemented | Phase 7: +3 session commands (planned) | Total: 38 commands
+**Current Status**: 35 commands implemented
 
 English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
 
@@ -34,7 +34,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中�
 
 **cldev** replaces fragmented shell scripts with a cohesive development toolkit that:
 
-- **Unifies** 35+ commands across 10 categories (config, dev, git, quality, tech, ops, analysis, lr, todo, session)
+- **Unifies** 35 commands across 9 categories (config, dev, git, quality, tech, ops, analysis, lr, todo)
 - **Accelerates** workflows with faster startup (~21ms hyperfine benchmark, 1.5x faster than gh CLI's 32ms)
 - **Simplifies** installation (`cargo install cldev`)
 - **Internationalizes** all outputs (English/Japanese/Chinese with extensible i18n)
@@ -60,7 +60,7 @@ cldev lr find "encryption"
 ```
 
 **Improvements:**
-- 15% reduction in command count (41 → 38)
+- 15% reduction in command count (41 → 35)
 - 77% shorter command syntax
 - 80% faster installation
 - 1.5x faster execution (vs gh CLI)
@@ -621,7 +621,7 @@ cldev automatically validates and migrates configurations when needed.
 
 ### Command Categories
 
-cldev organizes 38 commands into 10 logical categories:
+cldev organizes 35 commands into 9 logical categories:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -636,7 +636,6 @@ cldev organizes 38 commands into 10 logical categories:
 │ analysis (4)   │ Code analysis & review             │
 │ lr (7)         │ Learning records                   │
 │ todo (1)       │ Task management                    │
-│ session (3)    │ Session tracking (Phase 7)         │
 │ completions    │ Shell completions                  │
 └─────────────────────────────────────────────────────┘
 ```
@@ -712,13 +711,6 @@ cldev lr similar           # Find similar sessions
 #### Todo Commands (1)
 ```bash
 cldev todo manage          # Manage todo items
-```
-
-#### Session Commands (3) ⭐ Phase 7
-```bash
-cldev session start        # Start tracking session
-cldev session end          # End and save session
-cldev session status       # View session status
 ```
 
 #### Shell Completions
