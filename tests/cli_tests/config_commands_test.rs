@@ -5,7 +5,7 @@
 use assert_cmd::cargo::cargo_bin_cmd;
 use predicates::prelude::*;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tempfile::TempDir;
 
 /// Helper function to write config file with secure permissions
@@ -45,8 +45,9 @@ fn test_config_init_basic() {
     let mut cmd = cargo_bin_cmd!();
 
     // Capture output to see where config was actually created
+    // Use --force to overwrite any existing config from previous test runs
     let output = cmd
-        .args(["config", "init", "--defaults"])
+        .args(["config", "init", "--defaults", "--force"])
         .env("HOME", temp_dir.path())
         .output()
         .unwrap();
@@ -61,23 +62,48 @@ fn test_config_init_basic() {
     // Parse stdout to find where config was created
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    // Check multiple possible locations where config might be created
-    let possible_paths = vec![
-        // Platform-specific primary location
-        #[cfg(target_os = "macos")]
-        temp_dir.path().join("Library/Application Support/cldev/config.toml"),
-        #[cfg(not(target_os = "macos"))]
-        temp_dir.path().join(".config/cldev/config.toml"),
-        // Fallback location
-        temp_dir.path().join(".cldev/config.toml"),
-    ];
+    // Extract the actual path from output message
+    // Output format: "✅ Configuration created at: <path>"
+    let config_path = if let Some(line) = stdout
+        .lines()
+        .find(|l| l.contains("created at:") || l.contains("Configuration created at"))
+    {
+        // Extract path from the output line
+        line.split(':').nth(1).map(|s| s.trim()).and_then(|s| {
+            // Remove ANSI color codes if present
+            let clean = s.replace("\u{1b}[0m", "").replace("\u{1b}[1m", "");
+            Some(PathBuf::from(clean))
+        })
+    } else {
+        None
+    };
 
-    let config_found = possible_paths.iter().any(|p| p.exists());
+    if let Some(path) = config_path {
+        assert!(
+            path.exists(),
+            "Config file not found at path reported in output: {:?}\nCommand output: {}",
+            path,
+            stdout
+        );
+    } else {
+        // Fallback: check expected locations
+        let possible_paths = vec![
+            // Platform-specific primary location
+            #[cfg(target_os = "macos")]
+            temp_dir
+                .path()
+                .join("Library/Application Support/cldev/config.toml"),
+            #[cfg(not(target_os = "macos"))]
+            temp_dir.path().join(".config/cldev/config.toml"),
+            // Fallback location
+            temp_dir.path().join(".cldev/config.toml"),
+        ];
 
-    if !config_found {
-        // If not found in expected locations, print debug info
-        panic!(
-            "Config file not found in any expected location.\nChecked paths: {:?}\nCommand output: {}\nTemp dir contents: {:?}",
+        let config_found = possible_paths.iter().any(|p| p.exists());
+
+        assert!(
+            config_found,
+            "Config file not found.\nChecked paths: {:?}\nCommand output: {}\nTemp dir contents: {:?}",
             possible_paths,
             stdout,
             fs::read_dir(temp_dir.path()).ok().map(|entries| {
