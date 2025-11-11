@@ -29,11 +29,12 @@ path = "src/lib.rs"
 
 [dependencies]
 # CLI framework with derive macros and rich features
-# Pin to =4.5.23 for MSRV 1.70 compatibility (uses clap_lex 0.7.4+ which requires 1.74+)
-clap = { version = "=4.5.23", features = ["derive", "cargo", "help", "usage", "error-context"] }
+# Pin to 4.4.x for MSRV 1.70 compatibility (4.5.0+ requires Rust 1.74+)
+clap = { version = "~4.4.0", features = ["derive", "cargo", "help", "usage", "error-context"] }
 
 # Shell completion generation
-clap_complete = "4.5"
+# Match clap version for compatibility
+clap_complete = "~4.4.0"
 
 # Serialization framework
 serde = { version = "1.0", features = ["derive"] }
@@ -104,7 +105,8 @@ flate2 = "1.0"
 assert_cmd = "2.0"
 predicates = "3.1"
 tempfile = "3.10"
-criterion = "0.7"
+# Downgrade to 0.5 for MSRV 1.70 compatibility (0.7+ requires clap 4.5+)
+criterion = "0.5"
 serial_test = "3.0"
 
 [profile.release]
