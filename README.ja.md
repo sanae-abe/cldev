@@ -5,7 +5,9 @@
 [![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)](Cargo.toml)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
 
-**cldev**は、Claude Codeでの開発ワークフローを管理する統合CLIツールです。38の重要な開発コマンドを、型安全で超高速なRustバイナリに統合し、完全な多言語対応（英語・日本語・中国語）を提供します。
+**cldev**は、Claude Codeでの開発ワークフローを管理する統合CLIツールです。開発コマンドを型安全で超高速なRustバイナリに統合し、完全な多言語対応（英語・日本語・中国語）を提供します。
+
+**現在の状況**: 35コマンド実装済み
 
 [English](README.md) | 日本語 | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
 
@@ -33,7 +35,7 @@
 
 **cldev**は、断片化したシェルスクリプトを統合された開発ツールキットに置き換えます：
 
-- **統合**: 10カテゴリ38コマンドを単一ツールに（config、dev、git、quality、tech、ops、analysis、lr、todo、session）
+- **統合**: 9カテゴリ35コマンドを単一ツールに（config、dev、git、quality、tech、ops、analysis、lr、todo）
 - **高速化**: 起動時間1.5倍高速化（~21ms vs gh CLIの32ms）
 - **簡単**: インストール簡単（`cargo install cldev` または `brew install cldev`）
 - **多言語**: 全出力を多言語化（英語・日本語・簡体字中国語・繁体字中国語、拡張可能なi18nシステム）
@@ -59,7 +61,7 @@ cldev lr find "encryption"
 ```
 
 **改善点:**
-- コマンド数7%削減（41 → 38）
+- コマンド数15%削減（41 → 35）
 - コマンド構文77%短縮
 - インストール時間80%高速化
 - 実行速度1.5倍向上（gh CLIと比較）
@@ -127,8 +129,8 @@ cldev lr stats --period week
 ### オプション1: Cargo（Rustパッケージマネージャ）
 
 ```bash
-# crates.ioからインストール
-cargo install cldev
+# crates.ioからインストール（近日公開）
+# cargo install cldev
 
 # ソースからビルド
 git clone https://github.com/sanae-abe/cldev.git
@@ -136,29 +138,7 @@ cd cldev
 cargo install --path .
 ```
 
-### オプション2: Homebrew（macOS/Linux）
-
-```bash
-# tap追加（近日公開）
-brew tap sanae-abe/cldev
-brew install cldev
-```
-
-### オプション3: ビルド済みバイナリ
-
-お使いのプラットフォーム用の最新リリースをダウンロード：
-
-- [Linux x86_64](https://github.com/sanae-abe/cldev/releases/latest)
-- [Linux aarch64](https://github.com/sanae-abe/cldev/releases/latest)
-- [macOS x86_64](https://github.com/sanae-abe/cldev/releases/latest)
-- [macOS aarch64 (Apple Silicon)](https://github.com/sanae-abe/cldev/releases/latest)
-- [Windows x86_64](https://github.com/sanae-abe/cldev/releases/latest)
-
-```bash
-# 解凍してインストール
-tar xzf cldev-*-x86_64-unknown-linux-gnu.tar.gz
-sudo mv cldev /usr/local/bin/
-```
+> **注意**: ビルド済みバイナリとHomebrewインストールは将来のリリースで提供予定です。詳細は[ロードマップ](docs/development/IMPLEMENTATION_PLAN.md)を参照してください。
 
 ### インストール確認
 
@@ -528,8 +508,8 @@ version = "1.0.0"
 
 [general]
 language = "ja"  # en, ja, zh, または zh-TW
-claude_dir = "/Users/sanae.abe/.claude"
-projects_dir = "/Users/sanae.abe/projects"
+claude_dir = "/Users/username/.claude"
+projects_dir = "/Users/username/projects"
 
 [git]
 github_cli = true
@@ -547,7 +527,7 @@ branch_prefix = "feature"
 session_recording = true
 
 [lr]
-sessions_dir = "/Users/sanae.abe/.claude/learning-sessions"
+sessions_dir = "/Users/username/.claude/learning-sessions"
 auto_save = true
 default_tags = ["development", "claude-code"]
 
@@ -577,7 +557,7 @@ cldevは必要に応じて設定を自動検証・移行します。
 
 ### コマンドカテゴリ
 
-cldevは36のコマンドを9つの論理カテゴリに整理：
+cldevは35のコマンドを9つの論理カテゴリに整理：
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -653,12 +633,15 @@ cldev analysis review-mr   # MR/PRレビュー
 cldev analysis serena      # セマンティック分析（MCP）
 ```
 
-#### 学習記録コマンド（4個）
+#### 学習記録コマンド（7個）
 ```bash
 cldev lr new               # 学習記録作成
 cldev lr find              # 記録検索
 cldev lr stats             # 統計生成
 cldev lr problems          # 問題パターン分析
+cldev lr check-file        # ファイルのホットスポット状態確認
+cldev lr suggest           # 類似エラー検索
+cldev lr similar           # 類似セッション検索
 ```
 
 #### Todoコマンド（1個）

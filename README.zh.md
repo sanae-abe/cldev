@@ -1,13 +1,12 @@
 # cldev - Claude Development CLI
 
 [![Build Status](https://github.com/sanae-abe/cldev/workflows/CI/badge.svg)](https://github.com/sanae-abe/cldev/actions)
-[![Crates.io](https://img.shields.io/crates/v/cldev.svg)](https://crates.io/crates/cldev)
-[![Documentation](https://docs.rs/cldev/badge.svg)](https://docs.rs/cldev)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
-[![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev)
 
-**cldev** 是一个用于管理 Claude Code 开发工作流的统一 CLI 工具。它将 38 个重要的开发命令整合到单个类型安全、超快速的 Rust 二进制文件中，并完全支持国际化（英语/日语/中文）。
+**cldev** 是一个用于管理 Claude Code 开发工作流的统一 CLI 工具。它将开发命令整合到单个类型安全、超快速的 Rust 二进制文件中，并完全支持国际化（英语/日语/中文）。
+
+**当前状态**：已实现 35 个命令
 
 [English](README.md) | [日本語](README.ja.md) | 简体中文 | [繁體中文](README.zh-TW.md)
 
@@ -33,7 +32,7 @@
 
 **cldev** 将分散的 shell 脚本替换为统一的开发工具包：
 
-- **统一**：10 个类别 38 个命令集成到单一工具（config、dev、git、quality、tech、ops、analysis、lr、todo、session）
+- **统一**：9 个类别 35 个命令集成到单一工具（config、dev、git、quality、tech、ops、analysis、lr、todo）
 - **加速**：启动速度提升 1.5 倍（约 21ms，比 gh CLI 的 32ms 快 1.5 倍）
 - **简化**：安装简单（`cargo install cldev` 或 `brew install cldev`）
 - **国际化**：所有输出支持多语言（英语/日语/简体中文/繁体中文，可扩展的 i18n 系统）
@@ -59,7 +58,7 @@ cldev lr find "encryption"
 ```
 
 **改进：**
-- 命令数量减少 7%（41 → 38）
+- 命令数量减少 15%（41 → 35）
 - 命令语法缩短 77%
 - 安装速度提升 80%
 - 执行速度提升 1.5 倍（与 gh CLI 相比）
@@ -248,8 +247,8 @@ version = "1.0.0"
 
 [general]
 language = "zh"  # en, ja, zh, 或 zh-TW
-claude_dir = "/Users/sanae.abe/.claude"
-projects_dir = "/Users/sanae.abe/projects"
+claude_dir = "/Users/username/.claude"
+projects_dir = "/Users/username/projects"
 
 [git]
 github_cli = true
@@ -267,7 +266,7 @@ branch_prefix = "feature"
 session_recording = true
 
 [lr]
-sessions_dir = "/Users/sanae.abe/.claude/learning-sessions"
+sessions_dir = "/Users/username/.claude/learning-sessions"
 auto_save = true
 default_tags = ["development", "claude-code"]
 

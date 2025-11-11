@@ -1,13 +1,12 @@
 # cldev - Claude Development CLI
 
 [![Build Status](https://github.com/sanae-abe/cldev/workflows/CI/badge.svg)](https://github.com/sanae-abe/cldev/actions)
-<!-- [![Crates.io](https://img.shields.io/crates/v/cldev.svg)](https://crates.io/crates/cldev) -->
-<!-- [![Documentation](https://docs.rs/cldev/badge.svg)](https://docs.rs/cldev) -->
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
-<!-- [![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev) -->
 
-**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates 38 essential development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
+**cldev** is a unified CLI tool for managing development workflows with Claude Code. It consolidates development commands into a single, type-safe, blazingly fast Rust binary with full i18n support (English/Japanese/Chinese).
+
+**Current Status**: 35 commands implemented | Phase 7: +3 session commands (planned) | Total: 38 commands
 
 English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
 
@@ -35,7 +34,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中�
 
 **cldev** replaces fragmented shell scripts with a cohesive development toolkit that:
 
-- **Unifies** 38 commands across 10 categories (config, dev, git, quality, tech, ops, analysis, lr, todo, session)
+- **Unifies** 35+ commands across 10 categories (config, dev, git, quality, tech, ops, analysis, lr, todo, session)
 - **Accelerates** workflows with faster startup (~21ms hyperfine benchmark, 1.5x faster than gh CLI's 32ms)
 - **Simplifies** installation (`cargo install cldev`)
 - **Internationalizes** all outputs (English/Japanese/Chinese with extensible i18n)
@@ -154,40 +153,16 @@ cldev lr stats --period week
 ### Option 1: Cargo (Rust Package Manager)
 
 ```bash
-# Install from crates.io
-cargo install cldev
+# Install from crates.io (coming soon)
+# cargo install cldev
 
-# Or build from source
+# Build from source
 git clone https://github.com/sanae-abe/cldev.git
 cd cldev
 cargo install --path .
 ```
 
-<!-- ### Option 2: Homebrew (macOS/Linux)
-
-```bash
-# Add tap (coming soon)
-brew tap sanae-abe/cldev
-brew install cldev
-```
--->
-
-<!-- ### Option 3: Pre-built Binaries
-
-Download the latest release for your platform:
-
-- [Linux x86_64](https://github.com/sanae-abe/cldev/releases/latest)
-- [Linux aarch64](https://github.com/sanae-abe/cldev/releases/latest)
-- [macOS x86_64](https://github.com/sanae-abe/cldev/releases/latest)
-- [macOS aarch64 (Apple Silicon)](https://github.com/sanae-abe/cldev/releases/latest)
-- [Windows x86_64](https://github.com/sanae-abe/cldev/releases/latest)
-
-```bash
-# Extract and install
-tar xzf cldev-*-x86_64-unknown-linux-gnu.tar.gz
-sudo mv cldev /usr/local/bin/
-```
--->
+> **Note**: Pre-built binaries and Homebrew installation will be available in future releases. See [Roadmap](docs/development/IMPLEMENTATION_PLAN.md) for details.
 
 ### Verify Installation
 
@@ -597,8 +572,8 @@ version = "1.0.0"
 
 [general]
 language = "ja"  # en, ja, zh, or zh-TW
-claude_dir = "/Users/sanae.abe/.claude"
-projects_dir = "/Users/sanae.abe/projects"
+claude_dir = "/Users/username/.claude"
+projects_dir = "/Users/username/projects"
 
 [git]
 github_cli = true
@@ -616,7 +591,7 @@ branch_prefix = "feature"
 session_recording = true
 
 [lr]
-sessions_dir = "/Users/sanae.abe/.claude/learning-sessions"
+sessions_dir = "/Users/username/.claude/learning-sessions"
 auto_save = true
 default_tags = ["development", "claude-code"]
 
@@ -849,14 +824,10 @@ Measured on macOS 14.6, Apple M2 Pro using [hyperfine](https://github.com/sharkd
 | **cldev** | 21.2ms ± 8.3ms | 11.3ms | 41.0ms | 1.0x (baseline) |
 | **gh CLI** | 31.8ms ± 1.5ms | 29.0ms | 34.1ms | 1.5x slower |
 | **glab** | 126.3ms ± 13.1ms | 111.5ms | 149.9ms | 6.0x slower |
-| **starship** | 6.3ms ± 3.0ms | 3.6ms | 13.5ms | 3.4x faster* |
-
-*Note: starship is a shell prompt tool (different category), included for Rust CLI performance reference.
 
 **Binary Size:**
 - cldev: 3.3MB (stripped, LTO optimized)
 - gh CLI: 51MB
-- starship: 8.4MB
 
 ### Project Structure
 

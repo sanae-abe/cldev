@@ -1,13 +1,12 @@
 # cldev - Claude Development CLI
 
 [![Build Status](https://github.com/sanae-abe/cldev/workflows/CI/badge.svg)](https://github.com/sanae-abe/cldev/actions)
-[![Crates.io](https://img.shields.io/crates/v/cldev.svg)](https://crates.io/crates/cldev)
-[![Documentation](https://docs.rs/cldev/badge.svg)](https://docs.rs/cldev)
 [![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](LICENSE)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org)
-[![Downloads](https://img.shields.io/crates/d/cldev.svg)](https://crates.io/crates/cldev)
 
-**cldev** 是一個用於管理 Claude Code 開發工作流程的統一 CLI 工具。它將 38 個重要的開發命令整合到單個類型安全、超快速的 Rust 二進位檔案中，並完全支援國際化（英語/日語/中文）。
+**cldev** 是一個用於管理 Claude Code 開發工作流程的統一 CLI 工具。它將開發命令整合到單個類型安全、超快速的 Rust 二進位檔案中，並完全支援國際化（英語/日語/中文）。
+
+**當前狀態**：已實現 35 個命令
 
 [English](README.md) | [日本語](README.ja.md) | [简体中文](README.zh.md) | 繁體中文
 
@@ -33,7 +32,7 @@
 
 **cldev** 將分散的 shell 腳本替換為統一的開發工具包：
 
-- **統一**：10 個類別 38 個命令整合到單一工具（config、dev、git、quality、tech、ops、analysis、lr、todo、session）
+- **統一**：9 個類別 35 個命令整合到單一工具（config、dev、git、quality、tech、ops、analysis、lr、todo）
 - **加速**：啟動速度提升 1.5 倍（約 21ms，比 gh CLI 的 32ms 快 1.5 倍）
 - **簡化**：安裝簡單（`cargo install cldev` 或 `brew install cldev`）
 - **國際化**：所有輸出支援多語言（英語/日語/簡體中文/繁體中文，可擴展的 i18n 系統）
@@ -59,7 +58,7 @@ cldev lr find "encryption"
 ```
 
 **改進：**
-- 命令數量減少 7%（41 → 38）
+- 命令數量減少 15%（41 → 35）
 - 命令語法縮短 77%
 - 安裝速度提升 80%
 - 執行速度提升 1.5 倍（與 gh CLI 相比）
@@ -248,8 +247,8 @@ version = "1.0.0"
 
 [general]
 language = "zh-TW"  # en, ja, zh, 或 zh-TW
-claude_dir = "/Users/sanae.abe/.claude"
-projects_dir = "/Users/sanae.abe/projects"
+claude_dir = "/Users/username/.claude"
+projects_dir = "/Users/username/projects"
 
 [git]
 github_cli = true
@@ -267,7 +266,7 @@ branch_prefix = "feature"
 session_recording = true
 
 [lr]
-sessions_dir = "/Users/sanae.abe/.claude/learning-sessions"
+sessions_dir = "/Users/username/.claude/learning-sessions"
 auto_save = true
 default_tags = ["development", "claude-code"]
 
