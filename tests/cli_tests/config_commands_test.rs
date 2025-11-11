@@ -69,11 +69,22 @@ fn test_config_init_basic() {
         .find(|l| l.contains("created at:") || l.contains("Configuration created at"))
     {
         // Extract path from the output line
-        line.split(':').nth(1).map(|s| s.trim()).and_then(|s| {
+        // Handle both Unix paths and Windows paths (C:\...)
+        let path_str = if let Some(pos) = line.find("created at:") {
+            line[pos + "created at:".len()..].trim()
+        } else if let Some(pos) = line.find("Configuration created at") {
+            line[pos + "Configuration created at".len()..].trim()
+        } else {
+            ""
+        };
+
+        if !path_str.is_empty() {
             // Remove ANSI color codes if present
-            let clean = s.replace("\u{1b}[0m", "").replace("\u{1b}[1m", "");
-            Some(PathBuf::from(clean))
-        })
+            let clean = path_str.replace("\u{1b}[0m", "").replace("\u{1b}[1m", "");
+            Some(PathBuf::from(clean.trim()))
+        } else {
+            None
+        }
     } else {
         None
     };
