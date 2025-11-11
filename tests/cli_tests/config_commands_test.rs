@@ -27,11 +27,14 @@ fn create_required_dirs(base_path: &Path) {
     fs::create_dir_all(base_path.join(".claude/learning-sessions")).unwrap();
     fs::create_dir_all(base_path.join("projects")).unwrap();
 
-    // Also create platform-specific config directory
+    // Create platform-specific config directory
     #[cfg(target_os = "macos")]
     fs::create_dir_all(base_path.join("Library/Application Support/cldev")).unwrap();
     #[cfg(not(target_os = "macos"))]
     fs::create_dir_all(base_path.join(".config/cldev")).unwrap();
+
+    // Also create fallback directory (used when dirs::config_dir() returns None in CI)
+    fs::create_dir_all(base_path.join(".cldev")).unwrap();
 }
 
 #[test]
@@ -47,17 +50,21 @@ fn test_config_init_basic() {
         .success();
 
     // Verify config file was created - check platform-specific location
+    // Note: dirs::config_dir() may return None in CI, falling back to ~/.cldev
     #[cfg(target_os = "macos")]
-    let config_path = temp_dir
+    let primary_path = temp_dir
         .path()
         .join("Library/Application Support/cldev/config.toml");
     #[cfg(not(target_os = "macos"))]
-    let config_path = temp_dir.path().join(".config/cldev/config.toml");
+    let primary_path = temp_dir.path().join(".config/cldev/config.toml");
 
+    let fallback_path = temp_dir.path().join(".cldev/config.toml");
+
+    let config_exists = primary_path.exists() || fallback_path.exists();
     assert!(
-        config_path.exists(),
-        "Config file should be created at {:?}",
-        config_path
+        config_exists,
+        "Config file should be created at {:?} or {:?}",
+        primary_path, fallback_path
     );
 }
 
