@@ -1,7 +1,7 @@
 //! Configuration management for cldev
 //!
 //! This module handles loading, saving, and validating the TOML configuration file
-//! with versioning support. Configuration is shared across modules using Arc<Config>.
+//! with versioning support. Configuration is shared across modules using `Arc<Config>`.
 //!
 //! # Configuration File Location
 //!
@@ -80,7 +80,7 @@ pub fn validate_version(version: &str) -> Result<()> {
 
 /// Main configuration structure with versioning support
 ///
-/// This structure is designed to be shared across modules using Arc<Config>
+/// This structure is designed to be shared across modules using `Arc<Config>`
 /// for efficient memory usage and thread-safe access.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
