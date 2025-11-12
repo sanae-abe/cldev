@@ -516,7 +516,20 @@ fn is_ignored_dir(path: &Path) -> bool {
         let name = name.to_string_lossy();
         matches!(
             name.as_ref(),
-            "target" | "node_modules" | ".git" | "dist" | "build"
+            "target"
+                | "node_modules"
+                | ".git"
+                | "dist"
+                | "build"
+                | ".output"
+                | ".nuxt"
+                | ".next"
+                | "coverage"
+                | ".cache"
+                | "tmp"
+                | "temp"
+                | ".vscode"
+                | ".idea"
         )
     } else {
         false
