@@ -57,13 +57,13 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let problem_statement = Input::<String>::new()
-        .with_prompt("❓ Problem Statement (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-problem-prompt"))
         .interact_text()?;
 
     println!();
 
     let target_users = Input::<String>::new()
-        .with_prompt("👥 Target Users (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-users-prompt"))
         .interact_text()?;
 
     println!();
@@ -78,7 +78,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
 
     loop {
         let criterion = Input::<String>::new()
-            .with_prompt(format!("Criterion {}", criterion_num))
+            .with_prompt(output.t("feature-criterion-prompt").replace("{num}", &criterion_num.to_string()))
             .allow_empty(true)
             .interact_text()?;
 
@@ -101,41 +101,41 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let feature_types = vec![
-        "New UI component/page",
-        "New API endpoint/service",
-        "Data model change",
-        "Algorithm/business logic",
-        "Integration with external service",
-        "Performance enhancement",
-        "Developer tooling/infrastructure",
-        "Security feature",
-        "Accessibility improvement",
-        "Other",
+        output.t("feature-type-ui"),
+        output.t("feature-type-api"),
+        output.t("feature-type-data"),
+        output.t("feature-type-algorithm"),
+        output.t("feature-type-integration"),
+        output.t("feature-type-performance"),
+        output.t("feature-type-tooling"),
+        output.t("feature-type-security"),
+        output.t("feature-type-accessibility"),
+        output.t("feature-type-other"),
     ];
 
     let type_idx = Select::new()
-        .with_prompt("Feature Type (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-type-prompt"))
         .items(&feature_types)
         .interact()?;
 
-    let feature_type = feature_types[type_idx];
+    let feature_type = feature_types[type_idx].clone();
 
     println!();
 
     // Step 5: Complexity Estimation
     let complexity_levels = vec![
-        "Small (< 1 day, ~1-2 files)",
-        "Medium (1-3 days, ~3-5 files)",
-        "Large (3-7 days, ~6-10 files)",
-        "Extra Large (1-2 weeks, 10+ files)",
+        output.t("feature-complexity-small"),
+        output.t("feature-complexity-medium"),
+        output.t("feature-complexity-large"),
+        output.t("feature-complexity-xlarge"),
     ];
 
     let complexity_idx = Select::new()
-        .with_prompt("⚖️  Estimated Complexity (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-complexity-prompt"))
         .items(&complexity_levels)
         .interact()?;
 
-    let complexity = complexity_levels[complexity_idx];
+    let complexity = complexity_levels[complexity_idx].clone();
 
     println!();
 
@@ -144,7 +144,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let create_branch = Confirm::new()
-        .with_prompt("Create a new feature branch? (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-branch-create"))
         .default(true)
         .interact()?;
 
@@ -152,7 +152,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
         let suggested_branch = format!("feature/{}", feature_name.to_lowercase().replace(" ", "-"));
 
         let branch_name = Input::<String>::new()
-            .with_prompt("Branch name (Space to select, Enter to confirm)")
+            .with_prompt(output.t("feature-branch-name"))
             .default(suggested_branch)
             .interact_text()?;
 
@@ -191,20 +191,20 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let design_considerations = vec![
-        "UI/UX design (wireframes, mockups)",
-        "Database schema changes",
-        "API contract/interface design",
-        "State management approach",
-        "Component architecture",
-        "Security considerations",
-        "Performance considerations",
-        "Testing strategy",
-        "Documentation requirements",
-        "Accessibility requirements",
+        output.t("feature-design-ui"),
+        output.t("feature-design-schema"),
+        output.t("feature-design-api"),
+        output.t("feature-design-state"),
+        output.t("feature-design-architecture"),
+        output.t("feature-design-security"),
+        output.t("feature-design-performance"),
+        output.t("feature-design-testing"),
+        output.t("feature-design-docs"),
+        output.t("feature-design-accessibility"),
     ];
 
     let selected_design_items = MultiSelect::new()
-        .with_prompt("Select relevant design considerations (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-design-prompt"))
         .items(&design_considerations)
         .interact()?;
 
@@ -223,7 +223,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     let mut files = Vec::new();
     loop {
         let file = Input::<String>::new()
-            .with_prompt("File (Space to select, Enter to confirm)")
+            .with_prompt(output.t("feature-file-prompt"))
             .allow_empty(true)
             .interact_text()?;
 
@@ -241,7 +241,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let has_new_deps = Confirm::new()
-        .with_prompt("Will this feature require new dependencies? (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-dependencies-question"))
         .default(false)
         .interact()?;
 
@@ -253,7 +253,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
 
         loop {
             let dep = Input::<String>::new()
-                .with_prompt("Dependency (Space to select, Enter to confirm)")
+                .with_prompt(output.t("feature-dependency-prompt"))
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -312,18 +312,18 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let test_types = vec![
-        "Unit tests (isolated component testing)",
-        "Integration tests (component interaction)",
-        "E2E tests (full user flow)",
-        "Visual regression tests",
-        "Performance tests",
-        "Accessibility tests",
-        "Security tests",
-        "Manual testing checklist",
+        output.t("feature-test-unit"),
+        output.t("feature-test-integration"),
+        output.t("feature-test-e2e"),
+        output.t("feature-test-visual"),
+        output.t("feature-test-performance"),
+        output.t("feature-test-accessibility"),
+        output.t("feature-test-security"),
+        output.t("feature-test-manual"),
     ];
 
     let selected_tests = MultiSelect::new()
-        .with_prompt("Select required test types (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-test-prompt"))
         .items(&test_types)
         .interact()?;
 
@@ -339,16 +339,16 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let doc_types = vec![
-        "README updates",
-        "API documentation",
-        "Code comments/JSDoc",
-        "User guide/tutorial",
-        "Architecture decision record (ADR)",
-        "Migration guide (if breaking change)",
+        output.t("feature-doc-readme"),
+        output.t("feature-doc-api"),
+        output.t("feature-doc-comments"),
+        output.t("feature-doc-guide"),
+        output.t("feature-doc-adr"),
+        output.t("feature-doc-migration"),
     ];
 
     let selected_docs = MultiSelect::new()
-        .with_prompt("Select documentation to create/update (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-doc-prompt"))
         .items(&doc_types)
         .interact()?;
 
@@ -364,20 +364,20 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let status_options = vec![
-        "Planning (requirements gathered, ready to start)",
-        "In Progress (actively implementing)",
-        "Testing (implementation done, testing in progress)",
-        "Review (ready for code review)",
-        "Completed (merged and deployed)",
+        output.t("feature-status-planning"),
+        output.t("feature-status-progress"),
+        output.t("feature-status-testing"),
+        output.t("feature-status-review"),
+        output.t("feature-status-completed"),
     ];
 
     let status_idx = Select::new()
-        .with_prompt("Current Status (Space to select, Enter to confirm)")
+        .with_prompt(output.t("feature-status-prompt"))
         .items(&status_options)
         .default(0)
         .interact()?;
 
-    let current_status = status_options[status_idx];
+    let current_status = status_options[status_idx].clone();
 
     let is_completed = status_idx == 4;
     let duration = start_time.elapsed().as_secs() / 60;
@@ -390,7 +390,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
         println!();
 
         let learning = Input::<String>::new()
-            .with_prompt("What did you learn from implementing this feature? (Space to select, Enter to confirm)")
+            .with_prompt(output.t("feature-learning-prompt"))
             .allow_empty(true)
             .interact_text()?;
 
