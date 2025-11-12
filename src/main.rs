@@ -16,10 +16,11 @@ fn main() {
 }
 
 fn run() -> Result<()> {
-    let cli = Cli::parse();
+    // Pre-parse language flag before clap parsing for i18n help
+    let lang = cli::args::extract_language_from_args();
+    cli::help::init_help_i18n(lang);
 
-    // Initialize i18n help system after clap parsing
-    cli::help::init_help_i18n(cli.lang.to_i18n());
+    let cli = Cli::parse();
 
     // Initialize output handler with global flags and language
     let mut output =

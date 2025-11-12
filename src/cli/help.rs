@@ -16,11 +16,12 @@ pub fn init_help_i18n(language: Language) {
     HELP_I18N.get_or_init(|| I18n::with_language(language));
 }
 
-/// Get the I18n instance, initializing with English (default) if not set
-/// Note: Help messages use default language (English) because clap evaluates them
-/// at compile time. Runtime messages use the user-specified language.
+/// Get the I18n instance
+/// This should be called only after init_help_i18n() has been called
 fn get_i18n() -> &'static I18n {
-    HELP_I18N.get_or_init(|| I18n::with_language(Language::English))
+    HELP_I18N
+        .get()
+        .expect("Help I18n not initialized - call init_help_i18n() first")
 }
 
 /// Get a help message by key
@@ -638,6 +639,9 @@ mod tests {
 
     #[test]
     fn test_help_functions() {
+        // Initialize i18n before testing help functions
+        init_help_i18n(Language::English);
+
         // Test a few representative help functions
         assert!(!app_about().is_empty());
         assert!(!config_about().is_empty());

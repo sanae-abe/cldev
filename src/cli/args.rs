@@ -656,12 +656,48 @@ pub enum TodoCommands {
     Interactive,
 }
 
+/// Extract language flag from command-line arguments before clap parsing
+/// This allows i18n help messages to be displayed in the correct language
+pub fn extract_language_from_args() -> crate::core::i18n::Language {
+    let args: Vec<String> = std::env::args().collect();
+
+    // Look for --lang flag
+    for i in 0..args.len() {
+        if args[i] == "--lang" {
+            if let Some(lang_str) = args.get(i + 1) {
+                return match lang_str.as_str() {
+                    "ja" => crate::core::i18n::Language::Japanese,
+                    "zh" => crate::core::i18n::Language::Chinese,
+                    "zh-TW" => crate::core::i18n::Language::ChineseTraditional,
+                    _ => crate::core::i18n::Language::English,
+                };
+            }
+        }
+    }
+
+    // Check environment variable CLDEV_LANG as fallback
+    if let Ok(env_lang) = std::env::var("CLDEV_LANG") {
+        return match env_lang.as_str() {
+            "ja" => crate::core::i18n::Language::Japanese,
+            "zh" => crate::core::i18n::Language::Chinese,
+            "zh-TW" => crate::core::i18n::Language::ChineseTraditional,
+            _ => crate::core::i18n::Language::English,
+        };
+    }
+
+    // Default to English
+    crate::core::i18n::Language::English
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn test_cli_parsing() {
+        // Initialize i18n before creating CLI command
+        super::super::help::init_help_i18n(crate::core::i18n::Language::English);
+
         use clap::CommandFactory;
         Cli::command().debug_assert();
     }
