@@ -57,13 +57,13 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let problem_statement = Input::<String>::new()
-        .with_prompt("❓ Problem Statement")
+        .with_prompt("❓ Problem Statement (Space to select, Enter to confirm)")
         .interact_text()?;
 
     println!();
 
     let target_users = Input::<String>::new()
-        .with_prompt("👥 Target Users")
+        .with_prompt("👥 Target Users (Space to select, Enter to confirm)")
         .interact_text()?;
 
     println!();
@@ -114,7 +114,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     ];
 
     let type_idx = Select::new()
-        .with_prompt("Feature Type")
+        .with_prompt("Feature Type (Space to select, Enter to confirm)")
         .items(&feature_types)
         .interact()?;
 
@@ -131,7 +131,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     ];
 
     let complexity_idx = Select::new()
-        .with_prompt("⚖️  Estimated Complexity")
+        .with_prompt("⚖️  Estimated Complexity (Space to select, Enter to confirm)")
         .items(&complexity_levels)
         .interact()?;
 
@@ -144,7 +144,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let create_branch = Confirm::new()
-        .with_prompt("Create a new feature branch?")
+        .with_prompt("Create a new feature branch? (Space to select, Enter to confirm)")
         .default(true)
         .interact()?;
 
@@ -152,7 +152,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
         let suggested_branch = format!("feature/{}", feature_name.to_lowercase().replace(" ", "-"));
 
         let branch_name = Input::<String>::new()
-            .with_prompt("Branch name")
+            .with_prompt("Branch name (Space to select, Enter to confirm)")
             .default(suggested_branch)
             .interact_text()?;
 
@@ -204,7 +204,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     ];
 
     let selected_design_items = MultiSelect::new()
-        .with_prompt("Select relevant design considerations")
+        .with_prompt("Select relevant design considerations (Space to select, Enter to confirm)")
         .items(&design_considerations)
         .interact()?;
 
@@ -223,7 +223,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     let mut files = Vec::new();
     loop {
         let file = Input::<String>::new()
-            .with_prompt("File")
+            .with_prompt("File (Space to select, Enter to confirm)")
             .allow_empty(true)
             .interact_text()?;
 
@@ -241,7 +241,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     let has_new_deps = Confirm::new()
-        .with_prompt("Will this feature require new dependencies?")
+        .with_prompt("Will this feature require new dependencies? (Space to select, Enter to confirm)")
         .default(false)
         .interact()?;
 
@@ -253,7 +253,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
 
         loop {
             let dep = Input::<String>::new()
-                .with_prompt("Dependency")
+                .with_prompt("Dependency (Space to select, Enter to confirm)")
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -323,7 +323,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     ];
 
     let selected_tests = MultiSelect::new()
-        .with_prompt("Select required test types")
+        .with_prompt("Select required test types (Space to select, Enter to confirm)")
         .items(&test_types)
         .interact()?;
 
@@ -348,7 +348,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     ];
 
     let selected_docs = MultiSelect::new()
-        .with_prompt("Select documentation to create/update")
+        .with_prompt("Select documentation to create/update (Space to select, Enter to confirm)")
         .items(&doc_types)
         .interact()?;
 
@@ -372,7 +372,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     ];
 
     let status_idx = Select::new()
-        .with_prompt("Current Status")
+        .with_prompt("Current Status (Space to select, Enter to confirm)")
         .items(&status_options)
         .default(0)
         .interact()?;
@@ -390,7 +390,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
         println!();
 
         let learning = Input::<String>::new()
-            .with_prompt("What did you learn from implementing this feature?")
+            .with_prompt("What did you learn from implementing this feature? (Space to select, Enter to confirm)")
             .allow_empty(true)
             .interact_text()?;
 

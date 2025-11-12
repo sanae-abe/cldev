@@ -30,7 +30,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
         t
     } else {
         Input::<String>::new()
-            .with_prompt("📚 Research Topic")
+            .with_prompt("📚 Research Topic (Space to select, Enter to confirm)")
             .interact_text()?
     };
 
@@ -54,7 +54,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     ];
 
     let motivation_idx = Select::new()
-        .with_prompt("Why are you researching this?")
+        .with_prompt("Why are you researching this? (Space to select, Enter to confirm)")
         .items(&motivations)
         .interact()?;
 
@@ -63,7 +63,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     println!();
 
     let context = Input::<String>::new()
-        .with_prompt("💡 Context (what prompted this research?)")
+        .with_prompt("💡 Context (what prompted this research?) (Space to select, Enter to confirm)")
         .interact_text()?;
 
     println!();
@@ -112,7 +112,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     ];
 
     let scope_idx = Select::new()
-        .with_prompt("Time commitment")
+        .with_prompt("Time commitment (Space to select, Enter to confirm)")
         .items(&scope_options)
         .interact()?;
 
@@ -140,7 +140,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     ];
 
     let selected_activities = MultiSelect::new()
-        .with_prompt("Select research activities")
+        .with_prompt("Select research activities (Space to select, Enter to confirm)")
         .items(&activities)
         .interact()?;
 
@@ -165,7 +165,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     let mut resources = Vec::new();
     loop {
         let resource = Input::<String>::new()
-            .with_prompt("Resource (URL or description)")
+            .with_prompt("Resource (URL or description) (Space to select, Enter to confirm)")
             .allow_empty(true)
             .interact_text()?;
 
@@ -180,7 +180,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
     // Step 7: Experimentation Plan
     let will_experiment = Confirm::new()
-        .with_prompt("Will you do hands-on experimentation?")
+        .with_prompt("Will you do hands-on experimentation? (Space to select, Enter to confirm)")
         .default(true)
         .interact()?;
 
@@ -198,7 +198,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
         loop {
             let experiment = Input::<String>::new()
-                .with_prompt("Experiment")
+                .with_prompt("Experiment (Space to select, Enter to confirm)")
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -228,7 +228,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
         loop {
             let criterion = Input::<String>::new()
-                .with_prompt("Criterion")
+                .with_prompt("Criterion (Space to select, Enter to confirm)")
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -259,7 +259,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     println!();
 
     let has_findings = Confirm::new()
-        .with_prompt("Have you completed the research and gathered findings?")
+        .with_prompt("Have you completed the research and gathered findings? (Space to select, Enter to confirm)")
         .default(false)
         .interact()?;
 
@@ -274,7 +274,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
         loop {
             let finding = Input::<String>::new()
-                .with_prompt("Finding")
+                .with_prompt("Finding (Space to select, Enter to confirm)")
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -291,7 +291,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
         loop {
             let learning = Input::<String>::new()
-                .with_prompt("Learning")
+                .with_prompt("Learning (Space to select, Enter to confirm)")
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -305,7 +305,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
         println!();
 
         recommendations = Input::<String>::new()
-            .with_prompt("💡 Recommendations (what should be done based on this research?)")
+            .with_prompt("💡 Recommendations (what should be done based on this research?) (Space to select, Enter to confirm)")
             .allow_empty(true)
             .interact_text()?;
 
@@ -323,7 +323,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
             println!("Question {}: {}", i + 1, question.cyan());
 
             let answer = Input::<String>::new()
-                .with_prompt("Answer")
+                .with_prompt("Answer (Space to select, Enter to confirm)")
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -350,7 +350,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     ];
 
     let action_indices = MultiSelect::new()
-        .with_prompt("Select next actions")
+        .with_prompt("Select next actions (Space to select, Enter to confirm)")
         .items(&next_action_options)
         .interact()?;
 
@@ -371,7 +371,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     ];
 
     let status_idx = Select::new()
-        .with_prompt("Research Status")
+        .with_prompt("Research Status (Space to select, Enter to confirm)")
         .items(&status_options)
         .default(if has_findings { 4 } else { 1 })
         .interact()?;

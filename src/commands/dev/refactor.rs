@@ -49,7 +49,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
     ];
 
     let motivation_indices = MultiSelect::new()
-        .with_prompt("Select refactoring goals")
+        .with_prompt("Select refactoring goals (Space to select, Enter to confirm)")
         .items(&motivation_options)
         .interact()?;
 
@@ -190,7 +190,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
     ];
 
     let selected_patterns = MultiSelect::new()
-        .with_prompt("Select refactoring techniques to apply")
+        .with_prompt("Select refactoring techniques to apply (Space to select, Enter to confirm)")
         .items(&refactoring_patterns)
         .interact()?;
 
@@ -327,7 +327,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
         ];
 
         let security_impacts = MultiSelect::new()
-            .with_prompt("Does this refactoring affect any of these security-sensitive areas?")
+            .with_prompt("Does this refactoring affect any of these security-sensitive areas? (Space to select, Enter to confirm)")
             .items(&security_considerations)
             .interact()?;
 

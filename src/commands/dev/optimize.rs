@@ -52,7 +52,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     ];
 
     let issue_indices = MultiSelect::new()
-        .with_prompt("Select performance issues")
+        .with_prompt("Select performance issues (Space to select, Enter to confirm)")
         .items(&issue_types)
         .interact()?;
 
@@ -77,7 +77,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let has_baseline = Confirm::new()
-        .with_prompt("Have you measured the current (baseline) performance?")
+        .with_prompt("Have you measured the current (baseline) performance? (Space to select, Enter to confirm)")
         .default(false)
         .interact()?;
 
@@ -138,7 +138,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
         println!();
 
         let continue_anyway = Confirm::new()
-            .with_prompt("Continue without baseline? (not recommended)")
+            .with_prompt("Continue without baseline? (not recommended) (Space to select, Enter to confirm)")
             .default(false)
             .interact()?;
 
@@ -165,7 +165,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
         loop {
             let metric = Input::<String>::new()
-                .with_prompt("Baseline metric")
+                .with_prompt("Baseline metric (Space to select, Enter to confirm)")
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -203,7 +203,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     ];
 
     let bottleneck_indices = MultiSelect::new()
-        .with_prompt("Identified bottlenecks")
+        .with_prompt("Identified bottlenecks (Space to select, Enter to confirm)")
         .items(&bottleneck_sources)
         .interact()?;
 
@@ -244,7 +244,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     ];
 
     let selected_techniques = MultiSelect::new()
-        .with_prompt("Select optimization techniques to apply")
+        .with_prompt("Select optimization techniques to apply (Space to select, Enter to confirm)")
         .items(&optimization_techniques)
         .interact()?;
 
@@ -294,7 +294,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     let mut files = Vec::new();
     loop {
         let file = Input::<String>::new()
-            .with_prompt("File")
+            .with_prompt("File (Space to select, Enter to confirm)")
             .allow_empty(true)
             .interact_text()?;
 
@@ -334,7 +334,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let target_improvement = Input::<String>::new()
-        .with_prompt("Performance target (e.g., 'Reduce load time to < 1s', '50% faster')")
+        .with_prompt("Performance target (e.g., 'Reduce load time to < 1s', '50% faster') (Space to select, Enter to confirm)")
         .allow_empty(true)
         .interact_text()?;
 
@@ -392,7 +392,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     ];
 
     let status_idx = Select::new()
-        .with_prompt("Current Status")
+        .with_prompt("Current Status (Space to select, Enter to confirm)")
         .items(&status_options)
         .default(0)
         .interact()?;
@@ -414,7 +414,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
         loop {
             let metric = Input::<String>::new()
-                .with_prompt("After metric")
+                .with_prompt("After metric (Space to select, Enter to confirm)")
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -451,7 +451,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
         loop {
             let improvement = Input::<String>::new()
-                .with_prompt("Improvement")
+                .with_prompt("Improvement (Space to select, Enter to confirm)")
                 .allow_empty(true)
                 .interact_text()?;
 
