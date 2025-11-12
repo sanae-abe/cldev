@@ -14,3 +14,9 @@ mod help_test;
 
 #[path = "cli_tests/version_test.rs"]
 mod version_test;
+
+#[path = "cli_tests/i18n_test.rs"]
+mod i18n_test;
+
+#[path = "cli_tests/analysis_test.rs"]
+mod analysis_test;

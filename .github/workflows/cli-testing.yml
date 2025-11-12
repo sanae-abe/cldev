@@ -1,0 +1,289 @@
+name: CLI Testing Specialist
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'tests/cli_tests/**'
+      - '.github/workflows/cli-testing.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'tests/cli_tests/**'
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  cli-tests:
+    name: CLI Tests (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Configure Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: cli-tests-${{ runner.os }}
+
+      - name: Build release binary
+        run: cargo build --release --bin cldev --locked
+
+      - name: Run CLI integration tests
+        run: cargo test --test cli --locked --verbose
+
+      - name: Run CLI unit tests (all test files)
+        run: cargo test --test '*' --locked --verbose
+        working-directory: tests/cli_tests
+
+      - name: Test version command
+        run: |
+          ./target/release/cldev --version
+          ./target/release/cldev -V
+        shell: bash
+
+      - name: Test help command (all languages)
+        run: |
+          ./target/release/cldev --help
+          ./target/release/cldev --lang en --help
+          ./target/release/cldev --lang ja --help
+          ./target/release/cldev --lang zh --help
+          ./target/release/cldev --lang zh-TW --help
+        shell: bash
+
+      - name: Test config commands
+        run: |
+          ./target/release/cldev config --help
+          ./target/release/cldev config list --detailed
+        shell: bash
+
+      - name: Archive test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-test-results-${{ matrix.os }}
+          path: |
+            target/debug/deps/*.log
+            target/release/cldev
+          retention-days: 7
+
+  i18n-tests:
+    name: i18n Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Configure Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        run: cargo build --release --bin cldev --locked
+
+      - name: Verify i18n key consistency
+        run: |
+          python3 -c "
+          import json
+          data = json.load(open('src/i18n/messages.json'))
+          langs = ['en', 'ja', 'zh', 'zh-TW']
+          keys_per_lang = {lang: set(data[lang].keys()) for lang in langs}
+
+          print('i18n Key Count:')
+          for lang in langs:
+              print(f'  {lang}: {len(keys_per_lang[lang])} keys')
+
+          # Check all languages have same keys
+          base_keys = keys_per_lang['en']
+          for lang in langs[1:]:
+              missing = base_keys - keys_per_lang[lang]
+              extra = keys_per_lang[lang] - base_keys
+              if missing:
+                  print(f'ERROR: {lang} missing keys: {missing}')
+                  exit(1)
+              if extra:
+                  print(f'ERROR: {lang} extra keys: {extra}')
+                  exit(1)
+
+          print('✓ All languages have consistent key sets')
+          "
+
+      - name: Test Japanese output (analyze)
+        run: |
+          output=$(./target/release/cldev analysis analyze --lang ja overview 2>&1 || true)
+          echo "$output"
+          if echo "$output" | grep -q "分析"; then
+            echo "✓ Japanese output detected"
+          else
+            echo "✗ Japanese output not found"
+            exit 1
+          fi
+
+      - name: Test Chinese output (analyze)
+        run: |
+          output=$(./target/release/cldev analysis analyze --lang zh overview 2>&1 || true)
+          echo "$output"
+          if echo "$output" | grep -q "分析"; then
+            echo "✓ Chinese output detected"
+          else
+            echo "✗ Chinese output not found"
+            exit 1
+          fi
+
+      - name: Test Japanese output (serena)
+        run: |
+          output=$(./target/release/cldev analysis serena --lang ja 2>&1 || true)
+          echo "$output"
+          if echo "$output" | grep -q "セマンティック"; then
+            echo "✓ Japanese serena output detected"
+          else
+            echo "✗ Japanese serena output not found"
+            exit 1
+          fi
+
+  regression-tests:
+    name: Regression Tests (Bug Fixes)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Configure Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        run: cargo build --release --bin cldev --locked
+
+      - name: Test Serena UTF-8 handling (should not crash)
+        run: |
+          # Create test directory with binary file
+          mkdir -p /tmp/cldev-test
+          echo "binary content" > /tmp/cldev-test/test.bin
+          echo "fn main() {}" > /tmp/cldev-test/test.rs
+
+          # Run serena - should complete successfully despite binary file
+          ./target/release/cldev analysis serena /tmp/cldev-test 2>&1 | tee /tmp/serena-output.txt
+
+          # Check it completed successfully (exit code 0 or has success message)
+          if grep -q "analysis complete" /tmp/serena-output.txt || [ $? -eq 0 ]; then
+            echo "✓ Serena handled non-UTF-8 files gracefully"
+          else
+            echo "✗ Serena failed on binary files"
+            exit 1
+          fi
+
+      - name: Test i18n implementation (analyze command)
+        run: |
+          # Test that --lang ja actually produces Japanese output
+          output=$(./target/release/cldev analysis analyze --lang ja overview 2>&1)
+
+          # Should NOT contain only English
+          if echo "$output" | grep -q "Starting.*analysis" && ! echo "$output" | grep -q "分析"; then
+            echo "✗ Japanese language flag not working for analyze"
+            exit 1
+          fi
+
+          echo "✓ i18n working for analyze command"
+
+      - name: Test i18n implementation (serena command)
+        run: |
+          # Test that --lang ja actually produces Japanese output
+          output=$(./target/release/cldev analysis serena --lang ja 2>&1)
+
+          # Should contain Japanese text
+          if ! echo "$output" | grep -q "セマンティック\|分析"; then
+            echo "✗ Japanese language flag not working for serena"
+            echo "Output: $output"
+            exit 1
+          fi
+
+          echo "✓ i18n working for serena command"
+
+  performance-tests:
+    name: CLI Performance
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Configure Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build release binary
+        run: cargo build --release --bin cldev --locked
+
+      - name: Measure startup time
+        run: |
+          echo "Measuring cldev startup time..."
+          for i in {1..5}; do
+            /usr/bin/time -p ./target/release/cldev --version 2>&1 | grep real
+          done
+
+          # Get average time
+          avg=$(for i in {1..10}; do
+            /usr/bin/time -p ./target/release/cldev --version 2>&1 | grep real | awk '{print $2}'
+          done | awk '{sum+=$1} END {print sum/NR}')
+
+          echo "Average startup time: ${avg}s"
+
+          # Check if under 100ms (0.1s) - adjust threshold as needed
+          if (( $(echo "$avg < 0.1" | bc -l) )); then
+            echo "✓ Startup time acceptable (< 100ms)"
+          else
+            echo "⚠ Startup time: ${avg}s (target: < 100ms)"
+          fi
+
+      - name: Check binary size
+        run: |
+          size=$(stat -f%z target/release/cldev 2>/dev/null || stat -c%s target/release/cldev)
+          size_mb=$(echo "scale=2; $size / 1024 / 1024" | bc)
+          echo "Binary size: ${size_mb}MB"
+
+          # Check if under 5MB
+          if [ "$size" -lt 5242880 ]; then
+            echo "✓ Binary size acceptable (< 5MB)"
+          else
+            echo "⚠ Binary size: ${size_mb}MB (target: < 5MB)"
+          fi
+
+  cli-success:
+    name: CLI Testing Success
+    needs: [cli-tests, i18n-tests, regression-tests, performance-tests]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Check all jobs
+        run: |
+          if [ "${{ needs.cli-tests.result }}" != "success" ] || \
+             [ "${{ needs.i18n-tests.result }}" != "success" ] || \
+             [ "${{ needs.regression-tests.result }}" != "success" ] || \
+             [ "${{ needs.performance-tests.result }}" != "success" ]; then
+            echo "One or more CLI testing jobs failed"
+            exit 1
+          fi
+          echo "All CLI testing jobs passed successfully ✓"

@@ -199,6 +199,73 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
 
+  # CLI integration tests
+  cli-tests:
+    name: CLI Integration Tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Configure Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: cli-${{ runner.os }}
+
+      - name: Build binary
+        run: cargo build --release --locked
+
+      - name: Run CLI version tests
+        run: cargo test --test version_test --verbose --locked
+
+      - name: Run CLI help tests
+        run: cargo test --test help_test --verbose --locked
+
+      - name: Run CLI config tests
+        run: cargo test --test config_commands_test --verbose --locked
+
+      - name: Run CLI completion tests
+        run: cargo test --test completion_test --verbose --locked
+
+      - name: Run CLI i18n tests
+        run: cargo test --test i18n_test --verbose --locked
+
+      - name: Run CLI analysis tests
+        run: cargo test --test analysis_test --verbose --locked
+
+      - name: Test binary startup time (Unix)
+        if: runner.os != 'Windows'
+        run: |
+          echo "Testing startup performance..."
+          time ./target/release/cldev --version
+          time ./target/release/cldev --version
+          time ./target/release/cldev --version
+
+      - name: Test binary startup time (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Write-Host "Testing startup performance..."
+          Measure-Command { ./target/release/cldev.exe --version }
+          Measure-Command { ./target/release/cldev.exe --version }
+          Measure-Command { ./target/release/cldev.exe --version }
+
+      - name: Upload CLI test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cli-test-results-${{ matrix.os }}
+          path: target/debug/deps/
+          retention-days: 7
+          if-no-files-found: ignore
+
   # Documentation build check
   docs:
     name: Documentation
@@ -238,7 +305,7 @@ jobs:
   # Final status check
   ci-success:
     name: CI Success
-    needs: [test, clippy, fmt, coverage, security-audit, msrv, build, docs]
+    needs: [test, clippy, fmt, coverage, security-audit, msrv, build, cli-tests, docs]
     runs-on: ubuntu-latest
     if: always()
     steps:
@@ -251,6 +318,7 @@ jobs:
              [ "${{ needs.security-audit.result }}" != "success" ] || \
              [ "${{ needs.msrv.result }}" != "success" ] || \
              [ "${{ needs.build.result }}" != "success" ] || \
+             [ "${{ needs.cli-tests.result }}" != "success" ] || \
              [ "${{ needs.docs.result }}" != "success" ]; then
             echo "One or more CI jobs failed"
             exit 1

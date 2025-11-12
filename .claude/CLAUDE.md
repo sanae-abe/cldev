@@ -26,7 +26,7 @@
 **Before ANY commit:**
 ```bash
 cargo clippy --all-targets --all-features  # MUST pass
-cargo test --lib --quiet                   # MUST pass
+cargo test --lib --quiet                   # MUST pass (--quiet: 詳細出力は失敗時のみ)
 ```
 
 ### Quality (Auto-enforced)
