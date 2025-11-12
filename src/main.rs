@@ -20,6 +20,29 @@ fn run() -> Result<()> {
     let lang = cli::args::extract_language_from_args();
     cli::help::init_help_i18n(lang);
 
+    // Handle no arguments case - display help and exit with 0
+    if std::env::args().len() == 1 {
+        let _ = Cli::parse_from(&["cldev", "--help"]);
+        std::process::exit(0);
+    }
+
+    // Check for extremely long arguments (buffer overflow protection)
+    // Note: clap will validate and reject invalid values with exit code 2
+    // This is just an additional safety check for buffer overflow attempts
+    const MAX_ARG_LENGTH: usize = 1048576; // 1MB limit - very generous
+    for (i, arg) in std::env::args().enumerate() {
+        if arg.len() > MAX_ARG_LENGTH {
+            eprintln!(
+                "Error: Argument {} is too long ({} bytes, max {} bytes)",
+                i,
+                arg.len(),
+                MAX_ARG_LENGTH
+            );
+            eprintln!("This could indicate a buffer overflow attack or malformed input.");
+            std::process::exit(1);
+        }
+    }
+
     let cli = Cli::parse();
 
     // Initialize output handler with global flags and language

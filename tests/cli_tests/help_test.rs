@@ -152,10 +152,11 @@ fn test_no_args_shows_help() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
     cmd.env("LANG", "en");
 
-    // Running without args should show help or usage
+    // Running without args should show help with exit 0 (user-friendly)
     cmd.assert()
-        .failure()
-        .stderr(predicate::str::contains("Usage:").or(predicate::str::contains("cldev")));
+        .success()
+        .stdout(predicate::str::contains("Usage:"))
+        .stdout(predicate::str::contains("cldev"));
 }
 
 #[test]

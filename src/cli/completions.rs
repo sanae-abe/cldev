@@ -17,7 +17,12 @@ use crate::cli::output::OutputHandler;
 ///
 /// ```
 /// use cldev::cli::completions::generate_completions;
+/// use cldev::cli::help;
+/// use cldev::core::i18n::Language;
 /// use clap_complete::Shell;
+///
+/// // Initialize help system before generating completions
+/// help::init_help_i18n(Language::English);
 ///
 /// // Generate Bash completions
 /// generate_completions(Shell::Bash);
