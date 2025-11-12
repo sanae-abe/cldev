@@ -36,20 +36,20 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let motivation_options = vec![
-        "Improve code readability/maintainability",
-        "Reduce code duplication (DRY principle)",
-        "Improve performance",
-        "Simplify complex logic",
-        "Extract reusable components/utilities",
-        "Improve type safety",
-        "Update to modern patterns/best practices",
-        "Reduce technical debt",
-        "Prepare for new features",
-        "Fix code smells",
+        output.t("refactor-goal-readability"),
+        output.t("refactor-goal-dry"),
+        output.t("refactor-goal-performance"),
+        output.t("refactor-goal-simplify"),
+        output.t("refactor-goal-extract"),
+        output.t("refactor-goal-type-safety"),
+        output.t("refactor-goal-modern"),
+        output.t("refactor-goal-debt"),
+        output.t("refactor-goal-prepare"),
+        output.t("refactor-goal-smells"),
     ];
 
     let motivation_indices = MultiSelect::new()
-        .with_prompt("Select refactoring goals (Space to select, Enter to confirm)")
+        .with_prompt(output.t("refactor-goal-prompt"))
         .items(&motivation_options)
         .interact()?;
 
@@ -71,18 +71,18 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let scope_options = vec![
-        "Single function/method (low impact)",
-        "Single file/module (medium impact)",
-        "Multiple related files (high impact)",
-        "Cross-cutting concern (system-wide impact)",
+        output.t("refactor-scope-single-function"),
+        output.t("refactor-scope-single-file"),
+        output.t("refactor-scope-multiple-files"),
+        output.t("refactor-scope-system-wide"),
     ];
 
     let scope_idx = Select::new()
-        .with_prompt("Refactoring Scope")
+        .with_prompt(output.t("refactor-scope-prompt"))
         .items(&scope_options)
         .interact()?;
 
-    let scope = scope_options[scope_idx];
+    let scope = scope_options[scope_idx].clone();
     let is_high_impact = scope_idx >= 2;
 
     println!();
@@ -95,7 +95,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
     let mut files = Vec::new();
     loop {
         let file = Input::<String>::new()
-            .with_prompt("File")
+            .with_prompt(output.t("refactor-file-prompt"))
             .allow_empty(true)
             .interact_text()?;
 
@@ -119,7 +119,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let has_tests = Confirm::new()
-        .with_prompt("Does the target code have existing tests?")
+        .with_prompt(output.t("refactor-test-question"))
         .default(false)
         .interact()?;
 
@@ -140,7 +140,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
         println!();
 
         let continue_without_tests = Confirm::new()
-            .with_prompt("Continue without tests? (not recommended)")
+            .with_prompt(output.t("refactor-continue-no-tests"))
             .default(false)
             .interact()?;
 
@@ -173,24 +173,24 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let refactoring_patterns = vec![
-        "Extract Function/Method",
-        "Extract Component/Module",
-        "Inline Function/Variable",
-        "Rename (improve naming)",
-        "Move Function/Class",
-        "Replace Conditional with Polymorphism",
-        "Introduce Parameter Object",
-        "Replace Magic Numbers with Constants",
-        "Decompose Conditional",
-        "Consolidate Duplicate Code",
-        "Simplify Complex Expression",
-        "Replace Nested Conditionals with Guard Clauses",
-        "Extract Interface/Type",
-        "Replace Loop with Pipeline (map/filter/reduce)",
+        output.t("refactor-pattern-extract-function"),
+        output.t("refactor-pattern-extract-component"),
+        output.t("refactor-pattern-inline"),
+        output.t("refactor-pattern-rename"),
+        output.t("refactor-pattern-move"),
+        output.t("refactor-pattern-polymorphism"),
+        output.t("refactor-pattern-parameter-object"),
+        output.t("refactor-pattern-constants"),
+        output.t("refactor-pattern-decompose"),
+        output.t("refactor-pattern-consolidate"),
+        output.t("refactor-pattern-simplify"),
+        output.t("refactor-pattern-guard"),
+        output.t("refactor-pattern-interface"),
+        output.t("refactor-pattern-pipeline"),
     ];
 
     let selected_patterns = MultiSelect::new()
-        .with_prompt("Select refactoring techniques to apply (Space to select, Enter to confirm)")
+        .with_prompt(output.t("refactor-pattern-prompt"))
         .items(&refactoring_patterns)
         .interact()?;
 
@@ -216,7 +216,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
 
     loop {
         let step = Input::<String>::new()
-            .with_prompt(format!("Step {}", step_num))
+            .with_prompt(output.t("refactor-step-prompt").replace("{num}", &step_num.to_string()))
             .allow_empty(true)
             .interact_text()?;
 
@@ -317,17 +317,17 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
         println!();
 
         let security_considerations = vec![
-            "Authentication/authorization logic changes",
-            "Input validation changes",
-            "Data sanitization changes",
-            "Access control changes",
-            "Encryption/decryption logic changes",
-            "API endpoint changes",
-            "None of the above",
+            output.t("refactor-security-auth"),
+            output.t("refactor-security-validation"),
+            output.t("refactor-security-sanitization"),
+            output.t("refactor-security-access"),
+            output.t("refactor-security-encryption"),
+            output.t("refactor-security-api"),
+            output.t("refactor-security-none"),
         ];
 
         let security_impacts = MultiSelect::new()
-            .with_prompt("Does this refactoring affect any of these security-sensitive areas? (Space to select, Enter to confirm)")
+            .with_prompt(output.t("refactor-security-prompt"))
             .items(&security_considerations)
             .interact()?;
 
@@ -352,20 +352,20 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let status_options = vec![
-        "Planning (not started yet)",
-        "In Progress (actively refactoring)",
-        "Testing (refactoring done, verifying changes)",
-        "Review (ready for code review)",
-        "Completed (merged)",
+        output.t("refactor-status-planning"),
+        output.t("refactor-status-progress"),
+        output.t("refactor-status-testing"),
+        output.t("refactor-status-review"),
+        output.t("refactor-status-completed"),
     ];
 
     let status_idx = Select::new()
-        .with_prompt("Current Status")
+        .with_prompt(output.t("refactor-status-prompt"))
         .items(&status_options)
         .default(0)
         .interact()?;
 
-    let current_status = status_options[status_idx];
+    let current_status = status_options[status_idx].clone();
     let is_completed = status_idx == 4;
 
     println!();
@@ -377,7 +377,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
         println!();
 
         let measure_improvements = Confirm::new()
-            .with_prompt("Did you measure improvements?")
+            .with_prompt(output.t("refactor-measure-improvements"))
             .default(false)
             .interact()?;
 
@@ -393,7 +393,7 @@ pub fn handle_refactor(target: Option<String>, output: &OutputHandler) -> Result
 
             loop {
                 let improvement = Input::<String>::new()
-                    .with_prompt("Improvement")
+                    .with_prompt(output.t("refactor-improvement-prompt"))
                     .allow_empty(true)
                     .interact_text()?;
 
