@@ -39,20 +39,20 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let issue_types = vec![
-        "Slow page load / rendering",
-        "API response time",
-        "Database query performance",
-        "Memory usage / leaks",
-        "CPU-intensive operations",
-        "Network requests (too many, too large)",
-        "Bundle size (JavaScript/CSS)",
-        "Image/asset loading",
-        "Animation/scroll performance",
-        "Search/filtering operations",
+        output.t("optimize-issue-page-load"),
+        output.t("optimize-issue-api"),
+        output.t("optimize-issue-database"),
+        output.t("optimize-issue-memory"),
+        output.t("optimize-issue-cpu"),
+        output.t("optimize-issue-network"),
+        output.t("optimize-issue-bundle"),
+        output.t("optimize-issue-image"),
+        output.t("optimize-issue-animation"),
+        output.t("optimize-issue-search"),
     ];
 
     let issue_indices = MultiSelect::new()
-        .with_prompt("Select performance issues (Space to select, Enter to confirm)")
+        .with_prompt(output.t("optimize-issue-prompt"))
         .items(&issue_types)
         .interact()?;
 
@@ -77,7 +77,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let has_baseline = Confirm::new()
-        .with_prompt("Have you measured the current (baseline) performance? (Space to select, Enter to confirm)")
+        .with_prompt(output.t("optimize-baseline-question"))
         .default(false)
         .interact()?;
 
@@ -138,7 +138,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
         println!();
 
         let continue_anyway = Confirm::new()
-            .with_prompt("Continue without baseline? (not recommended) (Space to select, Enter to confirm)")
+            .with_prompt(output.t("optimize-continue-no-baseline"))
             .default(false)
             .interact()?;
 
@@ -165,7 +165,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
         loop {
             let metric = Input::<String>::new()
-                .with_prompt("Baseline metric (Space to select, Enter to confirm)")
+                .with_prompt(output.t("optimize-baseline-prompt"))
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -188,22 +188,22 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let bottleneck_sources = vec![
-        "Large/unoptimized images",
-        "Excessive JavaScript execution",
-        "Unnecessary re-renders (React/Vue)",
-        "Blocking/synchronous operations",
-        "N+1 database queries",
-        "Missing indexes in database",
-        "Large data transfers",
-        "Inefficient algorithms (O(n²) or worse)",
-        "Memory leaks",
-        "Too many network requests",
-        "Unoptimized third-party libraries",
-        "CSS layout thrashing",
+        output.t("optimize-bottleneck-images"),
+        output.t("optimize-bottleneck-javascript"),
+        output.t("optimize-bottleneck-rerenders"),
+        output.t("optimize-bottleneck-blocking"),
+        output.t("optimize-bottleneck-n-plus-one"),
+        output.t("optimize-bottleneck-indexes"),
+        output.t("optimize-bottleneck-data"),
+        output.t("optimize-bottleneck-algorithms"),
+        output.t("optimize-bottleneck-memory-leaks"),
+        output.t("optimize-bottleneck-requests"),
+        output.t("optimize-bottleneck-libraries"),
+        output.t("optimize-bottleneck-css"),
     ];
 
     let bottleneck_indices = MultiSelect::new()
-        .with_prompt("Identified bottlenecks (Space to select, Enter to confirm)")
+        .with_prompt(output.t("optimize-bottleneck-prompt"))
         .items(&bottleneck_sources)
         .interact()?;
 
@@ -220,31 +220,31 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
     let optimization_techniques = vec![
         // Frontend
-        "Code splitting / lazy loading",
-        "Image optimization (compression, WebP, lazy load)",
-        "Memoization (React.memo, useMemo, useCallback)",
-        "Virtualization (react-window, virtual scrolling)",
-        "Debounce/throttle expensive operations",
-        "Reduce bundle size (tree shaking, remove unused)",
-        "Optimize CSS (remove unused, critical CSS)",
-        "Web Workers (offload CPU work)",
-        "Service Worker / caching strategy",
+        output.t("optimize-technique-code-splitting"),
+        output.t("optimize-technique-images"),
+        output.t("optimize-technique-memoization"),
+        output.t("optimize-technique-virtualization"),
+        output.t("optimize-technique-debounce"),
+        output.t("optimize-technique-bundle-reduction"),
+        output.t("optimize-technique-css"),
+        output.t("optimize-technique-web-workers"),
+        output.t("optimize-technique-service-worker"),
         // Backend
-        "Database query optimization (indexes, query rewrite)",
-        "Caching (Redis, in-memory cache)",
-        "Connection pooling",
-        "Async/await refactoring",
-        "Batch operations (reduce roundtrips)",
-        "CDN for static assets",
+        output.t("optimize-technique-query"),
+        output.t("optimize-technique-caching"),
+        output.t("optimize-technique-pooling"),
+        output.t("optimize-technique-async"),
+        output.t("optimize-technique-batch"),
+        output.t("optimize-technique-cdn"),
         // General
-        "Algorithm improvement (better data structures)",
-        "Parallel processing",
-        "Reduce computational complexity",
-        "Resource pooling/reuse",
+        output.t("optimize-technique-algorithm"),
+        output.t("optimize-technique-parallel"),
+        output.t("optimize-technique-complexity"),
+        output.t("optimize-technique-resource-reuse"),
     ];
 
     let selected_techniques = MultiSelect::new()
-        .with_prompt("Select optimization techniques to apply (Space to select, Enter to confirm)")
+        .with_prompt(output.t("optimize-technique-prompt"))
         .items(&optimization_techniques)
         .interact()?;
 
@@ -272,7 +272,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
     loop {
         let step = Input::<String>::new()
-            .with_prompt(format!("Step {}", step_num))
+            .with_prompt(output.t("optimize-step-prompt").replace("{num}", &step_num.to_string()))
             .allow_empty(true)
             .interact_text()?;
 
@@ -294,7 +294,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     let mut files = Vec::new();
     loop {
         let file = Input::<String>::new()
-            .with_prompt("File (Space to select, Enter to confirm)")
+            .with_prompt(output.t("optimize-file-prompt"))
             .allow_empty(true)
             .interact_text()?;
 
@@ -334,7 +334,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let target_improvement = Input::<String>::new()
-        .with_prompt("Performance target (e.g., 'Reduce load time to < 1s', '50% faster') (Space to select, Enter to confirm)")
+        .with_prompt(output.t("optimize-target-prompt"))
         .allow_empty(true)
         .interact_text()?;
 
@@ -385,19 +385,19 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
     println!();
 
     let status_options = vec![
-        "Planning (analysis done, ready to optimize)",
-        "In Progress (implementing optimizations)",
-        "Measuring (optimization done, collecting metrics)",
-        "Completed (verified improvement)",
+        output.t("optimize-status-planning"),
+        output.t("optimize-status-progress"),
+        output.t("optimize-status-measuring"),
+        output.t("optimize-status-completed"),
     ];
 
     let status_idx = Select::new()
-        .with_prompt("Current Status (Space to select, Enter to confirm)")
+        .with_prompt(output.t("optimize-status-prompt"))
         .items(&status_options)
         .default(0)
         .interact()?;
 
-    let current_status = status_options[status_idx];
+    let current_status = status_options[status_idx].clone();
     let is_completed = status_idx == 3;
 
     println!();
@@ -414,7 +414,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
         loop {
             let metric = Input::<String>::new()
-                .with_prompt("After metric (Space to select, Enter to confirm)")
+                .with_prompt(output.t("optimize-after-prompt"))
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -451,7 +451,7 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
         loop {
             let improvement = Input::<String>::new()
-                .with_prompt("Improvement (Space to select, Enter to confirm)")
+                .with_prompt(output.t("optimize-improvement-prompt"))
                 .allow_empty(true)
                 .interact_text()?;
 
