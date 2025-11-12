@@ -29,6 +29,27 @@ cargo clippy --all-targets --all-features  # MUST pass
 cargo test --lib --quiet                   # MUST pass (--quiet: 詳細出力は失敗時のみ)
 ```
 
+### Automated Quality Hooks
+
+**pre_commit** (実行時間: 1-2秒):
+```bash
+cargo fmt  # Auto-format code
+```
+
+**pre_push** (実行時間: 10-30秒):
+```bash
+# 1. Clippy first - fast type error detection (early failure)
+cargo clippy --all-features -- -D warnings
+
+# 2. Unit + binary tests (exclude integration tests for speed)
+cargo test --all-features --lib --bins
+```
+
+**設計根拠**:
+- **Clippy優先**: 型エラーを数秒で検出（早期失敗）
+- **統合テスト除外**: proptest (237秒) などを除外し10-30秒で完了
+- **CI で全テスト**: GitHub Actions で統合テスト含む全テスト実行
+
 ### Quality (Auto-enforced)
 
 **Rust file edited → Auto format check:**

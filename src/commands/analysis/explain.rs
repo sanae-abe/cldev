@@ -1,5 +1,6 @@
 use crate::cli::output::OutputHandler;
 use crate::core::error::Result;
+use crate::core::security::SecurePath;
 use std::collections::HashMap;
 use std::path::Path;
 
@@ -38,18 +39,37 @@ pub fn explain_target(
     detailed: bool,
     output: &OutputHandler,
 ) -> Result<()> {
+    // Security: Validate target doesn't contain path traversal patterns
+    if target.contains("..") || target.contains("~") || target.starts_with('/') {
+        return Err(crate::core::CldevError::command(format!(
+            "Invalid target '{}': path traversal attempts are not allowed",
+            target
+        )));
+    }
+
     output.info(&format!("Analyzing '{}' in project...", target));
 
     let current_dir = std::env::current_dir()?;
-    let explanation = find_and_explain(&current_dir, target, detailed)?;
+
+    // Security: Create SecurePath to enforce directory boundaries
+    let secure_path = SecurePath::new(current_dir.clone()).map_err(|e| {
+        crate::core::CldevError::command(format!("Failed to create secure path: {}", e))
+    })?;
+
+    let explanation = find_and_explain(&current_dir, target, detailed, &secure_path)?;
 
     display_explanation(&explanation, examples, detailed, output);
 
     Ok(())
 }
 
-fn find_and_explain(path: &Path, target: &str, detailed: bool) -> Result<Explanation> {
-    let locations = search_in_codebase(path, target)?;
+fn find_and_explain(
+    path: &Path,
+    target: &str,
+    detailed: bool,
+    secure_path: &SecurePath,
+) -> Result<Explanation> {
+    let locations = search_in_codebase(path, target, secure_path)?;
 
     if locations.is_empty() {
         // Check if it's a concept
@@ -67,7 +87,7 @@ fn find_and_explain(path: &Path, target: &str, detailed: bool) -> Result<Explana
     let kind = determine_kind(&locations);
     let description = generate_description(target, &kind, &locations, detailed);
     let usage_examples = if detailed {
-        find_usage_examples(target, path)?
+        find_usage_examples(target, path, secure_path)?
     } else {
         Vec::new()
     };
@@ -83,12 +103,27 @@ fn find_and_explain(path: &Path, target: &str, detailed: bool) -> Result<Explana
     })
 }
 
-fn search_in_codebase(path: &Path, target: &str) -> Result<Vec<SourceLocation>> {
+fn search_in_codebase(
+    path: &Path,
+    target: &str,
+    secure_path: &SecurePath,
+) -> Result<Vec<SourceLocation>> {
     let mut locations = Vec::new();
 
     if let Ok(entries) = std::fs::read_dir(path) {
         for entry in entries.flatten() {
             let entry_path = entry.path();
+
+            // Security: Validate all paths are within allowed directory
+            if let Err(e) = secure_path.validate(&entry_path) {
+                // Skip paths outside the project directory (security violation)
+                eprintln!(
+                    "Security: Skipping path outside project: {} ({})",
+                    entry_path.display(),
+                    e
+                );
+                continue;
+            }
 
             if entry_path.is_file() && is_source_file(&entry_path) {
                 if let Ok(content) = std::fs::read_to_string(&entry_path) {
@@ -106,7 +141,7 @@ fn search_in_codebase(path: &Path, target: &str) -> Result<Vec<SourceLocation>> 
                     }
                 }
             } else if entry_path.is_dir() && !is_ignored_dir(&entry_path) {
-                locations.extend(search_in_codebase(&entry_path, target)?);
+                locations.extend(search_in_codebase(&entry_path, target, secure_path)?);
             }
         }
     }
@@ -255,12 +290,17 @@ fn generate_description(
     description
 }
 
-fn find_usage_examples(target: &str, path: &Path) -> Result<Vec<String>> {
+fn find_usage_examples(target: &str, path: &Path, secure_path: &SecurePath) -> Result<Vec<String>> {
     let mut examples = Vec::new();
 
     if let Ok(entries) = std::fs::read_dir(path) {
         for entry in entries.flatten() {
             let entry_path = entry.path();
+
+            // Security: Validate path is within allowed directory
+            if secure_path.validate(&entry_path).is_err() {
+                continue;
+            }
 
             if entry_path.is_file() && is_source_file(&entry_path) {
                 if let Ok(content) = std::fs::read_to_string(&entry_path) {
@@ -276,7 +316,7 @@ fn find_usage_examples(target: &str, path: &Path) -> Result<Vec<String>> {
                     }
                 }
             } else if entry_path.is_dir() && !is_ignored_dir(&entry_path) {
-                examples.extend(find_usage_examples(target, &entry_path)?);
+                examples.extend(find_usage_examples(target, &entry_path, secure_path)?);
 
                 if examples.len() >= 5 {
                     return Ok(examples);
