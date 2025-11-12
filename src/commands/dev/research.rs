@@ -13,7 +13,7 @@ use std::time::Instant;
 /// - Experimentation and hands-on learning
 /// - Knowledge capture and documentation
 /// - Automatic learning session recording
-pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result<()> {
+pub fn handle_research(topic: Option<String>, output: &OutputHandler) -> Result<()> {
     let start_time = Instant::now();
 
     println!(
@@ -30,7 +30,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
         t
     } else {
         Input::<String>::new()
-            .with_prompt("📚 Research Topic (Space to select, Enter to confirm)")
+            .with_prompt(output.t("research-topic-prompt"))
             .interact_text()?
     };
 
@@ -41,29 +41,29 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     println!();
 
     let motivations = vec![
-        "Learn new technology/framework",
-        "Solve specific problem",
-        "Evaluate alternatives/options",
-        "Understand best practices",
-        "Performance optimization research",
-        "Architecture/design decision",
-        "Security investigation",
-        "Compatibility/integration research",
-        "Industry trends/emerging tech",
-        "Personal skill development",
+        output.t("research-motivation-learn"),
+        output.t("research-motivation-solve"),
+        output.t("research-motivation-evaluate"),
+        output.t("research-motivation-best-practices"),
+        output.t("research-motivation-performance"),
+        output.t("research-motivation-architecture"),
+        output.t("research-motivation-security"),
+        output.t("research-motivation-compatibility"),
+        output.t("research-motivation-trends"),
+        output.t("research-motivation-personal"),
     ];
 
     let motivation_idx = Select::new()
-        .with_prompt("Why are you researching this? (Space to select, Enter to confirm)")
+        .with_prompt(output.t("research-motivation-prompt"))
         .items(&motivations)
         .interact()?;
 
-    let motivation = motivations[motivation_idx];
+    let motivation = motivations[motivation_idx].clone();
 
     println!();
 
     let context = Input::<String>::new()
-        .with_prompt("💡 Context (what prompted this research?) (Space to select, Enter to confirm)")
+        .with_prompt(output.t("research-context-prompt"))
         .interact_text()?;
 
     println!();
@@ -79,7 +79,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
     loop {
         let question = Input::<String>::new()
-            .with_prompt(format!("Question {}", question_num))
+            .with_prompt(output.t("research-question-prompt").replace("{num}", &question_num.to_string()))
             .allow_empty(true)
             .interact_text()?;
 
@@ -105,18 +105,18 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     println!();
 
     let scope_options = vec![
-        "Quick investigation (< 1 hour)",
-        "Moderate research (1-4 hours)",
-        "Deep dive (1-2 days)",
-        "Extended research (1 week+)",
+        output.t("research-scope-quick"),
+        output.t("research-scope-moderate"),
+        output.t("research-scope-deep"),
+        output.t("research-scope-extended"),
     ];
 
     let scope_idx = Select::new()
-        .with_prompt("Time commitment (Space to select, Enter to confirm)")
+        .with_prompt(output.t("research-scope-prompt"))
         .items(&scope_options)
         .interact()?;
 
-    let scope = scope_options[scope_idx];
+    let scope = scope_options[scope_idx].clone();
 
     println!();
 
@@ -125,22 +125,22 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     println!();
 
     let activities = vec![
-        "Read documentation/official guides",
-        "Read blog posts/articles",
-        "Watch videos/tutorials",
-        "Read source code/examples",
-        "Hands-on experimentation",
-        "Build proof-of-concept",
-        "Performance benchmarking",
-        "Security analysis",
-        "Community research (forums, GitHub issues)",
-        "Compare alternatives/competitors",
-        "Read academic papers",
-        "Consult with experts/team",
+        output.t("research-activity-docs"),
+        output.t("research-activity-blogs"),
+        output.t("research-activity-videos"),
+        output.t("research-activity-source"),
+        output.t("research-activity-experiment"),
+        output.t("research-activity-poc"),
+        output.t("research-activity-benchmark"),
+        output.t("research-activity-security"),
+        output.t("research-activity-community"),
+        output.t("research-activity-compare"),
+        output.t("research-activity-papers"),
+        output.t("research-activity-experts"),
     ];
 
     let selected_activities = MultiSelect::new()
-        .with_prompt("Select research activities (Space to select, Enter to confirm)")
+        .with_prompt(output.t("research-activity-prompt"))
         .items(&activities)
         .interact()?;
 
@@ -165,7 +165,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
     let mut resources = Vec::new();
     loop {
         let resource = Input::<String>::new()
-            .with_prompt("Resource (URL or description) (Space to select, Enter to confirm)")
+            .with_prompt(output.t("research-resource-prompt"))
             .allow_empty(true)
             .interact_text()?;
 
@@ -180,7 +180,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
     // Step 7: Experimentation Plan
     let will_experiment = Confirm::new()
-        .with_prompt("Will you do hands-on experimentation? (Space to select, Enter to confirm)")
+        .with_prompt(output.t("research-experiment-question"))
         .default(true)
         .interact()?;
 
@@ -198,7 +198,7 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
         loop {
             let experiment = Input::<String>::new()
-                .with_prompt("Experiment (Space to select, Enter to confirm)")
+                .with_prompt(output.t("research-experiment-prompt"))
                 .allow_empty(true)
                 .interact_text()?;
 
@@ -363,20 +363,20 @@ pub fn handle_research(topic: Option<String>, _output: &OutputHandler) -> Result
 
     // Step 13: Research Status
     let status_options = vec![
-        "Planning (defining research scope)",
-        "In Progress (actively researching)",
-        "Experimenting (hands-on testing)",
-        "Analyzing (synthesizing findings)",
-        "Completed (research finished)",
+        output.t("research-status-planning"),
+        output.t("research-status-progress"),
+        output.t("research-status-experimenting"),
+        output.t("research-status-analyzing"),
+        output.t("research-status-completed"),
     ];
 
     let status_idx = Select::new()
-        .with_prompt("Research Status (Space to select, Enter to confirm)")
+        .with_prompt(output.t("research-status-prompt"))
         .items(&status_options)
         .default(if has_findings { 4 } else { 1 })
         .interact()?;
 
-    let current_status = status_options[status_idx];
+    let current_status = status_options[status_idx].clone();
     let is_completed = status_idx == 4;
 
     let duration = start_time.elapsed().as_secs() / 60;
