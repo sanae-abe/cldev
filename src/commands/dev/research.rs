@@ -79,7 +79,11 @@ pub fn handle_research(topic: Option<String>, output: &OutputHandler) -> Result<
 
     loop {
         let question = Input::<String>::new()
-            .with_prompt(output.t("research-question-prompt").replace("{num}", &question_num.to_string()))
+            .with_prompt(
+                output
+                    .t("research-question-prompt")
+                    .replace("{num}", &question_num.to_string()),
+            )
             .allow_empty(true)
             .interact_text()?;
 

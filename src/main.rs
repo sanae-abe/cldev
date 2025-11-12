@@ -22,7 +22,7 @@ fn run() -> Result<()> {
 
     // Handle no arguments case - display help and exit with 0
     if std::env::args().len() == 1 {
-        let _ = Cli::parse_from(&["cldev", "--help"]);
+        let _ = Cli::parse_from(["cldev", "--help"]);
         std::process::exit(0);
     }
 

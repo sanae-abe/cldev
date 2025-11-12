@@ -272,7 +272,11 @@ pub fn handle_optimize(target: Option<String>, output: &OutputHandler) -> Result
 
     loop {
         let step = Input::<String>::new()
-            .with_prompt(output.t("optimize-step-prompt").replace("{num}", &step_num.to_string()))
+            .with_prompt(
+                output
+                    .t("optimize-step-prompt")
+                    .replace("{num}", &step_num.to_string()),
+            )
             .allow_empty(true)
             .interact_text()?;
 

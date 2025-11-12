@@ -78,7 +78,11 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
 
     loop {
         let criterion = Input::<String>::new()
-            .with_prompt(output.t("feature-criterion-prompt").replace("{num}", &criterion_num.to_string()))
+            .with_prompt(
+                output
+                    .t("feature-criterion-prompt")
+                    .replace("{num}", &criterion_num.to_string()),
+            )
             .allow_empty(true)
             .interact_text()?;
 
