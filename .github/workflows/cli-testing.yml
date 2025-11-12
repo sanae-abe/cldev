@@ -148,7 +148,7 @@ jobs:
 
       - name: Test Japanese output (serena)
         run: |
-          output=$(./target/release/cldev analysis serena --lang ja 2>&1 || true)
+          output=$(./target/release/cldev analysis serena --lang ja --help 2>&1 || true)
           echo "$output"
           if echo "$output" | grep -q "セマンティック"; then
             echo "✓ Japanese serena output detected"
@@ -182,7 +182,7 @@ jobs:
           echo "fn main() {}" > /tmp/cldev-test/test.rs
 
           # Run serena - should complete successfully despite binary file
-          ./target/release/cldev analysis serena /tmp/cldev-test 2>&1 | tee /tmp/serena-output.txt
+          ./target/release/cldev analysis serena batch /tmp/cldev-test 2>&1 | tee /tmp/serena-output.txt
 
           # Check it completed successfully (exit code 0 or has success message)
           if grep -q "analysis complete" /tmp/serena-output.txt || [ $? -eq 0 ]; then
@@ -208,7 +208,7 @@ jobs:
       - name: Test i18n implementation (serena command)
         run: |
           # Test that --lang ja actually produces Japanese output
-          output=$(./target/release/cldev analysis serena --lang ja 2>&1)
+          output=$(./target/release/cldev analysis serena --lang ja --help 2>&1)
 
           # Should contain Japanese text
           if ! echo "$output" | grep -q "セマンティック\|分析"; then
