@@ -222,23 +222,8 @@ jobs:
       - name: Build binary
         run: cargo build --release --locked
 
-      - name: Run CLI version tests
-        run: cargo test --test version_test --verbose --locked
-
-      - name: Run CLI help tests
-        run: cargo test --test help_test --verbose --locked
-
-      - name: Run CLI config tests
-        run: cargo test --test config_commands_test --verbose --locked
-
-      - name: Run CLI completion tests
-        run: cargo test --test completion_test --verbose --locked
-
-      - name: Run CLI i18n tests
-        run: cargo test --test i18n_test --verbose --locked
-
-      - name: Run CLI analysis tests
-        run: cargo test --test analysis_test --verbose --locked
+      - name: Run all CLI tests
+        run: cargo test --test cli --verbose --locked
 
       - name: Test binary startup time (Unix)
         if: runner.os != 'Windows'
