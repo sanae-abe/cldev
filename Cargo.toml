@@ -2,7 +2,7 @@
 name = "cldev"
 version = "1.0.0"
 edition = "2021"
-rust-version = "1.70"
+rust-version = "1.71"
 authors = ["Sanae Abe"]
 description = "A unified CLI tool for managing multiple development tools with intelligent workflows, session recording, and AI-powered analysis"
 license = "MIT OR Apache-2.0"
