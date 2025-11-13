@@ -27,3 +27,5 @@ desktop.ini
 
 # Private documentation
 docs/private/
+mutants.out/
+json/
