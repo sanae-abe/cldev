@@ -640,6 +640,10 @@ pub enum TodoCommands {
     #[command(about = super::help::todo_complete_about())]
     Complete,
 
+    /// Display next priority todo
+    #[command(about = super::help::todo_next_about())]
+    Next,
+
     /// Sync todos with git commits
     #[command(about = super::help::todo_sync_about())]
     Sync,

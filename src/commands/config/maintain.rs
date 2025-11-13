@@ -33,21 +33,25 @@ pub fn handle_config_maintain(
     let config_path = Config::default_path()?;
 
     // Validate configuration
-    output.info("🔍 Validating configuration...");
+    output.info(&output.t("config-maintain-validating"));
     match Config::load(None) {
-        Ok(_) => output.success("✅ Configuration is valid"),
+        Ok(_) => output.success(&output.t("config-maintain-config-valid")),
         Err(e) => {
-            output.error(&format!("❌ Configuration validation failed: {}", e));
+            output.error(&output.t_format(
+                "config-maintain-validation-failed",
+                "error",
+                &e.to_string(),
+            ));
             return Err(e);
         }
     }
 
     // Perform backup if requested
     if backup {
-        output.info("\n📦 Creating configuration backup...");
+        output.info(&output.t("config-maintain-backing-up"));
 
         if !config_path.exists() {
-            output.warning("No configuration file found to backup");
+            output.warning(&output.t("config-maintain-backup-none"));
         } else {
             let backup_dir = config_path
                 .parent()
@@ -63,13 +67,17 @@ pub fn handle_config_maintain(
             fs::copy(&config_path, &backup_path)
                 .map_err(|e| CldevError::io(format!("Failed to create backup: {}", e)))?;
 
-            output.success(&format!("✅ Backup created: {}", backup_path.display()));
+            output.success(&output.t_format(
+                "config-maintain-backup-created",
+                "path",
+                &backup_path.display().to_string(),
+            ));
         }
     }
 
     // Cleanup old backups if requested
     if cleanup {
-        output.info("\n🧹 Cleaning up old backups...");
+        output.info(&output.t("config-maintain-cleaning-up"));
 
         let backup_dir = config_path
             .parent()
@@ -77,7 +85,7 @@ pub fn handle_config_maintain(
             .join("backups");
 
         if !backup_dir.exists() {
-            output.info("No backup directory found");
+            output.info(&output.t("config-maintain-dir-none"));
         } else {
             let mut backups: Vec<PathBuf> = fs::read_dir(&backup_dir)
                 .map_err(|e| CldevError::io(format!("Failed to read backup directory: {}", e)))?
@@ -94,7 +102,7 @@ pub fn handle_config_maintain(
                 .collect();
 
             if backups.is_empty() {
-                output.info("No backups found");
+                output.info(&output.t("config-maintain-backups-none"));
             } else {
                 // Sort by modification time (newest first)
                 backups.sort_by_key(|path| {
@@ -108,53 +116,83 @@ pub fn handle_config_maintain(
                 let remove_count = backups.len().saturating_sub(keep_count);
 
                 if remove_count > 0 {
-                    output.info(&format!(
-                        "Keeping {} most recent backups, removing {} old backups",
-                        keep_count, remove_count
-                    ));
+                    output.info(
+                        &output
+                            .t_format(
+                                "config-maintain-backups-removing",
+                                "keep",
+                                &keep_count.to_string(),
+                            )
+                            .replace("{remove}", &remove_count.to_string()),
+                    );
 
                     for backup in backups.iter().skip(keep_count) {
                         match fs::remove_file(backup) {
-                            Ok(_) => output.success(&format!(
-                                "  Removed: {}",
-                                backup.file_name().unwrap().to_string_lossy()
+                            Ok(_) => output.success(&output.t_format(
+                                "config-maintain-remove-success",
+                                "file",
+                                &backup.file_name().unwrap().to_string_lossy(),
                             )),
-                            Err(e) => output.warning(&format!(
-                                "  Failed to remove {}: {}",
-                                backup.display(),
-                                e
-                            )),
+                            Err(e) => output.warning(
+                                &output
+                                    .t_format(
+                                        "config-maintain-remove-failed",
+                                        "path",
+                                        &backup.display().to_string(),
+                                    )
+                                    .replace("{error}", &e.to_string()),
+                            ),
                         }
                     }
                 } else {
-                    output.info(&format!("Found {} backups (keeping all)", backups.len()));
+                    output.info(&output.t_format(
+                        "config-maintain-backups-found",
+                        "count",
+                        &backups.len().to_string(),
+                    ));
                 }
             }
         }
     }
 
     // Report configuration health
-    output.info("\n📊 Configuration Health Report:");
-    output.list_item(&format!("Config location: {}", config_path.display()));
-    output.list_item(&format!("Config exists: {}", config_path.exists()));
+    output.info(&output.t("config-maintain-health-report"));
+    output.list_item(&output.t_format(
+        "config-maintain-config-location",
+        "path",
+        &config_path.display().to_string(),
+    ));
+    output.list_item(&output.t_format(
+        "config-maintain-config-exists",
+        "exists",
+        &config_path.exists().to_string(),
+    ));
 
     if config_path.exists() {
         if let Ok(metadata) = fs::metadata(&config_path) {
-            output.list_item(&format!("Config size: {} bytes", metadata.len()));
+            output.list_item(&output.t_format(
+                "config-maintain-config-size",
+                "size",
+                &metadata.len().to_string(),
+            ));
 
             #[cfg(unix)]
             {
                 use std::os::unix::fs::PermissionsExt;
                 let mode = metadata.permissions().mode();
                 let mode_str = format!("{:o}", mode & 0o777);
-                output.list_item(&format!("Permissions: {}", mode_str));
+                output.list_item(&output.t_format(
+                    "config-maintain-config-permissions",
+                    "permissions",
+                    &mode_str,
+                ));
             }
         }
     }
 
     // Perform learning records archive if requested
     if archive {
-        output.info("\n📚 Archiving learning records...");
+        output.info(&output.t("config-maintain-archiving"));
         let archive_config = ArchiveConfig {
             retention_days: retention_days.unwrap_or(365),
             auto_archive: true,
@@ -163,20 +201,28 @@ pub fn handle_config_maintain(
         match archive_learning_records(&archive_config, output) {
             Ok(count) => {
                 if count > 0 {
-                    output.success(&format!("✅ Archived {} learning records", count));
+                    output.success(&output.t_format(
+                        "config-maintain-archive-success",
+                        "count",
+                        &count.to_string(),
+                    ));
                 } else {
-                    output.info("No learning records to archive");
+                    output.info(&output.t("config-maintain-archive-none"));
                 }
             }
             Err(e) => {
-                output.error(&format!("❌ Archive failed: {}", e));
+                output.error(&output.t_format(
+                    "config-maintain-archive-failed",
+                    "error",
+                    &e.to_string(),
+                ));
                 return Err(e);
             }
         }
     }
 
     if !backup && !cleanup && !archive {
-        output.info("\n💡 Tip: Use --backup to create a backup, --cleanup to remove old backups, or --archive to archive old learning records");
+        output.info(&output.t("config-maintain-tip"));
     }
 
     Ok(())
@@ -237,11 +283,15 @@ fn archive_learning_records(config: &ArchiveConfig, output: &OutputHandler) -> R
         return Ok(0);
     }
 
-    output.info(&format!(
-        "Found {} learning records older than {} days",
-        expired_records.len(),
-        config.retention_days
-    ));
+    output.info(
+        &output
+            .t_format(
+                "config-maintain-archive-found",
+                "count",
+                &expired_records.len().to_string(),
+            )
+            .replace("{days}", &config.retention_days.to_string()),
+    );
 
     // Create year-based subdirectory
     let current_year = Local::now().format("%Y").to_string();
@@ -272,11 +322,11 @@ fn archive_learning_records(config: &ArchiveConfig, output: &OutputHandler) -> R
             // Remove original file
             fs::remove_file(&source_path)?;
 
-            output.list_item(&format!(
-                "Archived: {} (created: {})",
-                record_id,
-                created_date.format("%Y-%m-%d")
-            ));
+            output.list_item(
+                &output
+                    .t_format("config-maintain-archive-item", "id", record_id)
+                    .replace("{date}", &created_date.format("%Y-%m-%d").to_string()),
+            );
 
             archived_count += 1;
         }
@@ -284,7 +334,11 @@ fn archive_learning_records(config: &ArchiveConfig, output: &OutputHandler) -> R
 
     tar.finish()?;
 
-    output.success(&format!("Created archive: {}", archive_path.display()));
+    output.success(&output.t_format(
+        "config-maintain-archive-created",
+        "path",
+        &archive_path.display().to_string(),
+    ));
 
     Ok(archived_count)
 }

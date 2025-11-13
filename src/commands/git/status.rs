@@ -14,7 +14,7 @@ use git2::{Status, StatusOptions};
 
 /// Show enhanced Git status
 pub fn show_status(detailed: bool, output: &OutputHandler) -> Result<()> {
-    output.info("Git Repository Status\n");
+    output.info(&output.t("git-status-header"));
 
     // Open the Git repository
     let git_utils = GitUtils::open_current()?;
@@ -38,16 +38,16 @@ pub fn show_status(detailed: bool, output: &OutputHandler) -> Result<()> {
 fn display_branch_info(git_utils: &GitUtils, output: &OutputHandler) -> Result<()> {
     let branch = git_utils.current_branch()?;
 
-    output.section("Branch Information");
-    output.info(&format!("  Current branch: {}", branch));
+    output.section(&output.t("git-status-branch-info"));
+    output.info(&output.t_format("git-status-branch-current", "branch", &branch));
 
     // Check if branch is tracking a remote
     let unpushed = git_utils.unpushed_commits("origin").unwrap_or_default();
 
     if unpushed > 0 {
-        output.warning(&format!("  {} unpushed commit(s)", unpushed));
+        output.warning(&output.t_format("git-status-unpushed", "count", &unpushed.to_string()));
     } else {
-        output.success("  Up to date with remote");
+        output.success(&output.t("git-status-up-to-date"));
     }
 
     println!();
@@ -58,16 +58,20 @@ fn display_branch_info(git_utils: &GitUtils, output: &OutputHandler) -> Result<(
 fn display_remote_info(git_utils: &GitUtils, output: &OutputHandler) -> Result<()> {
     match git_utils.get_remote_url("origin") {
         Ok(url) => {
-            output.section("Remote Information");
-            output.info(&format!("  Remote URL: {}", url));
+            output.section(&output.t("git-status-remote-info"));
+            output.info(&output.t_format("git-status-remote-url", "url", &url));
 
             let remote_type = git_utils.detect_remote_type("origin")?;
-            output.info(&format!("  Remote type: {}", remote_type.display_name()));
+            output.info(&output.t_format(
+                "git-status-remote-type",
+                "type",
+                remote_type.display_name(),
+            ));
 
             println!();
         }
         Err(_) => {
-            output.warning("No remote 'origin' configured");
+            output.warning(&output.t("git-status-remote-none"));
             println!();
         }
     }
@@ -81,7 +85,7 @@ fn display_file_status(
     detailed: bool,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.section("Working Directory Status");
+    output.section(&output.t("git-status-working-dir"));
 
     let repo = git2::Repository::open_from_env().map_err(|e| {
         crate::core::error::CldevError::git(format!("Failed to open repository: {}", e))
@@ -96,7 +100,7 @@ fn display_file_status(
         .map_err(|e| crate::core::error::CldevError::git(format!("Failed to get status: {}", e)))?;
 
     if statuses.is_empty() {
-        output.success("  Working directory clean");
+        output.success(&output.t("git-status-working-clean"));
         println!();
         return Ok(());
     }
@@ -132,7 +136,7 @@ fn display_file_status(
 
     // Display staged files
     if !staged.is_empty() {
-        output.success(&format!("  Staged files ({}):", staged.len()));
+        output.success(&output.t_format("git-status-staged", "count", &staged.len().to_string()));
         if detailed {
             for (path, status) in &staged {
                 let status_str = format_file_status(*status);
@@ -146,7 +150,11 @@ fn display_file_status(
 
     // Display unstaged files
     if !unstaged.is_empty() {
-        output.warning(&format!("  Unstaged changes ({}):", unstaged.len()));
+        output.warning(&output.t_format(
+            "git-status-unstaged",
+            "count",
+            &unstaged.len().to_string(),
+        ));
         if detailed {
             for (path, status) in &unstaged {
                 let status_str = format_file_status(*status);
@@ -160,7 +168,11 @@ fn display_file_status(
 
     // Display untracked files
     if !untracked.is_empty() {
-        output.info(&format!("  Untracked files ({}):", untracked.len()));
+        output.info(&output.t_format(
+            "git-status-untracked",
+            "count",
+            &untracked.len().to_string(),
+        ));
         if detailed {
             for path in &untracked {
                 output.list_item(path);
@@ -171,7 +183,11 @@ fn display_file_status(
                 output.list_item(path);
             }
             if untracked.len() > 5 {
-                output.list_item(&format!("... and {} more", untracked.len() - 5));
+                output.list_item(&output.t_format(
+                    "git-status-more-files",
+                    "count",
+                    &(untracked.len() - 5).to_string(),
+                ));
             }
         }
         println!();
@@ -215,6 +231,8 @@ fn display_file_table(files: &[(String, Status)], _output: &OutputHandler) {
         }
     }
 
+    // Note: Table display doesn't use OutputHandler, so these remain hardcoded
+    // as they are part of the table visualization, not user-facing messages
     if !new_files.is_empty() {
         table.add_row(vec![Cell::new(format!(
             "  {} new file(s)",
@@ -242,26 +260,30 @@ fn display_file_table(files: &[(String, Status)], _output: &OutputHandler) {
 
 /// Display recommended next actions
 fn display_recommendations(git_utils: &GitUtils, output: &OutputHandler) -> Result<()> {
-    output.section("Recommended Next Actions");
+    output.section(&output.t("git-status-recommend-header"));
 
     let is_clean = git_utils.is_clean()?;
     let unpushed = git_utils.unpushed_commits("origin").unwrap_or(0);
 
     if is_clean && unpushed == 0 {
-        output.success("  ✅ All up to date! Ready to start new work.");
-        output.info("\n  Suggestions:");
-        output.list_item("cldev git branch - Create a new branch");
-        output.list_item("Start working on a new feature");
+        output.success(&output.t("git-status-recommend-all-updated"));
+        output.info(&output.t("git-status-recommend-suggestions"));
+        output.list_item(&output.t("git-status-recommend-branch"));
+        output.list_item(&output.t("git-status-recommend-start-work"));
     } else if !is_clean {
-        output.info("  You have uncommitted changes:");
-        output.list_item("git add <files> - Stage specific files");
-        output.list_item("git add . - Stage all changes");
-        output.list_item("cldev git commit - Create a conventional commit");
-        output.list_item("git stash - Temporarily save changes");
+        output.info(&output.t("git-status-recommend-uncommitted"));
+        output.list_item(&output.t("git-status-recommend-stage-files"));
+        output.list_item(&output.t("git-status-recommend-stage-all"));
+        output.list_item(&output.t("git-status-recommend-commit"));
+        output.list_item(&output.t("git-status-recommend-stash"));
     } else if unpushed > 0 {
-        output.info("  You have unpushed commits:");
-        output.list_item(&format!("git push - Push {} commit(s) to remote", unpushed));
-        output.list_item("cldev git merge-request - Create a MR/PR");
+        output.info(&output.t("git-status-recommend-unpushed"));
+        output.list_item(&output.t_format(
+            "git-status-recommend-push",
+            "count",
+            &unpushed.to_string(),
+        ));
+        output.list_item(&output.t("git-status-recommend-mr"));
     }
 
     println!();

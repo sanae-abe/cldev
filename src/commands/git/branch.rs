@@ -24,20 +24,20 @@ impl BranchType {
     }
 
     /// Get the description of this branch type
-    fn description(&self) -> &str {
+    fn description(&self, output: &OutputHandler) -> String {
         match self {
-            Self::Feature => "New feature development",
-            Self::Fix => "Bug fix",
-            Self::Hotfix => "Critical production fix",
-            Self::Refactor => "Code refactoring",
-            Self::Docs => "Documentation updates",
-            Self::Test => "Test additions or updates",
+            Self::Feature => output.t("git-branch-type-feature-desc"),
+            Self::Fix => output.t("git-branch-type-fix-desc"),
+            Self::Hotfix => output.t("git-branch-type-hotfix-desc"),
+            Self::Refactor => output.t("git-branch-type-refactor-desc"),
+            Self::Docs => output.t("git-branch-type-docs-desc"),
+            Self::Test => output.t("git-branch-type-test-desc"),
         }
     }
 
     /// Get display string for selection menu
-    fn display(&self) -> String {
-        format!("{} - {}", self.prefix(), self.description())
+    fn display(&self, output: &OutputHandler) -> String {
+        format!("{} - {}", self.prefix(), self.description(output))
     }
 
     /// Get all branch types
@@ -71,7 +71,7 @@ pub fn create_branch(
 
         // Ask if user wants to continue
         let cont: String = Input::new()
-            .with_prompt("Continue anyway? (y/N)")
+            .with_prompt(output.t("git-branch-confirm-continue"))
             .default("n".to_string())
             .interact_text()
             .map_err(|e| {
@@ -137,7 +137,7 @@ fn build_branch_name_interactive(
     } else {
         output.info(&format!("\n{}", output.t("git-branch-select-type")));
         let types = BranchType::all();
-        let items: Vec<String> = types.iter().map(|t| t.display()).collect();
+        let items: Vec<String> = types.iter().map(|t| t.display(output)).collect();
 
         let selection = Select::new()
             .items(&items)

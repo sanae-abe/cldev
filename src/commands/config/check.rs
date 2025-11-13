@@ -310,7 +310,10 @@ fn validate_git_cli(config: &Config, results: &mut Vec<ValidationResult>) {
 /// Print validation results with formatted output
 fn print_results(results: &[ValidationResult], detailed: bool, output: &OutputHandler) {
     if detailed {
-        output.info("\n📋 Detailed Validation Results:");
+        output.info(&format!(
+            "\n{}",
+            output.i18n().get("config-check-detailed-results")
+        ));
         output.raw(&"=".repeat(60));
 
         for result in results {

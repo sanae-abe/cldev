@@ -602,6 +602,10 @@ pub fn todo_complete_about() -> &'static str {
     help("cmd-todo-complete-desc")
 }
 
+pub fn todo_next_about() -> &'static str {
+    help("cmd-todo-next-desc")
+}
+
 pub fn todo_sync_about() -> &'static str {
     help("cmd-todo-sync-desc")
 }

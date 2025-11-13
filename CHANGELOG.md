@@ -7,12 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### Complete Internationalization (i18n) Migration (Nov 14-28, 2025)
+- **Full multilingual support** for all 33 commands across 9 categories
+- **Languages supported**: English (en), Japanese (ja)
+- **Total translation keys**: 1,079 per language
+- **Test coverage**: 627 tests, all passing
+
+**Commands Internationalized**:
+- **Config (6)**: init, check, list, edit, maintain, update-docs
+- **Dev (7)**: feature, fix, debug, urgent, refactor, optimize, research
+- **Git (4)**: branch, commit, status, merge-request
+- **Quality (3)**: format, lint, test
+- **Ops (2)**: build, deploy
+- **Tech (1)**: start
+- **Analysis (4)**: analyze, explain, review-mr, serena
+- **Learning Records (6)**: new, find, stats, problems, similar, suggest
+- **Todo (1)**: manage
+
+**Migration Details**:
+- Reduced language support from 4 (en/ja/zh/zh-TW) to 2 (en/ja) for maintainability
+- All user-facing strings now use `OutputHandler` i18n methods
+- Removed 2 obsolete test files for Chinese language support
+- Language selection via `--lang` flag or `CLDEV_LANG` environment variable
+- Internal error messages remain in English (developer-focused)
+
+**Documentation Updates**:
+- Updated `docs/i18n-implementation-progress.md` with complete migration summary
+- Added implementation patterns and translation guidelines
+- Documented key naming conventions: `{category}-{subcategory}-{detail}`
+
+**Breaking Changes**:
+- Removed support for Chinese Simplified (zh) and Chinese Traditional (zh-TW)
+- Only `en` and `ja` are valid values for `--lang` flag
+
 ### Planned
 - Phase 2: High-frequency commands implementation
-- Command: `cldev feature` - New feature implementation workflow
-- Command: `cldev fix` - Bug fixing workflow
-- Command: `cldev commit` - Smart commit creation
-- Command: `cldev pr/mr` - Pull/Merge request creation
 - Git operations integration
 - Learning record management
 - Project scaffolding

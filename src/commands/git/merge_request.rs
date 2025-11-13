@@ -104,7 +104,7 @@ pub fn create_merge_request(
             create_gitlab_mr(&mr_title, &body, target, output)?;
         }
         RemoteType::Other => {
-            output.error("Unsupported remote type for automatic MR/PR creation");
+            output.error(&output.t("git-mr-unsupported"));
             return Err(crate::core::error::CldevError::validation(
                 "Unsupported remote type",
             ));

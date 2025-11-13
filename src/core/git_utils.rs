@@ -231,6 +231,91 @@ impl GitUtils {
 
         Ok(())
     }
+
+    /// Suggest commit description based on changed files and git diff
+    pub fn suggest_commit_description(&self) -> Result<String> {
+        let files = self.changed_files()?;
+
+        if files.is_empty() {
+            return Ok(String::new());
+        }
+
+        // Get git diff output
+        let output = Command::new("git")
+            .args(["diff", "--cached", "--stat"])
+            .output()
+            .map_err(|e| CldevError::Git(format!("Failed to run git diff: {}", e)))?;
+
+        let diff_stat = String::from_utf8_lossy(&output.stdout);
+
+        // Analyze changes and generate description
+        let description = Self::analyze_changes(&files, &diff_stat);
+
+        Ok(description)
+    }
+
+    /// Analyze changes and generate a meaningful description
+    fn analyze_changes(files: &[String], diff_stat: &str) -> String {
+        // Count file types
+        let mut file_categories = std::collections::HashMap::new();
+
+        for file in files {
+            let category = if file.ends_with(".rs") {
+                "Rust"
+            } else if file.ends_with(".ts") || file.ends_with(".tsx") {
+                "TypeScript"
+            } else if file.ends_with(".js") || file.ends_with(".jsx") {
+                "JavaScript"
+            } else if file.ends_with(".md") {
+                "documentation"
+            } else if file.ends_with(".toml")
+                || file.ends_with(".json")
+                || file.ends_with(".yaml")
+                || file.ends_with(".yml")
+            {
+                "configuration"
+            } else if file.contains("test") || file.contains("spec") {
+                "tests"
+            } else if file.starts_with(".github/") || file.starts_with(".gitlab/") {
+                "CI/CD"
+            } else {
+                "files"
+            };
+
+            *file_categories.entry(category).or_insert(0) += 1;
+        }
+
+        // Parse diff stat to understand the scope of changes
+        let lines: Vec<&str> = diff_stat.lines().collect();
+        let total_changes = lines.len().saturating_sub(1); // Last line is summary
+
+        // Generate description based on analysis
+        if file_categories.len() == 1 {
+            let (category, count) = file_categories.iter().next().unwrap();
+            if *count == 1 {
+                format!("update {}", files[0])
+            } else {
+                format!("update {} {} files", count, category)
+            }
+        } else if file_categories.contains_key("tests") && file_categories.len() == 2 {
+            let main_category = file_categories
+                .iter()
+                .find(|(k, _)| *k != &"tests")
+                .map(|(k, _)| *k)
+                .unwrap_or("code");
+            format!("update {} with tests", main_category)
+        } else if total_changes > 10 {
+            format!("update {} files across multiple areas", files.len())
+        } else if file_categories.contains_key("documentation") {
+            "update documentation".to_string()
+        } else if file_categories.contains_key("configuration") {
+            "update configuration".to_string()
+        } else if file_categories.contains_key("CI/CD") {
+            "update CI/CD configuration".to_string()
+        } else {
+            format!("update {} files", files.len())
+        }
+    }
 }
 
 /// Check if the GitHub CLI (gh) is installed and available

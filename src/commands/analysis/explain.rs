@@ -47,7 +47,7 @@ pub fn explain_target(
         )));
     }
 
-    output.info(&format!("Analyzing '{}' in project...", target));
+    output.info(&output.t_format("explain-analyzing", "target", target));
 
     let current_dir = std::env::current_dir()?;
 
@@ -483,7 +483,10 @@ fn display_explanation(
     detailed: bool,
     output: &OutputHandler,
 ) {
-    output.info(&format!("\n=== Explanation: {} ===\n", explanation.target));
+    output.info(&format!(
+        "\n{}\n",
+        output.t_format("explain-header", "target", &explanation.target)
+    ));
 
     // Display description
     output.info(&explanation.description);
@@ -516,7 +519,7 @@ fn display_explanation(
     }
 
     // Display suggestions
-    output.info("\n💡 Suggestions:");
+    output.info(&format!("\n{}", output.t("explain-suggestions")));
     match explanation.kind {
         ExplanationKind::Function => {
             output.list_item("Use --examples to see usage examples");

@@ -591,7 +591,7 @@ branch_prefix = "feature"
 session_recording = true
 
 [lr]
-sessions_dir = "/Users/username/.claude/learning-sessions"
+sessions_dir = "/Users/username/.claude/learnings"
 auto_save = true
 default_tags = ["development", "claude-code"]
 

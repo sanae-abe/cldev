@@ -79,29 +79,29 @@ impl CommitType {
     }
 
     /// Get the description of this commit type
-    fn description(&self) -> &str {
+    fn description(&self, output: &OutputHandler) -> String {
         match self {
-            Self::Feat => "A new feature",
-            Self::Fix => "A bug fix",
-            Self::Docs => "Documentation only changes",
-            Self::Style => "Code style changes (formatting, etc.)",
-            Self::Refactor => "Code refactoring",
-            Self::Perf => "Performance improvements",
-            Self::Test => "Adding or updating tests",
-            Self::Build => "Build system or dependencies",
-            Self::Ci => "CI/CD configuration",
-            Self::Chore => "Other changes (maintenance, etc.)",
-            Self::Revert => "Revert a previous commit",
+            Self::Feat => output.t("git-commit-type-feat-desc"),
+            Self::Fix => output.t("git-commit-type-fix-desc"),
+            Self::Docs => output.t("git-commit-type-docs-desc"),
+            Self::Style => output.t("git-commit-type-style-desc"),
+            Self::Refactor => output.t("git-commit-type-refactor-desc"),
+            Self::Perf => output.t("git-commit-type-perf-desc"),
+            Self::Test => output.t("git-commit-type-test-desc"),
+            Self::Build => output.t("git-commit-type-build-desc"),
+            Self::Ci => output.t("git-commit-type-ci-desc"),
+            Self::Chore => output.t("git-commit-type-chore-desc"),
+            Self::Revert => output.t("git-commit-type-revert-desc"),
         }
     }
 
     /// Get display string for selection menu
-    fn display(&self) -> String {
+    fn display(&self, output: &OutputHandler) -> String {
         format!(
             "{} {} - {}",
             self.emoji(),
             self.prefix(),
-            self.description()
+            self.description(output)
         )
     }
 
@@ -232,7 +232,7 @@ fn build_commit_message_interactive(
 
     // Select commit type
     let types = CommitType::all();
-    let items: Vec<String> = types.iter().map(|t| t.display()).collect();
+    let items: Vec<String> = types.iter().map(|t| t.display(output)).collect();
 
     let default_index = if let Some(detected) = detected_type {
         types
@@ -270,11 +270,28 @@ fn build_commit_message_interactive(
             crate::core::error::CldevError::command(format!("Failed to read scope: {}", e))
         })?;
 
-    // Ask for description
+    // Suggest description based on changes
+    let suggested_description = git_utils
+        .suggest_commit_description()
+        .unwrap_or_else(|_| String::new());
+
+    // Ask for description (with suggestion as default if available)
     output.info(&format!("\n{}", output.t("git-commit-description-prompt")));
-    let description: String = Input::new().interact_text().map_err(|e| {
-        crate::core::error::CldevError::command(format!("Failed to read description: {}", e))
-    })?;
+    let description: String = if !suggested_description.is_empty() {
+        Input::new()
+            .with_initial_text(&suggested_description)
+            .interact_text()
+            .map_err(|e| {
+                crate::core::error::CldevError::command(format!(
+                    "Failed to read description: {}",
+                    e
+                ))
+            })?
+    } else {
+        Input::new().interact_text().map_err(|e| {
+            crate::core::error::CldevError::command(format!("Failed to read description: {}", e))
+        })?
+    };
 
     // Ask if breaking change
     output.info(&format!("\n{}", output.t("git-commit-breaking-prompt")));

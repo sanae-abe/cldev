@@ -93,7 +93,7 @@ pub fn review_merge_request(
     performance_focus: bool,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info(&format!("Reviewing MR/PR #{}...", number));
+    output.info(&output.t_format("review-mr-starting", "number", &number.to_string()));
 
     let current_dir = std::env::current_dir()?;
     let repo = Repository::open(&current_dir)?;
@@ -589,7 +589,10 @@ fn determine_approval(review: &ReviewResult) -> ApprovalStatus {
 }
 
 fn display_review(review: &ReviewResult, detailed: bool, output: &OutputHandler) {
-    output.info(&format!("\n=== MR/PR #{} Review ===\n", review.mr_number));
+    output.info(&format!(
+        "\n{}\n",
+        output.t_format("review-mr-header", "number", &review.mr_number.to_string())
+    ));
 
     // Summary
     output.info("--- Summary ---");
@@ -666,16 +669,16 @@ fn display_approval(status: ApprovalStatus, output: &OutputHandler) {
 
     match status {
         ApprovalStatus::Approved => {
-            output.success("✅ APPROVED - No blocking issues found");
+            output.success(&output.t("review-mr-approved"));
         }
         ApprovalStatus::ApprovedWithComments => {
-            output.warning("⚠️  APPROVED WITH COMMENTS - Please address comments before merge");
+            output.warning(&output.t("review-mr-approved-comments"));
         }
         ApprovalStatus::ChangesRequested => {
-            output.error("❌ CHANGES REQUESTED - Critical issues must be fixed");
+            output.error(&output.t("review-mr-changes-requested"));
         }
         ApprovalStatus::Blocked => {
-            output.error("🚫 BLOCKED - Critical security issues detected, do not merge");
+            output.error(&output.t("review-mr-blocked"));
         }
     }
 }

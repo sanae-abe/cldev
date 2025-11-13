@@ -81,6 +81,8 @@ pub struct TodoItem {
     pub description: String,
     pub status: TaskStatus,
     pub priority: Priority,
+    pub context: Option<String>,
+    pub due_date: Option<String>,
     pub tags: Vec<String>,
     pub created_at: Option<String>,
     pub completed_at: Option<String>,
@@ -121,10 +123,15 @@ impl TodoList {
         let mut current_priority = Priority::Medium;
 
         // Regex patterns
-        let checkbox_re = Regex::new(r"^- \[([ x~])\] (.+)").unwrap();
+        let checkbox_re = Regex::new(r"^- \[([ x~X])\] (.+)").unwrap();
         let priority_re = Regex::new(r"^## (🔥|⚠️|📌|📝) (.+)").unwrap();
         let tag_re = Regex::new(r"#(\w+)").unwrap();
         let date_re = Regex::new(r"\(created: ([^,)]+)(?:, completed: ([^)]+))?\)").unwrap();
+
+        // New metadata patterns for Priority/Context/Due format
+        let metadata_priority_re = Regex::new(r"\|\s*Priority:\s*(\w+)").unwrap();
+        let metadata_context_re = Regex::new(r"\|\s*Context:\s*([^|]+?)(?:\s*\||\s*$)").unwrap();
+        let metadata_due_re = Regex::new(r"\|\s*Due:\s*([^\|]+?)(?:\s*\||\s*$)").unwrap();
 
         for (line_no, line) in content.lines().enumerate() {
             // Check for priority section headers
@@ -148,6 +155,31 @@ impl TodoList {
 
                 // Extract description (remove tags and dates)
                 let mut description = text.to_string();
+
+                // Extract metadata-style priority (overrides section header)
+                let item_priority = if let Some(pri_cap) = metadata_priority_re.captures(text) {
+                    let pri_str = pri_cap.get(1).unwrap().as_str();
+                    Priority::from_str(pri_str)
+                } else {
+                    current_priority.clone()
+                };
+
+                // Extract context
+                let context = metadata_context_re
+                    .captures(text)
+                    .and_then(|cap| cap.get(1))
+                    .map(|m| m.as_str().trim().to_string());
+
+                // Extract due date
+                let due_date = metadata_due_re
+                    .captures(text)
+                    .and_then(|cap| cap.get(1))
+                    .map(|m| m.as_str().trim().to_string());
+
+                // Remove metadata from description
+                if text.contains(" | ") {
+                    description = text.split(" | ").next().unwrap_or(text).to_string();
+                }
 
                 // Extract dates
                 let (created_at, completed_at) = if let Some(date_cap) = date_re.captures(text) {
@@ -174,7 +206,9 @@ impl TodoList {
                 todos.push(TodoItem {
                     description,
                     status,
-                    priority: current_priority.clone(),
+                    priority: item_priority,
+                    context,
+                    due_date,
                     tags,
                     created_at,
                     completed_at,
@@ -333,7 +367,13 @@ impl TodoList {
 
     /// Get todo file path
     fn get_todo_file_path() -> Result<PathBuf> {
-        // Try project-level first
+        // Try project-level first (todo.md in root)
+        let project_root_path = PathBuf::from("todo.md");
+        if project_root_path.exists() {
+            return Ok(project_root_path);
+        }
+
+        // Then try .cldev/TODO.md
         let project_path = PathBuf::from(".cldev/TODO.md");
         if project_path.parent().map(|p| p.exists()).unwrap_or(false) {
             return Ok(project_path);
@@ -359,6 +399,8 @@ impl TodoList {
             description,
             status: TaskStatus::Pending,
             priority,
+            context: None,
+            due_date: None,
             tags,
             created_at: Some(created_at),
             completed_at: None,
@@ -650,6 +692,147 @@ pub fn sync_todos() -> Result<()> {
     );
 
     Ok(())
+}
+
+/// Display next priority todo
+pub fn next_todo() -> Result<()> {
+    let todo_list = TodoList::load()?;
+
+    // Filter pending todos only
+    let pending: Vec<&TodoItem> = todo_list
+        .todos
+        .iter()
+        .filter(|t| !t.status.is_completed() && t.status != TaskStatus::InProgress)
+        .collect();
+
+    if pending.is_empty() {
+        println!("{}", "🎉 All todos completed!".green().bold());
+        return Ok(());
+    }
+
+    // Sort by priority and due date
+    let mut sorted = pending;
+    sorted.sort_by(|a, b| {
+        // Priority comparison (higher priority first)
+        match priority_rank(&b.priority).cmp(&priority_rank(&a.priority)) {
+            std::cmp::Ordering::Equal => {
+                // If same priority, sort by due date
+                due_date_rank(&a.due_date).cmp(&due_date_rank(&b.due_date))
+            }
+            other => other,
+        }
+    });
+
+    // Display next task
+    let next = sorted[0];
+    let index = todo_list
+        .todos
+        .iter()
+        .position(|t| std::ptr::eq(t, next))
+        .unwrap();
+
+    println!("{}", "🎯 Next Priority Task".cyan().bold());
+    println!();
+    println!(
+        "{} {} {}",
+        next.priority.to_emoji(),
+        format!("Task #{}", index + 1).yellow().bold(),
+        next.description.white().bold()
+    );
+
+    if let Some(ctx) = &next.context {
+        println!("   {} {}", "📁 Context:".dimmed(), ctx.cyan());
+    }
+
+    if let Some(due) = &next.due_date {
+        let urgency = get_due_date_urgency(due);
+        let (urgency_emoji, urgency_text) = match urgency {
+            DueUrgency::Overdue => ("🚨", "OVERDUE".red().bold()),
+            DueUrgency::Today => ("⏰", "Due TODAY".yellow().bold()),
+            DueUrgency::Tomorrow => ("📅", "Due tomorrow".yellow()),
+            DueUrgency::ThisWeek => ("📆", format!("Due {}", due).white()),
+            DueUrgency::Future => ("📅", format!("Due {}", due).dimmed()),
+        };
+        println!(
+            "   {} {} {}",
+            "⏱️  Due:".dimmed(),
+            urgency_emoji,
+            urgency_text
+        );
+    }
+
+    println!(
+        "   {} {}",
+        "🔢 Priority:".dimmed(),
+        next.priority.to_string()
+    );
+
+    // Show tip
+    println!();
+    println!(
+        "{}",
+        format!("💡 Run 'cldev todo complete' to mark as done").dimmed()
+    );
+
+    Ok(())
+}
+
+/// Rank priority for sorting (higher = more urgent)
+fn priority_rank(priority: &Priority) -> u8 {
+    match priority {
+        Priority::Critical => 4,
+        Priority::High => 3,
+        Priority::Medium => 2,
+        Priority::Low => 1,
+    }
+}
+
+/// Due date urgency classification
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
+enum DueUrgency {
+    Overdue,
+    Today,
+    Tomorrow,
+    ThisWeek,
+    Future,
+}
+
+/// Get due date urgency
+fn get_due_date_urgency(due_date: &str) -> DueUrgency {
+    use chrono::{Local, NaiveDate};
+
+    let today = Local::now().naive_local().date();
+
+    if let Ok(due) = NaiveDate::parse_from_str(due_date, "%Y-%m-%d") {
+        let days_until = (due - today).num_days();
+
+        match days_until {
+            d if d < 0 => DueUrgency::Overdue,
+            0 => DueUrgency::Today,
+            1 => DueUrgency::Tomorrow,
+            2..=7 => DueUrgency::ThisWeek,
+            _ => DueUrgency::Future,
+        }
+    } else {
+        DueUrgency::Future
+    }
+}
+
+/// Rank due date for sorting (lower = more urgent)
+fn due_date_rank(due_date: &Option<String>) -> i64 {
+    use chrono::{Local, NaiveDate};
+
+    match due_date {
+        None => i64::MAX, // No due date = lowest priority
+        Some(date_str) => {
+            if let Ok(due) = NaiveDate::parse_from_str(date_str, "%Y-%m-%d") {
+                let today = Local::now().naive_local().date();
+                (due - today).num_days()
+            } else {
+                i64::MAX
+            }
+        }
+    }
 }
 
 /// Interactive todo management mode

@@ -126,30 +126,6 @@ fn test_analyze_japanese() {
         .code(predicate::function(|code: &i32| *code == 0 || *code == 1));
 }
 
-/// Test analyze with Chinese Simplified
-#[test]
-fn test_analyze_chinese_simplified() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
-
-    cmd.arg("--lang")
-        .arg("zh")
-        .args(["analysis", "analyze", "overview"])
-        .assert()
-        .code(predicate::function(|code: &i32| *code == 0 || *code == 1));
-}
-
-/// Test analyze with Japanese
-#[test]
-fn test_analyze_japanese() {
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
-
-    cmd.arg("--lang")
-        .arg("ja")
-        .args(["analysis", "analyze", "overview"])
-        .assert()
-        .code(predicate::function(|code: &i32| *code == 0 || *code == 1));
-}
-
 /// Test serena command help
 #[test]
 fn test_serena_help() {
@@ -276,24 +252,6 @@ fn test_serena_japanese_output() {
 
     cmd.arg("--lang")
         .arg("ja")
-        .args(["analysis", "serena", "batch", file_path.to_str().unwrap()])
-        .assert()
-        .code(predicate::function(|code: &i32| *code == 0 || *code == 1));
-}
-
-/// Test serena with Chinese output
-#[test]
-fn test_serena_chinese_output() {
-    let temp_dir = TempDir::new().unwrap();
-    let file_path = temp_dir.path().join("test.rs");
-
-    let mut file = fs::File::create(&file_path).unwrap();
-    writeln!(file, "fn test() {{}}").unwrap();
-
-    let mut cmd = Command::cargo_bin("cldev").unwrap();
-
-    cmd.arg("--lang")
-        .arg("zh")
         .args(["analysis", "serena", "batch", file_path.to_str().unwrap()])
         .assert()
         .code(predicate::function(|code: &i32| *code == 0 || *code == 1));

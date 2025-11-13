@@ -17,13 +17,13 @@ use std::process::Command;
 /// # Returns
 /// Result indicating success or error
 pub fn format_code(paths: &[String], check: bool, output: &OutputHandler) -> Result<()> {
-    output.info("🔍 Detecting project type...");
+    output.info(&output.t("quality-format-detecting"));
 
     // Detect project type
     let detector = ProjectDetector::new(None)?;
     let project_type = detector.project_type();
 
-    output.success(&format!("✅ Detected {} project", project_type.name()));
+    output.success(&output.t_format("quality-format-detected", "type", project_type.name()));
 
     // Get format command based on project type
     let command_parts = detector.get_format_command(check)?;
@@ -36,8 +36,11 @@ pub fn format_code(paths: &[String], check: bool, output: &OutputHandler) -> Res
 
     // Build command info message
     let cmd_str = command_parts.join(" ");
-    let action = if check { "Checking" } else { "Formatting" };
-    output.info(&format!("🎨 {}: {}", action, cmd_str));
+    if check {
+        output.info(&output.t_format("quality-format-checking", "command", &cmd_str));
+    } else {
+        output.info(&output.t_format("quality-format-running", "command", &cmd_str));
+    }
 
     // Execute format command
     let mut cmd = Command::new(&command_parts[0]);
@@ -67,24 +70,22 @@ pub fn format_code(paths: &[String], check: bool, output: &OutputHandler) -> Res
 
     if status.success() {
         if check {
-            output.success("✅ Code formatting is correct");
+            output.success(&output.t("quality-format-check-success"));
         } else {
-            output.success("✅ Code formatted successfully");
+            output.success(&output.t("quality-format-success"));
         }
         Ok(())
     } else {
         let exit_code = status.code().unwrap_or(-1);
         if check {
-            output.warning(&format!(
-                "⚠️  Formatting issues found (exit code: {})",
-                exit_code
+            output.warning(&output.t_format(
+                "quality-format-check-issues",
+                "code",
+                &exit_code.to_string(),
             ));
-            output.info("💡 Run without --check to fix formatting issues");
+            output.info(&output.t("quality-format-fix-hint"));
         } else {
-            output.error(&format!(
-                "❌ Formatting failed with exit code: {}",
-                exit_code
-            ));
+            output.error(&output.t_format("quality-format-failed", "code", &exit_code.to_string()));
         }
 
         Err(crate::core::error::CldevError::Config(format!(
@@ -111,13 +112,13 @@ pub fn format_code_advanced(
     project_path: Option<&Path>,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info("🔍 Detecting project type...");
+    output.info(&output.t("quality-format-detecting"));
 
     // Detect project type
     let detector = ProjectDetector::new(project_path)?;
     let project_type = detector.project_type();
 
-    output.success(&format!("✅ Detected {} project", project_type.name()));
+    output.success(&output.t_format("quality-format-detected", "type", project_type.name()));
 
     // Show project-specific tips
     match project_type {
@@ -163,8 +164,11 @@ pub fn format_code_advanced(
 
     // Build command info message
     let cmd_str = command_parts.join(" ");
-    let action = if check { "Checking" } else { "Formatting" };
-    output.info(&format!("🎨 {}: {}", action, cmd_str));
+    if check {
+        output.info(&output.t_format("quality-format-checking", "command", &cmd_str));
+    } else {
+        output.info(&output.t_format("quality-format-running", "command", &cmd_str));
+    }
 
     // Execute format command
     let mut cmd = Command::new(&command_parts[0]);
@@ -206,18 +210,19 @@ pub fn format_code_advanced(
 
     if output_result.status.success() {
         if check {
-            output.success("✅ Code formatting is correct");
+            output.success(&output.t("quality-format-check-success"));
         } else {
-            output.success("✅ Code formatted successfully");
+            output.success(&output.t("quality-format-success"));
         }
         Ok(())
     } else {
         let exit_code = output_result.status.code().unwrap_or(-1);
 
         if check {
-            output.warning(&format!(
-                "⚠️  Formatting issues found (exit code: {})",
-                exit_code
+            output.warning(&output.t_format(
+                "quality-format-check-issues",
+                "code",
+                &exit_code.to_string(),
             ));
             output.info("💡 Common next steps:");
             output.list_item(&format!(
@@ -249,10 +254,7 @@ pub fn format_code_advanced(
                 crate::core::project_detector::ProjectType::Unknown => {}
             }
         } else {
-            output.error(&format!(
-                "❌ Formatting failed with exit code: {}",
-                exit_code
-            ));
+            output.error(&output.t_format("quality-format-failed", "code", &exit_code.to_string()));
 
             output.info("💡 Common fixes:");
             output.list_item("Ensure the formatter is properly installed");

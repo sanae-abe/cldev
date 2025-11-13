@@ -161,7 +161,7 @@ branch_prefix = "feature"
 session_recording = true
 
 [lr]
-sessions_dir = "/Users/username/.claude/learning-sessions"
+sessions_dir = "/Users/username/.claude/learnings"
 auto_save = true
 default_tags = ["development", "claude-code"]
 
@@ -408,6 +408,16 @@ cldev automatically detects your system language from:
 
 ### Changing Language
 
+#### Using Command-Line Flag (Temporary)
+
+```bash
+# Use Japanese for a single command
+cldev --lang ja config check
+
+# Use English explicitly
+cldev --lang en config check
+```
+
 #### During Setup
 
 ```bash
@@ -418,11 +428,15 @@ cldev config init --lang ja
 
 ```bash
 # Temporary (current session)
+export CLDEV_LANG=ja
+cldev config check
+
+# Or use system locale
 export LANG=ja_JP.UTF-8
 cldev config check
 
 # Permanent (add to ~/.bashrc or ~/.zshrc)
-echo 'export LANG=ja_JP.UTF-8' >> ~/.bashrc
+echo 'export CLDEV_LANG=ja' >> ~/.bashrc
 ```
 
 #### Via Configuration File
@@ -436,7 +450,7 @@ language = "ja"
 
 ### Available Messages
 
-cldev supports localization for:
+cldev supports **1,079 localized messages** across all commands, covering:
 - Command execution messages
 - Configuration management prompts
 - File operation notifications
@@ -444,6 +458,10 @@ cldev supports localization for:
 - UI elements
 - Progress indicators
 - Error messages
+- Interactive workflows
+- Status reports
+
+All 33 commands across 9 categories are fully internationalized.
 
 For complete list, see [docs/guides/SUPPORTED_LANGUAGES.md](./guides/SUPPORTED_LANGUAGES.md)
 

@@ -33,7 +33,7 @@ branch_prefix = "feature"
 session_recording = true
 
 [lr]
-sessions_dir = "~/.claude/learning-sessions"
+sessions_dir = "~/.claude/learnings"
 auto_save = true
 default_tags = ["development", "claude-code"]
 

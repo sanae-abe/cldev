@@ -338,7 +338,8 @@ fn handle_lr_command(cmd: &cli::args::LrCommands, output: &OutputHandler) -> Res
 fn handle_todo_command(cmd: &cli::args::TodoCommands, output: &OutputHandler) -> Result<()> {
     use cli::args::TodoCommands;
     use commands::todo::manage::{
-        add_todo as add_todo_impl, complete_todo, interactive_mode, list_todos, sync_todos,
+        add_todo as add_todo_impl, complete_todo, interactive_mode, list_todos, next_todo,
+        sync_todos,
     };
 
     match cmd {
@@ -353,6 +354,10 @@ fn handle_todo_command(cmd: &cli::args::TodoCommands, output: &OutputHandler) ->
         TodoCommands::Complete => {
             output.debug("Completing todo");
             complete_todo()
+        }
+        TodoCommands::Next => {
+            output.debug("Displaying next priority todo");
+            next_todo()
         }
         TodoCommands::Sync => {
             output.debug("Syncing todos with git");

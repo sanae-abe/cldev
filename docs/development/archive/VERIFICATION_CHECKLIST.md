@@ -285,10 +285,10 @@ cldev lr stats
 
 ```bash
 # セッションディレクトリの確認
-ls -la ~/.claude/learning-sessions/
+ls -la ~/.claude/learnings/
 
 # セッションファイルの内容確認（最新のもの）
-cat $(ls -t ~/.claude/learning-sessions/*.md | head -1)
+cat $(ls -t ~/.claude/learnings/*.md | head -1)
 ```
 
 **チェック項目**:

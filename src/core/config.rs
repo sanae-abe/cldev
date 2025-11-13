@@ -278,7 +278,7 @@ static DEFAULT_SESSIONS_DIR: OnceLock<PathBuf> = OnceLock::new();
 
 fn default_sessions_dir() -> PathBuf {
     DEFAULT_SESSIONS_DIR
-        .get_or_init(|| default_claude_dir().join("learning-sessions"))
+        .get_or_init(|| default_claude_dir().join("learnings"))
         .clone()
 }
 

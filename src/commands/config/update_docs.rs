@@ -12,13 +12,13 @@ pub fn handle_update_docs(
 ) -> Result<()> {
     // If no doc type specified, show available options
     if doc_type.is_none() {
-        output.section("Available Documentation Types");
-        output.list_item("implementation - Code implementation documentation");
-        output.list_item("api - API reference documentation");
-        output.list_item("architecture - Architecture and design documentation");
+        output.section(&output.t("config-update-docs-available"));
+        output.list_item(&output.t("config-update-docs-type-impl"));
+        output.list_item(&output.t("config-update-docs-type-api"));
+        output.list_item(&output.t("config-update-docs-type-arch"));
         output.raw("");
-        output.info("Usage: cldev config update-docs --type <TYPE>");
-        output.info("Add --validate to check documentation completeness");
+        output.info(&output.t("config-update-docs-usage"));
+        output.info(&output.t("config-update-docs-usage-validate"));
         return Ok(());
     }
 
@@ -26,15 +26,15 @@ pub fn handle_update_docs(
 
     // Validation mode
     if validate {
-        output.section("Validating Documentation");
+        output.section(&output.t("config-update-docs-validating"));
 
         let docs_dir = Path::new("docs");
         if !docs_dir.exists() {
-            output.warning("docs/ directory not found");
-            output.info("Consider creating documentation structure:");
-            output.list_item("docs/implementation/");
-            output.list_item("docs/api/");
-            output.list_item("docs/architecture/");
+            output.warning(&output.t("config-update-docs-location"));
+            output.info(&output.t("config-update-docs-structure-consider"));
+            output.list_item(&output.t("config-update-docs-structure-impl"));
+            output.list_item(&output.t("config-update-docs-structure-api"));
+            output.list_item(&output.t("config-update-docs-structure-arch"));
             return Ok(());
         }
 
@@ -65,52 +65,55 @@ pub fn handle_update_docs(
             }
         }
 
-        output.success(&format!(
-            "Found {} markdown documentation file(s)",
-            total_docs
+        output.success(&output.t_format(
+            "config-update-docs-found",
+            "count",
+            &total_docs.to_string(),
         ));
-        output.info("Documentation structure:");
-        output.list_item(&format!("Location: {}", docs_dir.display()));
-        output.list_item(&format!("Total .md files: {}", total_docs));
+        output.info(&output.t("config-update-docs-structure"));
+        output.list_item(&output.t_format(
+            "config-update-docs-structure-location",
+            "path",
+            &docs_dir.display().to_string(),
+        ));
+        output.list_item(&output.t_format(
+            "config-update-docs-structure-total",
+            "count",
+            &total_docs.to_string(),
+        ));
     }
 
     // Show doc type specific message
-    output.section(&format!(
-        "Updating {} Documentation",
-        match doc_type {
-            DocType::Implementation => "Implementation",
-            DocType::Api => "API",
-            DocType::Architecture => "Architecture",
-        }
-    ));
-
     match doc_type {
         DocType::Implementation => {
-            output.info("Implementation documentation update will include:");
-            output.list_item("Scan source code for modules and functions");
-            output.list_item("Extract inline documentation comments");
-            output.list_item("Generate usage examples");
-            output.list_item("Update implementation guides");
+            output.section(&output.t("config-update-docs-impl-title"));
+            output.info(&output.t("config-update-docs-impl-desc"));
+            output.list_item(&output.t("config-update-docs-impl-scan"));
+            output.list_item(&output.t("config-update-docs-impl-extract"));
+            output.list_item(&output.t("config-update-docs-impl-examples"));
+            output.list_item(&output.t("config-update-docs-impl-guides"));
         }
         DocType::Api => {
-            output.info("API documentation update will include:");
-            output.list_item("Extract API endpoint definitions");
-            output.list_item("Document request/response schemas");
-            output.list_item("Generate API examples and curl commands");
-            output.list_item("Update API reference documentation");
+            output.section(&output.t("config-update-docs-api-title"));
+            output.info(&output.t("config-update-docs-api-desc"));
+            output.list_item(&output.t("config-update-docs-api-endpoints"));
+            output.list_item(&output.t("config-update-docs-api-schemas"));
+            output.list_item(&output.t("config-update-docs-api-examples"));
+            output.list_item(&output.t("config-update-docs-api-reference"));
         }
         DocType::Architecture => {
-            output.info("Architecture documentation update will include:");
-            output.list_item("Analyze project structure and dependencies");
-            output.list_item("Generate component diagrams");
-            output.list_item("Document design patterns and decisions");
-            output.list_item("Update architecture guides");
+            output.section(&output.t("config-update-docs-arch-title"));
+            output.info(&output.t("config-update-docs-arch-desc"));
+            output.list_item(&output.t("config-update-docs-arch-structure"));
+            output.list_item(&output.t("config-update-docs-arch-diagrams"));
+            output.list_item(&output.t("config-update-docs-arch-patterns"));
+            output.list_item(&output.t("config-update-docs-arch-guides"));
         }
     }
 
     output.raw("");
-    output.warning("Full implementation coming soon");
-    output.info("Documentation will be generated in: docs/");
+    output.warning(&output.t("config-update-docs-coming-soon"));
+    output.info(&output.t("config-update-docs-output-dir"));
 
     Ok(())
 }

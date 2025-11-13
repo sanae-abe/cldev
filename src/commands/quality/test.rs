@@ -23,13 +23,13 @@ pub fn run_tests(
     watch: bool,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info("🔍 Detecting project type...");
+    output.info(&output.t("quality-test-detecting"));
 
     // Detect project type
     let detector = ProjectDetector::new(None)?;
     let project_type = detector.project_type();
 
-    output.success(&format!("✅ Detected {} project", project_type.name()));
+    output.success(&output.t_format("quality-test-detected", "type", project_type.name()));
 
     // Get test command based on project type
     let command_parts = detector.get_test_command(pattern, coverage, watch)?;
@@ -42,7 +42,7 @@ pub fn run_tests(
 
     // Build command info message
     let cmd_str = command_parts.join(" ");
-    output.info(&format!("🧪 Running: {}", cmd_str));
+    output.info(&output.t_format("quality-test-running", "command", &cmd_str));
 
     // Execute test command
     let mut cmd = Command::new(&command_parts[0]);
@@ -64,10 +64,10 @@ pub fn run_tests(
     })?;
 
     if status.success() {
-        output.success("✅ All tests passed");
+        output.success(&output.t("quality-test-success"));
 
         if coverage {
-            output.info("📊 Coverage report generated");
+            output.info(&output.t("quality-test-coverage-generated"));
             match project_type {
                 crate::core::project_detector::ProjectType::NodeJs => {
                     output.list_item("Check coverage/ directory for detailed report");
@@ -99,7 +99,7 @@ pub fn run_tests(
         Ok(())
     } else {
         let exit_code = status.code().unwrap_or(-1);
-        output.error(&format!("❌ Tests failed with exit code: {}", exit_code));
+        output.error(&output.t_format("quality-test-failed", "code", &exit_code.to_string()));
 
         Err(crate::core::error::CldevError::Config(format!(
             "Tests failed with exit code: {}",
@@ -127,13 +127,13 @@ pub fn run_tests_advanced(
     project_path: Option<&Path>,
     output: &OutputHandler,
 ) -> Result<()> {
-    output.info("🔍 Detecting project type...");
+    output.info(&output.t("quality-test-detecting"));
 
     // Detect project type
     let detector = ProjectDetector::new(project_path)?;
     let project_type = detector.project_type();
 
-    output.success(&format!("✅ Detected {} project", project_type.name()));
+    output.success(&output.t_format("quality-test-detected", "type", project_type.name()));
 
     // Show project-specific tips
     match project_type {
@@ -223,7 +223,7 @@ pub fn run_tests_advanced(
 
     // Build command info message
     let cmd_str = command_parts.join(" ");
-    output.info(&format!("🧪 Running: {}", cmd_str));
+    output.info(&output.t_format("quality-test-running", "command", &cmd_str));
 
     // Show additional context
     if let Some(p) = pattern {
@@ -274,10 +274,10 @@ pub fn run_tests_advanced(
     }
 
     if output_result.status.success() {
-        output.success("✅ All tests passed");
+        output.success(&output.t("quality-test-success"));
 
         if coverage {
-            output.info("📊 Coverage report generated:");
+            output.info(&output.t("quality-test-coverage-generated"));
             match project_type {
                 crate::core::project_detector::ProjectType::NodeJs => {
                     output.list_item("Open coverage/index.html in your browser");

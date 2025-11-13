@@ -139,7 +139,7 @@ impl LearningSession {
             .or_else(dirs::home_dir)
             .ok_or_else(|| CldevError::config("Failed to get home directory"))?;
 
-        let sessions_path = home.join(".claude").join("learning-sessions");
+        let sessions_path = home.join(".claude").join("learnings");
 
         if !sessions_path.exists() {
             fs::create_dir_all(&sessions_path)?;

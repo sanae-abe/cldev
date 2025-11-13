@@ -24,7 +24,7 @@ fn write_config_with_permissions(path: &Path, content: &str) {
 fn create_required_dirs(base_path: &Path) {
     // Create all directories that config validation expects
     fs::create_dir_all(base_path.join(".claude")).unwrap();
-    fs::create_dir_all(base_path.join(".claude/learning-sessions")).unwrap();
+    fs::create_dir_all(base_path.join(".claude/learnings")).unwrap();
     fs::create_dir_all(base_path.join("projects")).unwrap();
 
     // Create platform-specific config directory
@@ -164,7 +164,7 @@ fn test_config_check_valid() {
     // Create valid config with explicit paths pointing to temp directory
     let claude_dir = temp_dir.path().join(".claude");
     let projects_dir = temp_dir.path().join("projects");
-    let sessions_dir = temp_dir.path().join(".claude/learning-sessions");
+    let sessions_dir = temp_dir.path().join(".claude/learnings");
 
     // Escape backslashes for Windows paths in TOML
     let claude_dir_str = claude_dir.display().to_string().replace('\\', "\\\\");
@@ -407,7 +407,7 @@ fn test_config_path_display() {
     // Create config with explicit paths
     let claude_dir = temp_dir.path().join(".claude");
     let projects_dir = temp_dir.path().join("projects");
-    let sessions_dir = temp_dir.path().join(".claude/learning-sessions");
+    let sessions_dir = temp_dir.path().join(".claude/learnings");
 
     // Escape backslashes for Windows paths in TOML
     let claude_dir_str = claude_dir.display().to_string().replace('\\', "\\\\");
@@ -460,7 +460,7 @@ fn test_config_validate_permissions() {
     // Create config with explicit paths
     let claude_dir = temp_dir.path().join(".claude");
     let projects_dir = temp_dir.path().join("projects");
-    let sessions_dir = temp_dir.path().join(".claude/learning-sessions");
+    let sessions_dir = temp_dir.path().join(".claude/learnings");
 
     // Escape backslashes for Windows paths in TOML
     let claude_dir_str = claude_dir.display().to_string().replace('\\', "\\\\");

@@ -29,14 +29,14 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
 
     // Step 2: Bug Classification
     let bug_categories = vec![
-        "Logic error (incorrect behavior)",
-        "UI/UX issue (visual or interaction)",
-        "Performance issue (slowness, memory leak)",
-        "Data integrity issue",
-        "API/Integration error",
-        "Security vulnerability",
-        "Configuration error",
-        "Edge case handling",
+        output.t("fix-category-logic"),
+        output.t("fix-category-ui"),
+        output.t("fix-category-performance"),
+        output.t("fix-category-data"),
+        output.t("fix-category-api"),
+        output.t("fix-category-security"),
+        output.t("fix-category-config"),
+        output.t("fix-category-edge-case"),
     ];
 
     let category_idx = Select::new()
@@ -44,17 +44,17 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
         .items(&bug_categories)
         .interact()?;
 
-    let category = bug_categories[category_idx];
+    let category = bug_categories[category_idx].clone();
 
     println!();
 
     // Step 3: Reproducibility
     let reproducibility_options = vec![
-        "Always (100% reproducible)",
-        "Frequently (>75%)",
-        "Sometimes (25-75%)",
-        "Rarely (<25%)",
-        "Unable to reproduce",
+        output.t("fix-repro-always"),
+        output.t("fix-repro-frequently"),
+        output.t("fix-repro-sometimes"),
+        output.t("fix-repro-rarely"),
+        output.t("fix-repro-unable"),
     ];
 
     let repro_idx = Select::new()
@@ -62,7 +62,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
         .items(&reproducibility_options)
         .interact()?;
 
-    let reproducibility = reproducibility_options[repro_idx];
+    let reproducibility = reproducibility_options[repro_idx].clone();
 
     println!();
 
@@ -102,14 +102,14 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
 
     // Step 5: Investigation Checklist
     let investigation_areas = [
-        "Review recent code changes (git log, blame)",
-        "Check error logs and stack traces",
-        "Add debug logging/breakpoints",
-        "Review related test cases",
-        "Check dependencies/library versions",
-        "Verify environment configurations",
-        "Review data flow and state management",
-        "Check boundary conditions and edge cases",
+        output.t("fix-investigation-git"),
+        output.t("fix-investigation-logs"),
+        output.t("fix-investigation-debug"),
+        output.t("fix-investigation-tests"),
+        output.t("fix-investigation-deps"),
+        output.t("fix-investigation-env"),
+        output.t("fix-investigation-data-flow"),
+        output.t("fix-investigation-edge-cases"),
     ];
 
     println!("{}", output.t("fix-investigation-checklist"));
@@ -131,17 +131,17 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     println!();
 
     let fix_patterns = vec![
-        "Add null/undefined checks",
-        "Fix conditional logic",
-        "Update algorithm/calculation",
-        "Add input validation",
-        "Fix race condition/timing issue",
-        "Update state management",
-        "Fix API integration",
-        "Optimize performance",
-        "Add error handling",
-        "Update configuration",
-        "Other (custom fix)",
+        output.t("fix-pattern-null-check"),
+        output.t("fix-pattern-conditional"),
+        output.t("fix-pattern-algorithm"),
+        output.t("fix-pattern-validation"),
+        output.t("fix-pattern-race"),
+        output.t("fix-pattern-state"),
+        output.t("fix-pattern-api"),
+        output.t("fix-pattern-performance"),
+        output.t("fix-pattern-error-handling"),
+        output.t("fix-pattern-config"),
+        output.t("fix-pattern-other"),
     ];
 
     let pattern_idx = Select::new()
@@ -149,7 +149,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
         .items(&fix_patterns)
         .interact()?;
 
-    let fix_pattern = fix_patterns[pattern_idx];
+    let fix_pattern = fix_patterns[pattern_idx].clone();
 
     println!();
 
@@ -185,14 +185,14 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
 
     // Step 10: Testing Requirements
     let test_requirements = vec![
-        "Add/update unit tests for the fix",
-        "Verify existing tests still pass",
-        "Test the reproduction steps (if available)",
-        "Test edge cases and boundary conditions",
-        "Perform regression testing",
-        "Test in staging/pre-production environment",
-        "Verify performance impact",
-        "Check for security implications",
+        output.t("fix-test-unit"),
+        output.t("fix-test-existing"),
+        output.t("fix-test-repro"),
+        output.t("fix-test-edge-cases"),
+        output.t("fix-test-regression"),
+        output.t("fix-test-staging"),
+        output.t("fix-test-performance-impact"),
+        output.t("fix-test-security"),
     ];
 
     let selected_tests = MultiSelect::new()
@@ -230,7 +230,7 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     println!("{}", output.t("fix-commit-message").cyan().bold());
     println!();
 
-    let commit_type = match category {
+    let commit_type = match category.as_str() {
         c if c.contains("Security") => "fix(security)",
         c if c.contains("Performance") => "perf",
         c if c.contains("UI/UX") => "fix(ui)",
@@ -269,10 +269,10 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
     // Step 13: Save Learning Session
     let mut session = LearningSessionBuilder::new("fix", &bug_desc)
         .tag("bug-fix")
-        .tag(category)
+        .tag(&category)
         .root_cause(&root_cause)
         .solution(&implementation)
-        .metadata("fix_pattern", fix_pattern)
+        .metadata("fix_pattern", &fix_pattern)
         .metadata("reproducibility", reproducibility);
 
     for file in &files {
@@ -323,16 +323,16 @@ pub fn handle_fix(target: Option<String>, output: &OutputHandler) -> Result<()> 
         );
         println!();
         println!("{}", output.t("fix-next-steps-resolved"));
-        println!("  1. Create pull request with the fix");
-        println!("  2. Request code review");
-        println!("  3. Monitor after deployment");
+        println!("  1. {}", output.t("fix-next-pr"));
+        println!("  2. {}", output.t("fix-next-review"));
+        println!("  3. {}", output.t("fix-next-monitor"));
     } else {
         println!("{}", output.t("fix-continue-working").yellow().bold());
         println!();
         println!("{}", output.t("fix-next-steps-ongoing"));
-        println!("  1. Implement the fix based on the plan");
-        println!("  2. Run the testing checklist");
-        println!("  3. Re-run this command to update status");
+        println!("  1. {}", output.t("fix-next-implement"));
+        println!("  2. {}", output.t("fix-next-run-tests"));
+        println!("  3. {}", output.t("fix-next-update"));
     }
 
     println!();

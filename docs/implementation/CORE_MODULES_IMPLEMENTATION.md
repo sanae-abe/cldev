@@ -374,7 +374,7 @@ impl LearningSessionBuilder {
 }
 ```
 
-**Storage Location**: `~/.claude/learning-sessions/*.json`
+**Storage Location**: `~/.claude/learnings/*.json`
 
 **Tests** (2 tests):
 - ✅ Session creation

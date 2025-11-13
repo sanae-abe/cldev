@@ -396,7 +396,7 @@ cldev lr problems                 # 未解決問題一覧
 ```
 
 ### 学習記録の場所
-`~/.claude/learning-sessions/*.md`
+`~/.claude/learnings/*.md`
 
 ### 自動参照推奨タイミング
 - `/urgent`, `/fix`, `/debug` 実行時

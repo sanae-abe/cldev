@@ -49,7 +49,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
         "What is the expected timeline?",
     ];
 
-    println!("Key questions to answer:");
+    println!("{}", output.t("feature-requirements-questions"));
     for (i, item) in requirements_items.iter().enumerate() {
         println!("  {}. {}", i + 1, item);
     }
@@ -69,8 +69,11 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     // Step 3: Acceptance Criteria
-    println!("{}", "✅ ACCEPTANCE CRITERIA".cyan().bold());
-    println!("Enter acceptance criteria (press Enter twice when done):");
+    println!(
+        "{}",
+        output.t("feature-acceptance-criteria-header").cyan().bold()
+    );
+    println!("{}", output.t("feature-acceptance-criteria-prompt"));
     println!();
 
     let mut acceptance_criteria = Vec::new();
@@ -95,13 +98,16 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     }
 
     if acceptance_criteria.is_empty() {
-        println!("{}", "⚠️  Warning: No acceptance criteria defined".yellow());
+        println!("{}", output.t("feature-acceptance-warning").yellow());
         println!();
     }
 
     // Step 4: Feature Type Classification
     println!();
-    println!("{}", "🏷️  FEATURE CLASSIFICATION".cyan().bold());
+    println!(
+        "{}",
+        output.t("feature-classification-header").cyan().bold()
+    );
     println!();
 
     let feature_types = vec![
@@ -144,7 +150,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     // Step 6: Git Branch Creation
-    println!("{}", "🌿 GIT BRANCH SETUP".cyan().bold());
+    println!("{}", output.t("feature-git-branch-header").cyan().bold());
     println!();
 
     let create_branch = Confirm::new()
@@ -180,8 +186,8 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
                 }
             }
         } else {
-            println!("{}", "⚠️  Not in a git repository".yellow());
-            println!("   Branch will not be created");
+            println!("{}", output.t("feature-not-in-repo").yellow());
+            println!("{}", output.t("feature-no-branch"));
             None
         }
     } else {
@@ -191,7 +197,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     // Step 7: Design Planning
-    println!("{}", "🎨 DESIGN PLANNING".cyan().bold());
+    println!("{}", output.t("feature-design-header").cyan().bold());
     println!();
 
     let design_considerations = vec![
@@ -220,8 +226,8 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     // Step 8: Implementation Plan - Files to Create/Modify
-    println!("{}", "📁 FILES TO CREATE/MODIFY".cyan().bold());
-    println!("Enter file paths (one per line, press Enter twice when done):");
+    println!("{}", output.t("feature-files-header").cyan().bold());
+    println!("{}", output.t("feature-files-prompt"));
     println!();
 
     let mut files = Vec::new();
@@ -241,7 +247,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     // Step 9: Dependencies
-    println!("{}", "📦 DEPENDENCIES".cyan().bold());
+    println!("{}", output.t("feature-dependencies-header").cyan().bold());
     println!();
 
     let has_new_deps = Confirm::new()
@@ -252,7 +258,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     let mut dependencies = Vec::new();
     if has_new_deps {
         println!();
-        println!("Enter dependencies (package names, press Enter twice when done):");
+        println!("{}", output.t("feature-dependencies-prompt"));
         println!();
 
         loop {
@@ -272,7 +278,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     // Step 10: Implementation Phases
-    println!("{}", "📝 IMPLEMENTATION TODO LIST".green().bold());
+    println!("{}", output.t("feature-todo-header").green().bold());
     println!();
 
     let mut todo_items = Vec::new();
@@ -299,7 +305,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     todo_items.push("Perform manual testing against acceptance criteria".to_string());
     todo_items.push("Code review preparation (self-review)".to_string());
 
-    println!("Generated TODO list:");
+    println!("{}", output.t("feature-todo-generated"));
     for (i, item) in todo_items.iter().enumerate() {
         println!("  {}. {}", i + 1, item.dimmed());
     }
@@ -312,7 +318,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     // Step 11: Testing Strategy
-    println!("{}", "🧪 TESTING STRATEGY".cyan().bold());
+    println!("{}", output.t("feature-testing-header").cyan().bold());
     println!();
 
     let test_types = vec![
@@ -339,7 +345,7 @@ pub fn handle_feature(name: Option<String>, output: &OutputHandler) -> Result<()
     println!();
 
     // Step 12: Documentation Requirements
-    println!("{}", "📚 DOCUMENTATION".cyan().bold());
+    println!("{}", output.t("feature-documentation-header").cyan().bold());
     println!();
 
     let doc_types = vec![

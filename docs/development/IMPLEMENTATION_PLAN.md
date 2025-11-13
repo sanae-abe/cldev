@@ -240,7 +240,7 @@ branch_prefix = "feature"
 session_recording = true
 
 [lr]
-sessions_dir = "/Users/sanae.abe/.claude/learning-sessions"
+sessions_dir = "/Users/sanae.abe/.claude/learnings"
 auto_save = true
 default_tags = ["development", "claude-code"]
 
@@ -650,7 +650,7 @@ src/
 **成功基準**:
 - [ ] `cldev dev feature user-auth` で5ステップ実行
 - [ ] `cldev lr find "暗号化" --recent 5` で統合検索
-- [ ] セッション記録が ~/.claude/learning-sessions/ に保存
+- [ ] セッション記録が ~/.claude/learnings/ に保存
 
 ---
 
