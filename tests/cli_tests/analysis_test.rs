@@ -138,13 +138,13 @@ fn test_analyze_chinese_simplified() {
         .code(predicate::function(|code: &i32| *code == 0 || *code == 1));
 }
 
-/// Test analyze with Chinese Traditional
+/// Test analyze with Japanese
 #[test]
-fn test_analyze_chinese_traditional() {
+fn test_analyze_japanese() {
     let mut cmd = Command::cargo_bin("cldev").unwrap();
 
     cmd.arg("--lang")
-        .arg("zh-TW")
+        .arg("ja")
         .args(["analysis", "analyze", "overview"])
         .assert()
         .code(predicate::function(|code: &i32| *code == 0 || *code == 1));

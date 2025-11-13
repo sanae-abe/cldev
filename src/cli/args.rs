@@ -26,7 +26,7 @@ pub struct Cli {
     #[arg(long, global = true)]
     pub no_color: bool,
 
-    /// Set language (en/ja/zh/zh-TW)
+    /// Set language (en/ja)
     #[arg(long, global = true, value_enum, default_value = "en")]
     pub lang: Language,
 
@@ -41,11 +41,6 @@ pub enum Language {
     En,
     /// Japanese
     Ja,
-    /// Chinese (Simplified)
-    Zh,
-    /// Chinese (Traditional)
-    #[value(name = "zh-TW")]
-    ZhTw,
 }
 
 impl Language {
@@ -54,8 +49,6 @@ impl Language {
         match self {
             Language::En => crate::core::i18n::Language::English,
             Language::Ja => crate::core::i18n::Language::Japanese,
-            Language::Zh => crate::core::i18n::Language::Chinese,
-            Language::ZhTw => crate::core::i18n::Language::ChineseTraditional,
         }
     }
 }
@@ -667,8 +660,6 @@ pub fn extract_language_from_args() -> crate::core::i18n::Language {
             if let Some(lang_str) = args.get(i + 1) {
                 return match lang_str.as_str() {
                     "ja" => crate::core::i18n::Language::Japanese,
-                    "zh" => crate::core::i18n::Language::Chinese,
-                    "zh-TW" => crate::core::i18n::Language::ChineseTraditional,
                     _ => crate::core::i18n::Language::English,
                 };
             }
@@ -679,8 +670,6 @@ pub fn extract_language_from_args() -> crate::core::i18n::Language {
     if let Ok(env_lang) = std::env::var("CLDEV_LANG") {
         return match env_lang.as_str() {
             "ja" => crate::core::i18n::Language::Japanese,
-            "zh" => crate::core::i18n::Language::Chinese,
-            "zh-TW" => crate::core::i18n::Language::ChineseTraditional,
             _ => crate::core::i18n::Language::English,
         };
     }

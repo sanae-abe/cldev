@@ -5,7 +5,7 @@
 **Type**: Rust CLI tool unifying 33 development commands
 **Tech Stack**: Rust 1.70+, clap 4.5, serde, tokio
 **Performance**: 1.5MB binary, 21ms startup (1.5x faster than gh CLI)
-**i18n**: 4 languages (en/ja/zh/zh-TW) - 584 keys each
+**i18n**: 2 languages (en/ja) - 900 keys each
 **Commands**: 33 across 9 categories (config/dev/git/quality/ops/tech/analysis/lr/todo)
 
 ---
@@ -66,24 +66,24 @@ cargo fmt          # Auto-fix if check fails
 - Minimum: 70% overall
 - New features: 80% coverage required
 
-### i18n (Strict - 4 Languages)
+### i18n (Strict - 2 Languages)
 
-**Required languages:** en (English), ja (日本語), zh (简体中文), zh-TW (繁體中文)
+**Supported languages:** en (English), ja (日本語)
 
 **Rules:**
-- `src/i18n/messages.json` edited → Validate ALL 4 languages have same keys
-- New feature → Add translations for ALL 4 languages before PR
+- `src/i18n/messages.json` edited → Validate BOTH languages have same keys
+- New feature → Add translations for BOTH languages before PR
 - No hardcoded strings in user-facing output
 
 **Validation:**
 ```bash
-# Check all languages have 584 keys
+# Check all languages have 900 keys
 python3 -c "import json; data=json.load(open('src/i18n/messages.json'));
 print(f'en: {len(data[\"en\"])} keys');
-print(f'ja: {len(data[\"ja\"])} keys');
-print(f'zh: {len(data[\"zh\"])} keys');
-print(f'zh-TW: {len(data[\"zh-TW\"])} keys')"
+print(f'ja: {len(data[\"ja\"])} keys')"
 ```
+
+**Note:** i18n system is implemented but most commands still use hardcoded strings. Future work: Gradually migrate commands to use i18n keys.
 
 ---
 
@@ -149,8 +149,6 @@ time ./target/release/cldev --version  # Should be ~21ms
 # i18n check
 ./target/release/cldev --lang en --help
 ./target/release/cldev --lang ja --help
-./target/release/cldev --lang zh --help
-./target/release/cldev --lang zh-TW --help
 ```
 
 ---
