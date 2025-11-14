@@ -388,16 +388,17 @@ mod tests {
     #[test]
     fn test_commit_message_localization() {
         use crate::cli::output::OutputHandler;
+        use crate::core::i18n::Language;
 
         // Test English
-        let output_en = OutputHandler::new(false, false, Some("en".to_string()));
+        let output_en = OutputHandler::with_language(false, false, false, Language::English);
         let attribution_en = output_en.t("git-commit-attribution");
         let coauthor_en = output_en.t("git-commit-coauthor");
         assert!(attribution_en.contains("Generated with"));
         assert!(coauthor_en.contains("Co-Authored-By"));
 
         // Test Japanese
-        let output_ja = OutputHandler::new(false, false, Some("ja".to_string()));
+        let output_ja = OutputHandler::with_language(false, false, false, Language::Japanese);
         let attribution_ja = output_ja.t("git-commit-attribution");
         let coauthor_ja = output_ja.t("git-commit-coauthor");
         assert!(attribution_ja.contains("で生成"));
