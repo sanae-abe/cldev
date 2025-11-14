@@ -181,10 +181,12 @@ pub fn create_commit(
         build_commit_message_interactive(&git_utils, output)?
     };
 
-    // Add Claude attribution
+    // Add Claude attribution (localized)
     let full_message = format!(
-        "{}\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>",
-        commit_message
+        "{}\n\n🤖 {}\n\n{}",
+        commit_message,
+        output.t("git-commit-attribution"),
+        output.t("git-commit-coauthor")
     );
 
     // Execute git commit
@@ -381,5 +383,24 @@ mod tests {
         let files = vec!["Cargo.toml".to_string()];
         let detected = CommitType::detect_from_files(&files);
         assert!(matches!(detected, Some(CommitType::Build)));
+    }
+
+    #[test]
+    fn test_commit_message_localization() {
+        use crate::cli::output::OutputHandler;
+
+        // Test English
+        let output_en = OutputHandler::new(false, false, Some("en".to_string()));
+        let attribution_en = output_en.t("git-commit-attribution");
+        let coauthor_en = output_en.t("git-commit-coauthor");
+        assert!(attribution_en.contains("Generated with"));
+        assert!(coauthor_en.contains("Co-Authored-By"));
+
+        // Test Japanese
+        let output_ja = OutputHandler::new(false, false, Some("ja".to_string()));
+        let attribution_ja = output_ja.t("git-commit-attribution");
+        let coauthor_ja = output_ja.t("git-commit-coauthor");
+        assert!(attribution_ja.contains("で生成"));
+        assert!(coauthor_ja.contains("共同著者"));
     }
 }
