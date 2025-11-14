@@ -771,7 +771,9 @@ pub fn next_todo() -> Result<()> {
     println!();
     println!(
         "{}",
-        "💡 Run 'cldev todo complete' to mark as done".to_string().dimmed()
+        "💡 Run 'cldev todo complete' to mark as done"
+            .to_string()
+            .dimmed()
     );
 
     Ok(())
