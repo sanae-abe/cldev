@@ -50,7 +50,8 @@ serde_json = "1.0"
 rusqlite = { version = "0.31", features = ["bundled"] }
 
 # String similarity for fuzzy search
-strsim = "0.11"
+# Use 0.10 for compatibility with clap_builder (avoid duplicate versions)
+strsim = "0.10"
 
 # Regular expressions for text normalization
 regex = "1.10"
@@ -59,7 +60,8 @@ regex = "1.10"
 anyhow = "1.0"
 
 # Custom error types with derive macros
-thiserror = "2.0"
+# Use 1.0 for compatibility with dialoguer (avoid duplicate versions)
+thiserror = "1.0"
 
 # Cross-platform directory paths
 dirs = "6.0"
@@ -77,8 +79,8 @@ comfy-table = "=7.1.4"
 dialoguer = "0.11"
 
 # Progress bars and spinners
-# Pin to 0.17.8 for MSRV 1.70 compatibility (0.18.0+ uses console 0.16 requiring 1.71+)
-indicatif = "=0.17.8"
+# Updated to 0.18.3 (MSRV 1.71, fixes unmaintained 'instant' dependency)
+indicatif = "0.18"
 
 # Git repository operations
 git2 = "0.20"
