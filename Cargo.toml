@@ -47,7 +47,7 @@ toml = "0.8"
 serde_json = "1.0"
 
 # SQLite database for learning index
-rusqlite = { version = "0.31", features = ["bundled"] }
+rusqlite = { version = "0.37", features = ["bundled"] }
 
 # String similarity for fuzzy search
 # Use 0.10 for compatibility with clap_builder (avoid duplicate versions)
