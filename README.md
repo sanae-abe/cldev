@@ -748,6 +748,9 @@ All commands support these global flags:
 git clone https://github.com/sanae-abe/cldev.git
 cd cldev
 
+# Setup Git hooks (optional, but recommended for contributors)
+./scripts/setup-git-hooks.sh
+
 # Build in debug mode
 cargo build
 
