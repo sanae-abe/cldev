@@ -8,7 +8,7 @@
 
 **Current Status**: 35 commands implemented
 
-English | [日本語](README.ja.md) | [简体中文](README.zh.md) | [繁體中文](README.zh-TW.md)
+English | [日本語](README.ja.md)
 
 <!-- Screenshot placeholder: Add demo GIF showing cldev config init -->
 
