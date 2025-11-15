@@ -63,7 +63,7 @@ impl CldevError {
 
     /// Create a new IO error with custom message
     pub fn io<S: Into<String>>(msg: S) -> Self {
-        CldevError::Io(std::io::Error::new(std::io::ErrorKind::Other, msg.into()))
+        CldevError::Io(std::io::Error::other(msg.into()))
     }
 
     /// Create a new security error
