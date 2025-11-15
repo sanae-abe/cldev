@@ -29,3 +29,6 @@ desktop.ini
 docs/private/
 mutants.out/
 json/
+
+# Project task management (local only)
+todos.md
