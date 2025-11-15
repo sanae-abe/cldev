@@ -35,7 +35,10 @@ jobs:
           key: ${{ runner.os }}-cargo-audit
 
       - name: Install cargo-audit
-        run: cargo install cargo-audit --locked
+        run: |
+          if ! command -v cargo-audit &> /dev/null; then
+            cargo install cargo-audit --locked
+          fi
 
       - name: Run cargo audit
         run: cargo audit
@@ -82,7 +85,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install cargo-deny
-        run: cargo install cargo-deny --locked
+        run: |
+          if ! command -v cargo-deny &> /dev/null; then
+            cargo install cargo-deny --locked
+          fi
 
       - name: Run cargo deny
         run: cargo deny check
@@ -98,7 +104,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install cargo-geiger
-        run: cargo install cargo-geiger --locked
+        run: |
+          if ! command -v cargo-geiger &> /dev/null; then
+            cargo install cargo-geiger --locked
+          fi
 
       - name: Run cargo-geiger
         run: cargo geiger --all-features
@@ -115,7 +124,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install cargo-audit
-        run: cargo install cargo-audit --locked
+        run: |
+          if ! command -v cargo-audit &> /dev/null; then
+            cargo install cargo-audit --locked
+          fi
 
       - name: Check for CVEs
         run: cargo audit --deny warnings
@@ -131,7 +143,10 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Install cargo-outdated
-        run: cargo install cargo-outdated --locked
+        run: |
+          if ! command -v cargo-outdated &> /dev/null; then
+            cargo install cargo-outdated --locked
+          fi
 
       - name: Check for outdated dependencies
         run: cargo outdated --root-deps-only --exit-code 1
