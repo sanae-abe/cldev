@@ -129,6 +129,9 @@ predicates-tree = "=1.0.9"
 # Pin predicates-core to 1.0.6 for MSRV 1.70 compatibility (1.0.7+ requires Rust 1.74+)
 # This is a transitive dependency of predicates-tree but we pin it explicitly
 predicates-core = "=1.0.6"
+# Pin half for MSRV 1.71 compatibility (2.7.1+ requires Rust 1.81+)
+# This is a transitive dependency of criterion but we pin it explicitly
+half = "2.4"
 
 [profile.release]
 opt-level = "z"  # Optimize for size
