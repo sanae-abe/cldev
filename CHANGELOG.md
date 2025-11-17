@@ -42,6 +42,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed support for Chinese Simplified (zh) and Chinese Traditional (zh-TW)
 - Only `en` and `ja` are valid values for `--lang` flag
 
+### Changed
+
+#### Todo Format Migration (Nov 17, 2025)
+- **BREAKING CHANGE**: Todo format migrated from section-based to inline metadata with #hashtag tags
+- **New format**: Flat list with inline metadata (e.g., `- [ ] Task | Priority: high | Created: 2025-01-15 #tag`)
+- **Old format**: Section-based with emoji headers (e.g., `## 🔥 Critical`)
+- **Removed**: `context` field from TodoItem structure
+- **Changed**: `created_at` is now required (String) instead of optional (Option<String>)
+- **Compatibility**: Aligned with `/todo` slash command, taskflow-graphql, and taskflow-app
+- **Tags**: Standard #hashtag format for ecosystem integration
+
+**Migration Guide**:
+- Old `todo.md` files will not parse correctly with new format
+- Manually convert existing todos or start fresh
+- See README.md for new format examples
+
 ### Planned
 - Phase 2: High-frequency commands implementation
 - Git operations integration
