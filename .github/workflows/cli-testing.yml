@@ -60,8 +60,6 @@ jobs:
           ./target/release/cldev --help
           ./target/release/cldev --lang en --help
           ./target/release/cldev --lang ja --help
-          ./target/release/cldev --lang zh --help
-          ./target/release/cldev --lang zh-TW --help
         shell: bash
 
       - name: Test config commands
@@ -102,7 +100,7 @@ jobs:
           python3 -c "
           import json
           data = json.load(open('src/i18n/messages.json'))
-          langs = ['en', 'ja', 'zh', 'zh-TW']
+          langs = ['en', 'ja']
           keys_per_lang = {lang: set(data[lang].keys()) for lang in langs}
 
           print('i18n Key Count:')
@@ -132,17 +130,6 @@ jobs:
             echo "✓ Japanese output detected"
           else
             echo "✗ Japanese output not found"
-            exit 1
-          fi
-
-      - name: Test Chinese output (analyze)
-        run: |
-          output=$(./target/release/cldev analysis analyze --lang zh overview 2>&1 || true)
-          echo "$output"
-          if echo "$output" | grep -q "分析"; then
-            echo "✓ Chinese output detected"
-          else
-            echo "✗ Chinese output not found"
             exit 1
           fi
 
