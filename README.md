@@ -474,14 +474,13 @@ cldev todo manage interactive
 ```markdown
 # Personal TODOs
 
-## ⚠️ High
-- [ ] Learning Record性能改善 #rust #performance (created: 2025-01-09)
+<!-- metadata -->
+<!-- last_updated: 2025-01-15 10:00:00 -->
+<!-- total_todos: 3 -->
 
-## 📌 Medium
-- [ ] TF-IDF検索精度向上 #search (created: 2025-01-09)
-
-## ✅ Completed
-- [x] READMEのコマンド数修正 (created: 2025-01-09, completed: 2025-01-09)
+- [ ] Learning Record性能改善 | Priority: high | Created: 2025-01-09 #rust #performance
+- [ ] TF-IDF検索精度向上 | Priority: medium | Due: 2025-01-20 | Created: 2025-01-09 #search
+- [x] READMEのコマンド数修正 | Priority: medium | Created: 2025-01-08 | Completed: 2025-01-09
 ```
 
 ### Shell Completions

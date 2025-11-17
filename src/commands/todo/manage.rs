@@ -81,10 +81,9 @@ pub struct TodoItem {
     pub description: String,
     pub status: TaskStatus,
     pub priority: Priority,
-    pub context: Option<String>,
     pub due_date: Option<String>,
     pub tags: Vec<String>,
-    pub created_at: Option<String>,
+    pub created_at: String,
     pub completed_at: Option<String>,
     #[allow(dead_code)]
     pub line_number: usize,
@@ -120,94 +119,64 @@ impl TodoList {
     /// Parse Markdown content into todo items
     fn parse_markdown(content: &str) -> Vec<TodoItem> {
         let mut todos = Vec::new();
-        let mut current_priority = Priority::Medium;
 
-        // Regex patterns
+        // Regex patterns for new format
         let checkbox_re = Regex::new(r"^- \[([ x~X])\] (.+)").unwrap();
-        let priority_re = Regex::new(r"^## (🔥|⚠️|📌|📝) (.+)").unwrap();
         let tag_re = Regex::new(r"#(\w+)").unwrap();
-        let date_re = Regex::new(r"\(created: ([^,)]+)(?:, completed: ([^)]+))?\)").unwrap();
-
-        // New metadata patterns for Priority/Context/Due format
-        let metadata_priority_re = Regex::new(r"\|\s*Priority:\s*(\w+)").unwrap();
-        let metadata_context_re = Regex::new(r"\|\s*Context:\s*([^|]+?)(?:\s*\||\s*$)").unwrap();
-        let metadata_due_re = Regex::new(r"\|\s*Due:\s*([^\|]+?)(?:\s*\||\s*$)").unwrap();
+        let priority_re = Regex::new(r"\|\s*Priority:\s*(critical|high|medium|low)").unwrap();
+        let due_re = Regex::new(r"\|\s*Due:\s*([0-9-]+)").unwrap();
+        let created_re = Regex::new(r"\|\s*Created:\s*([0-9-]+)").unwrap();
+        let completed_re = Regex::new(r"\|\s*Completed:\s*([0-9-]+)").unwrap();
 
         for (line_no, line) in content.lines().enumerate() {
-            // Check for priority section headers
-            if let Some(cap) = priority_re.captures(line) {
-                let emoji = cap.get(1).unwrap().as_str();
-                current_priority = match emoji {
-                    "🔥" => Priority::Critical,
-                    "⚠️" => Priority::High,
-                    "📌" => Priority::Medium,
-                    "📝" => Priority::Low,
-                    _ => Priority::Medium,
-                };
-                continue;
-            }
-
-            // Check for checkbox items
+            // Parse checkbox line
             if let Some(cap) = checkbox_re.captures(line) {
                 let checkbox_char = cap.get(1).unwrap().as_str();
                 let status = TaskStatus::from_checkbox(checkbox_char);
                 let text = cap.get(2).unwrap().as_str();
 
-                // Extract description (remove tags and dates)
-                let mut description = text.to_string();
-
-                // Extract metadata-style priority (overrides section header)
-                let item_priority = if let Some(pri_cap) = metadata_priority_re.captures(text) {
-                    let pri_str = pri_cap.get(1).unwrap().as_str();
-                    Priority::from_str(pri_str)
+                // Extract priority (required)
+                let priority = if let Some(pri_cap) = priority_re.captures(text) {
+                    Priority::from_str(pri_cap.get(1).unwrap().as_str())
                 } else {
-                    current_priority.clone()
+                    Priority::Medium // Default fallback
                 };
 
-                // Extract context
-                let context = metadata_context_re
+                // Extract due date (optional)
+                let due_date = due_re
                     .captures(text)
                     .and_then(|cap| cap.get(1))
-                    .map(|m| m.as_str().trim().to_string());
+                    .map(|m| m.as_str().to_string());
 
-                // Extract due date
-                let due_date = metadata_due_re
+                // Extract created date (required)
+                let created_at = created_re
                     .captures(text)
                     .and_then(|cap| cap.get(1))
-                    .map(|m| m.as_str().trim().to_string());
+                    .map(|m| m.as_str().to_string())
+                    .unwrap_or_else(|| chrono::Local::now().format("%Y-%m-%d").to_string());
 
-                // Remove metadata from description
-                if text.contains(" | ") {
-                    description = text.split(" | ").next().unwrap_or(text).to_string();
-                }
+                // Extract completed date (optional)
+                let completed_at = completed_re
+                    .captures(text)
+                    .and_then(|cap| cap.get(1))
+                    .map(|m| m.as_str().to_string());
 
-                // Extract dates
-                let (created_at, completed_at) = if let Some(date_cap) = date_re.captures(text) {
-                    let created = date_cap.get(1).map(|m| m.as_str().to_string());
-                    let completed = date_cap.get(2).map(|m| m.as_str().to_string());
-
-                    // Remove date info from description
-                    description = date_re.replace(&description, "").trim().to_string();
-
-                    (created, completed)
-                } else {
-                    (None, None)
-                };
-
-                // Extract tags
+                // Extract tags (#hashtag format)
                 let tags: Vec<String> = tag_re
-                    .captures_iter(&description)
+                    .captures_iter(text)
                     .map(|cap| cap.get(1).unwrap().as_str().to_string())
                     .collect();
 
+                // Extract description (before first | or before first #)
+                let description = text.split('|').next().unwrap_or(text).trim().to_string();
+
                 // Remove tags from description
-                description = tag_re.replace_all(&description, "").trim().to_string();
+                let description = tag_re.replace_all(&description, "").trim().to_string();
 
                 todos.push(TodoItem {
                     description,
                     status,
-                    priority: item_priority,
-                    context,
+                    priority,
                     due_date,
                     tags,
                     created_at,
@@ -235,7 +204,7 @@ impl TodoList {
         Ok(())
     }
 
-    /// Convert todo list to Markdown format
+    /// Convert todo list to Markdown format (flat list with inline metadata)
     fn to_markdown(&self) -> String {
         let mut content = String::new();
         let now = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
@@ -246,119 +215,54 @@ impl TodoList {
         content.push_str(&format!("<!-- last_updated: {} -->\n", now));
         content.push_str(&format!("<!-- total_todos: {} -->\n\n", self.todos.len()));
 
-        // Group by priority and completion status
-        let priorities = vec![
-            Priority::Critical,
-            Priority::High,
-            Priority::Medium,
-            Priority::Low,
-        ];
+        // Output all todos in a flat list (sorted by priority, then created_at)
+        let mut sorted_todos = self.todos.clone();
+        sorted_todos.sort_by(|a, b| {
+            // Sort: priority (high to low), then created_at (old to new)
+            match priority_rank(&b.priority).cmp(&priority_rank(&a.priority)) {
+                std::cmp::Ordering::Equal => a.created_at.cmp(&b.created_at),
+                other => other,
+            }
+        });
 
-        // Active todos by priority
-        for priority in &priorities {
+        for item in &sorted_todos {
+            // Build metadata string
+            let mut metadata = vec![format!("Priority: {}", priority_name(&item.priority))];
+
+            if let Some(due) = &item.due_date {
+                metadata.push(format!("Due: {}", due));
+            }
+
+            metadata.push(format!("Created: {}", item.created_at));
+
+            if let Some(completed) = &item.completed_at {
+                metadata.push(format!("Completed: {}", completed));
+            }
+
+            let metadata_str = metadata.join(" | ");
+
+            // Build tags string
+            let tags_str = if !item.tags.is_empty() {
+                format!(
+                    " {}",
+                    item.tags
+                        .iter()
+                        .map(|t| format!("#{}", t))
+                        .collect::<Vec<_>>()
+                        .join(" ")
+                )
+            } else {
+                String::new()
+            };
+
+            // Output line: - [ ] description | Priority: X | Created: Y #tag1 #tag2
             content.push_str(&format!(
-                "## {} {}\n",
-                priority.to_emoji(),
-                priority.to_string()
+                "- {} {} | {}{}\n",
+                item.status.to_checkbox(),
+                item.description,
+                metadata_str,
+                tags_str
             ));
-
-            let items: Vec<&TodoItem> = self
-                .todos
-                .iter()
-                .filter(|t| !t.status.is_completed() && t.priority == *priority)
-                .collect();
-
-            if items.is_empty() {
-                content.push('\n');
-                continue;
-            }
-
-            for item in items {
-                let tags_str = if !item.tags.is_empty() {
-                    format!(
-                        " {}",
-                        item.tags
-                            .iter()
-                            .map(|t| format!("#{}", t))
-                            .collect::<Vec<_>>()
-                            .join(" ")
-                    )
-                } else {
-                    String::new()
-                };
-
-                let date_str = if let Some(created) = &item.created_at {
-                    format!(" (created: {})", created)
-                } else {
-                    String::new()
-                };
-
-                content.push_str(&format!(
-                    "- {} {}{}{}\n",
-                    item.status.to_checkbox(),
-                    item.description,
-                    tags_str,
-                    date_str
-                ));
-            }
-
-            content.push('\n');
-        }
-
-        // Completed todos
-        content.push_str("## ✅ Completed\n");
-
-        let completed: Vec<&TodoItem> = self
-            .todos
-            .iter()
-            .filter(|t| t.status.is_completed())
-            .collect();
-
-        if !completed.is_empty() {
-            for item in completed {
-                let tags_str = if !item.tags.is_empty() {
-                    format!(
-                        " {}",
-                        item.tags
-                            .iter()
-                            .map(|t| format!("#{}", t))
-                            .collect::<Vec<_>>()
-                            .join(" ")
-                    )
-                } else {
-                    String::new()
-                };
-
-                let created_str = item
-                    .created_at
-                    .as_ref()
-                    .map(|d| format!("created: {}", d))
-                    .unwrap_or_default();
-
-                let completed_str = item
-                    .completed_at
-                    .as_ref()
-                    .map(|d| format!("completed: {}", d))
-                    .unwrap_or_default();
-
-                let date_str = if !created_str.is_empty() || !completed_str.is_empty() {
-                    let parts: Vec<String> = vec![created_str, completed_str]
-                        .into_iter()
-                        .filter(|s| !s.is_empty())
-                        .collect();
-                    format!(" ({})", parts.join(", "))
-                } else {
-                    String::new()
-                };
-
-                content.push_str(&format!(
-                    "- {} {}{}{}\n",
-                    item.status.to_checkbox(),
-                    item.description,
-                    tags_str,
-                    date_str
-                ));
-            }
         }
 
         content.push('\n');
@@ -399,10 +303,9 @@ impl TodoList {
             description,
             status: TaskStatus::Pending,
             priority,
-            context: None,
             due_date: None,
             tags,
-            created_at: Some(created_at),
+            created_at,
             completed_at: None,
             line_number: 0,
         };
@@ -609,9 +512,7 @@ pub fn list_todos() -> Result<()> {
 
             println!("  {}. {}{}", i + 1, todo.description, tags_str);
 
-            if let Some(created) = &todo.created_at {
-                println!("     {}", format!("created: {}", created).dimmed());
-            }
+            println!("     {}", format!("created: {}", todo.created_at).dimmed());
         }
     }
 
@@ -740,10 +641,6 @@ pub fn next_todo() -> Result<()> {
         next.description.white().bold()
     );
 
-    if let Some(ctx) = &next.context {
-        println!("   {} {}", "📁 Context:".dimmed(), ctx.cyan());
-    }
-
     if let Some(due) = &next.due_date {
         let urgency = get_due_date_urgency(due);
         let (urgency_emoji, urgency_text) = match urgency {
@@ -786,6 +683,16 @@ fn priority_rank(priority: &Priority) -> u8 {
         Priority::High => 3,
         Priority::Medium => 2,
         Priority::Low => 1,
+    }
+}
+
+/// Get priority name for output
+fn priority_name(priority: &Priority) -> &str {
+    match priority {
+        Priority::Critical => "critical",
+        Priority::High => "high",
+        Priority::Medium => "medium",
+        Priority::Low => "low",
     }
 }
 
@@ -881,18 +788,13 @@ mod tests {
     fn test_parse_markdown() {
         let content = r#"# Personal TODOs
 
-## 🔥 Critical
+<!-- metadata -->
+<!-- last_updated: 2025-01-15 10:00:00 -->
+<!-- total_todos: 3 -->
 
-## ⚠️ High
-- [ ] Learning Record性能改善 #rust #performance (created: 2025-01-09)
-
-## 📌 Medium
-- [ ] TF-IDF検索精度向上 #search (created: 2025-01-09)
-
-## 📝 Low
-
-## ✅ Completed
-- [x] READMEのコマンド数修正 (created: 2025-01-09, completed: 2025-01-09)
+- [ ] Learning Record性能改善 | Priority: high | Created: 2025-01-09 #rust #performance
+- [ ] TF-IDF検索精度向上 | Priority: medium | Due: 2025-01-20 | Created: 2025-01-09 #search
+- [x] READMEのコマンド数修正 | Priority: medium | Created: 2025-01-08 | Completed: 2025-01-09
 "#;
 
         let todos = TodoList::parse_markdown(content);
@@ -904,10 +806,17 @@ mod tests {
         assert_eq!(todos[0].status, TaskStatus::Pending);
         assert_eq!(todos[0].priority, Priority::High);
         assert_eq!(todos[0].tags, vec!["rust", "performance"]);
+        assert_eq!(todos[0].created_at, "2025-01-09");
+
+        // Check second todo (has due date)
+        assert_eq!(todos[1].description, "TF-IDF検索精度向上");
+        assert_eq!(todos[1].due_date, Some("2025-01-20".to_string()));
+        assert_eq!(todos[1].tags, vec!["search"]);
 
         // Check completed todo
         assert!(todos[2].status.is_completed());
         assert_eq!(todos[2].description, "READMEのコマンド数修正");
+        assert_eq!(todos[2].completed_at, Some("2025-01-09".to_string()));
     }
 
     #[test]
@@ -926,8 +835,10 @@ mod tests {
         let markdown = todo_list.to_markdown();
 
         assert!(markdown.contains("# Personal TODOs"));
-        assert!(markdown.contains("## ⚠️ High"));
-        assert!(markdown.contains("- [ ] Test todo #test"));
+        assert!(markdown.contains("Priority: high"));
+        assert!(markdown.contains("Created:"));
+        assert!(markdown.contains("- [ ] Test todo"));
+        assert!(markdown.contains("#test"));
     }
 
     #[test]
