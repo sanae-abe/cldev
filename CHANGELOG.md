@@ -163,7 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `docs/implementation/CORE_MODULES_IMPLEMENTATION.md` - Core modules details
 - Development documentation:
   - `docs/development/IMPLEMENTATION_PLAN.md` - Implementation roadmap
-  - `docs/development/TODO.md` - Task tracking
+  - `todo.md` - Task tracking (project root, managed by `cldev todo`)
   - `docs/development/GTM_BUSINESS_STRATEGY.md` - Go-to-market strategy
 - Project documentation:
   - `CONTRIBUTING.md` - Contribution guidelines

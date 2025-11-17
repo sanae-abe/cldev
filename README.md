@@ -444,7 +444,7 @@ cldev lr problems --priority high --recent 20
 
 ### Todo Management
 
-**Personal TODO management** with Markdown format (`.cldev/TODO.md`)
+**Personal TODO management** with Markdown format (`todo.md`)
 
 ```bash
 # Add todo item (interactive: priority + tags)
@@ -464,13 +464,13 @@ cldev todo manage interactive
 ```
 
 **Features:**
-- ✅ Markdown format (`.cldev/TODO.md`) - editable in any editor
+- ✅ Markdown format (`todo.md` in project root) - editable in any editor
 - ✅ Priority levels (🔥 Critical, ⚠️ High, 📌 Medium, 📝 Low)
 - ✅ Tags support (`#rust #performance`)
 - ✅ Git commit integration (auto-complete todos)
 - ✅ Project-local or global storage
 
-**Example TODO.md:**
+**Example todo.md:**
 ```markdown
 # Personal TODOs
 

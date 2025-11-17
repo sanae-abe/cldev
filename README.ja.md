@@ -444,7 +444,7 @@ cldev lr problems --priority high --recent 20
 
 ### TODO管理
 
-**Markdown形式（`.cldev/TODO.md`）による個人TODO管理**
+**Markdown形式（`todo.md`）による個人TODO管理**
 
 ```bash
 # TODO項目を追加（対話式：優先度+タグ）
@@ -464,13 +464,13 @@ cldev todo manage interactive
 ```
 
 **機能:**
-- ✅ Markdown形式（`.cldev/TODO.md`） - あらゆるエディタで編集可能
+- ✅ Markdown形式（プロジェクトルートの `todo.md`） - あらゆるエディタで編集可能
 - ✅ 優先度レベル（🔥 Critical、⚠️ High、📌 Medium、📝 Low）
 - ✅ タグサポート（`#rust #performance`）
 - ✅ Gitコミット統合（TODOの自動完了）
 - ✅ プロジェクトローカルまたはグローバルストレージ
 
-**TODO.mdの例:**
+**todo.mdの例:**
 ```markdown
 # Personal TODOs
 
