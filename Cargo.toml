@@ -30,7 +30,7 @@ path = "src/lib.rs"
 [dependencies]
 # CLI framework with derive macros and rich features
 # Pin to 4.4.x for MSRV 1.70 compatibility (4.5.0+ requires Rust 1.74+)
-clap = { version = "~4.4.0", features = ["derive", "cargo", "help", "usage", "error-context"] }
+clap = { version = "~4.5.53", features = ["derive", "cargo", "help", "usage", "error-context"] }
 
 # Shell completion generation
 # Match clap version for compatibility
