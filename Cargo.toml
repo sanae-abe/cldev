@@ -121,7 +121,7 @@ serial_test = "3.0"
 bstr = "=1.10.0"
 # Pin lock_api to 0.4.13 for MSRV 1.70 compatibility (0.4.14+ requires Rust 1.71+)
 # This is a transitive dependency of parking_lot but we pin it explicitly
-lock_api = "=0.4.13"
+lock_api = "=0.4.14"
 # Pin predicates-tree to 1.0.9 for MSRV 1.70 compatibility (1.0.10+ requires Rust 1.74+)
 # This is a transitive dependency of assert_cmd but we pin it explicitly
 predicates-tree = "=1.0.9"
