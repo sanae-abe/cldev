@@ -72,7 +72,7 @@ colored = "2.1"
 
 # Table formatting for CLI output
 # Pin to 7.1.4 for MSRV 1.70 compatibility (7.2+ uses edition 2024)
-comfy-table = "=7.1.4"
+comfy-table = "=7.2.1"
 
 # Interactive prompts and dialogs
 # Pin to 0.11 for MSRV 1.70 compatibility (0.12+ uses console 0.16 requiring 1.71+)
