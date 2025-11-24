@@ -118,7 +118,7 @@ criterion = "0.5"
 serial_test = "3.0"
 # Pin bstr to 1.10.0 for MSRV 1.70 compatibility (1.11+ requires Rust 1.73+)
 # This is a transitive dependency of assert_cmd but we pin it explicitly
-bstr = "=1.10.0"
+bstr = "=1.12.1"
 # Pin lock_api to 0.4.13 for MSRV 1.70 compatibility (0.4.14+ requires Rust 1.71+)
 # This is a transitive dependency of parking_lot but we pin it explicitly
 lock_api = "=0.4.13"
