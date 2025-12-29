@@ -109,10 +109,10 @@ flate2 = "1.0"
 
 [dev-dependencies]
 # Pin to 2.0.12 for MSRV 1.70 compatibility (2.0.13+ requires Rust 1.74+)
-assert_cmd = "=2.0.12"
+assert_cmd = "=2.1.1"
 # Pin to 3.0 for MSRV 1.70 compatibility (3.1+ requires Rust 1.74+)
-predicates = "~3.0"
-tempfile = "3.10"
+predicates = "~3.1"
+tempfile = "3.24"
 # Downgrade to 0.5 for MSRV 1.70 compatibility (0.7+ requires clap 4.5+)
 criterion = "0.5"
 serial_test = "3.0"
@@ -124,10 +124,10 @@ bstr = "=1.10.0"
 lock_api = "=0.4.13"
 # Pin predicates-tree to 1.0.9 for MSRV 1.70 compatibility (1.0.10+ requires Rust 1.74+)
 # This is a transitive dependency of assert_cmd but we pin it explicitly
-predicates-tree = "=1.0.9"
+predicates-tree = "=1.0.12"
 # Pin predicates-core to 1.0.6 for MSRV 1.70 compatibility (1.0.7+ requires Rust 1.74+)
 # This is a transitive dependency of predicates-tree but we pin it explicitly
-predicates-core = "=1.0.6"
+predicates-core = "=1.0.9"
 # Pin half for MSRV 1.71 compatibility (2.7.1+ requires Rust 1.81+)
 # This is a transitive dependency of criterion but we pin it explicitly
 half = "2.4"
